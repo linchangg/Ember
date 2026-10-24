@@ -1,0 +1,24 @@
+version: 1
+act_by_quantile: 0.3          # act_by = eta_q30 - evac_min
+evac_min_tier1: 75
+evac_min_default: 45
+tiers:                        # computed by the data pipeline (01 §6)
+  tier1: "hospital or nursing/assisted-living facility in zone, OR <= 1 egress road (any drivable road crossing the zone boundary)"
+  tier2: "population > 500 OR school in zone"
+  tier3: "otherwise"
+rules:
+  - id: R1_WARNING
+    level: warning
+    text: "P(fire reaches zone within 2 h) ≥ 30%"
+    lead_min: 120
+    p_min: 0.30
+  - id: R2_ORDER
+    level: order_recommended
+    text: "P(fire reaches zone within 1 h) ≥ 50%, or act-by time within 15 min"
+    lead_min: 60
+    p_min: 0.50
+    act_by_within_min: 15     # (act_by_sim_ms - knowledge_sim_ms) <= 15 min, including negative
+min_population: 1
+cooldown_min: 30              # per zone+level, counted from the previous triggered_sim_ms, any state
+supersede: true               # an order_recommended supersedes a PROPOSED warning for the same zone
+merge_min_zones: 3            # >= 3 zones crossing the same rule in one cycle -> one alert
