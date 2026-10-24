@@ -1,0 +1,162 @@
+{
+  "scenario_id": "fixture",
+  "branch_id": "main",
+  "cycles": [
+    {
+      "knowledge_sim_ms": 1736301600000,
+      "bundle": "cache/fixture/main/1736301600000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736301900000,
+      "bundle": "cache/fixture/main/1736301900000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736302200000,
+      "bundle": "cache/fixture/main/1736302200000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736302800000,
+      "bundle": "cache/fixture/main/1736302800000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736303100000,
+      "bundle": "cache/fixture/main/1736303100000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736303400000,
+      "bundle": "cache/fixture/main/1736303400000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736303700000,
+      "bundle": "cache/fixture/main/1736303700000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736304000000,
+      "bundle": "cache/fixture/main/1736304000000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736304300000,
+      "bundle": "cache/fixture/main/1736304300000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736304600000,
+      "bundle": "cache/fixture/main/1736304600000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736304900000,
+      "bundle": "cache/fixture/main/1736304900000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736305200000,
+      "bundle": "cache/fixture/main/1736305200000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736305500000,
+      "bundle": "cache/fixture/main/1736305500000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736305800000,
+      "bundle": "cache/fixture/main/1736305800000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736306100000,
+      "bundle": "cache/fixture/main/1736306100000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736306400000,
+      "bundle": "cache/fixture/main/1736306400000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736306700000,
+      "bundle": "cache/fixture/main/1736306700000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736307000000,
+      "bundle": "cache/fixture/main/1736307000000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736307300000,
+      "bundle": "cache/fixture/main/1736307300000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736307600000,
+      "bundle": "cache/fixture/main/1736307600000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736307900000,
+      "bundle": "cache/fixture/main/1736307900000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736308200000,
+      "bundle": "cache/fixture/main/1736308200000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736308500000,
+      "bundle": "cache/fixture/main/1736308500000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736308800000,
+      "bundle": "cache/fixture/main/1736308800000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736309100000,
+      "bundle": "cache/fixture/main/1736309100000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736309400000,
+      "bundle": "cache/fixture/main/1736309400000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736309700000,
+      "bundle": "cache/fixture/main/1736309700000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736310000000,
+      "bundle": "cache/fixture/main/1736310000000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736310300000,
+      "bundle": "cache/fixture/main/1736310300000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736310600000,
+      "bundle": "cache/fixture/main/1736310600000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736310900000,
+      "bundle": "cache/fixture/main/1736310900000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736311200000,
+      "bundle": "cache/fixture/main/1736311200000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736311500000,
+      "bundle": "cache/fixture/main/1736311500000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736311800000,
+      "bundle": "cache/fixture/main/1736311800000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736312100000,
+      "bundle": "cache/fixture/main/1736312100000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736312400000,
+      "bundle": "cache/fixture/main/1736312400000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736312700000,
+      "bundle": "cache/fixture/main/1736312700000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736313000000,
+      "bundle": "cache/fixture/main/1736313000000/bundle.json"
+    },
+    {
+      "knowledge_sim_ms": 1736313300000,
+      "bundle": "cache/fixture/main/1736313300000/bundle.json"
+    }
+  ]
+}
