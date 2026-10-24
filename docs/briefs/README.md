@@ -115,3 +115,42 @@ C1 TypeScript conversion: gated (see C1 brief)
 | T13 | VIIRS detections (`01` §4); `obs/viirs.parquet` columns per T7's docstring | T0, T7, FIRMS key |
 
 Merge order that keeps `main` runnable: T0 → (T3, T5, T7, T4 in any order) → T2 phase 2 → T1/T6 → wave 2.
+
+## 4. Launching an agent in Cursor
+
+Start one Cursor agent (a background agent, or a new Agent chat on a fresh checkout) **per brief**. Paste this prompt, replacing `<BRIEF>` with the brief's file name (for example `T3_risk_alerts.md`). Cursor loads `AGENTS.md` and `.cursor/rules/` by itself.
+
+```
+You are one of several coding agents working in parallel on the Emberline repo.
+Your task brief is docs/briefs/<BRIEF>.
+
+1. Read docs/briefs/README.md in full (§2 holds the rules every agent follows),
+   then read docs/briefs/<BRIEF> in full, then everything in its "Read" section.
+2. Check the prerequisites before writing any code: run `git fetch origin`, then the
+   check for your brief from the table in docs/briefs/README.md §4. If a check fails,
+   don't start; reply with which prerequisite is missing and stop.
+3. Do the steps in the brief in order. Edit only the paths listed under "You own"
+   (plus engine/pyproject.toml and engine/uv.lock through `uv add`). If you think
+   anything else must change, stop and say so; don't edit it.
+4. If the brief has a STOP point, stop there, report, and wait for my reply.
+5. Don't invent APIs, endpoints, data or numbers. When a library API is uncertain,
+   read its docs or installed source first. If you're stuck for 20 minutes on one
+   thing, stop and report what you tried.
+6. Finish exactly as README §2 rule 12 says: run the full test command, open the PR
+   with the pasted output and the `process.md line:`, then give the 5-line summary.
+```
+
+**Prerequisite checks** (each prints a path or a version when the prerequisite is met):
+
+| Brief | Check |
+|---|---|
+| T0, T3, T4, T5, T7 | `git ls-tree --name-only origin/main engine/emberline/contracts.py` |
+| T1, T6 | `git ls-tree --name-only origin/main engine/emberline/data/grid.py` |
+| T2 | the contracts check above, plus `spacetime --version` (2.13.x) and a local `spacetime start` answering on `http://localhost:3000` |
+| T7 step 6 only | `git ls-tree --name-only origin/main engine/emberline/hazard/api.py` (without it, finish the rest and mark step 6 blocked) |
+| C1 | `gh pr view 3 --json state -q .state` prints `MERGED` or `CLOSED`, **and** Cody confirms Linda's window in the prompt |
+
+**Launch order.**
+1. Once PR #4 is merged, start T0, T2, T3, T4, T5 and T7 together.
+2. Merge T0 as soon as it's green, then start T1 and T6.
+3. Answer T2's STOP report before it continues to phase 2.
