@@ -1,0 +1,36 @@
+[
+  {
+    "sensor_id": "goes18_fdcc",
+    "scenario_id": "fixture",
+    "kind": "goes_pixel",
+    "name": "GOES-18 FDCC",
+    "platform": "GOES-18",
+    "provenance": "simulated",
+    "enabled": true,
+    "status": "ok",
+    "last_data_sim_ms": 1736302500000,
+    "latency_s": 0.0,
+    "lon": null,
+    "lat": null,
+    "heading_deg": null,
+    "hfov_deg": null,
+    "pixel_m": 2000.0
+  },
+  {
+    "sensor_id": "viirs_n20",
+    "scenario_id": "fixture",
+    "kind": "viirs_pixel",
+    "name": "VIIRS NOAA-20",
+    "platform": "NOAA-20",
+    "provenance": "simulated",
+    "enabled": true,
+    "status": "ok",
+    "last_data_sim_ms": null,
+    "latency_s": null,
+    "lon": null,
+    "lat": null,
+    "heading_deg": null,
+    "hfov_deg": null,
+    "pixel_m": 375.0
+  }
+]

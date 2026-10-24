@@ -1,0 +1,53 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "asset_id": "fix-a1",
+        "type": "school",
+        "name": "Fixture school",
+        "zone_id": "FIX-Z3"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.130206,
+          34.175856
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "asset_id": "fix-a2",
+        "type": "fire_station",
+        "name": "Fixture fire station",
+        "zone_id": "FIX-Z2"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.140984,
+          34.187319
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "asset_id": "fix-a3",
+        "type": "water_plant",
+        "name": "Fixture water plant",
+        "zone_id": "FIX-Z1"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -118.162385,
+          34.187263
+        ]
+      }
+    }
+  ]
+}
