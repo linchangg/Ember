@@ -43,7 +43,7 @@ Check them with `spacetime --version` and `curl -s http://localhost:3000/v1/ping
      - sets `playing = true`;
      - inserts a `command` with `kind: "clock_play"`, `args_json: "{}"`, `status: "pending"`, `created_wall_ms` = the context timestamp in ms, and `command_id = cmd_{µs}_{counter}`.
    - **`publish_bundle(bundle_json)`:** checks `ctx.sender == engine identity`, `JSON.parse`s the string, and upserts the `cycle` row when `bundle.cycle` is not null.
-3. **Publish** with `spacetime publish emberline --server local` (run from `stdb/`, or pass `--project-path stdb`).
+3. **Publish** with `spacetime publish emberline --server local` (run from `stdb/`, or pass `--module-path stdb`).
 4. **Python client `engine/emberline/sync/stdb_http.py`** (`uv add httpx`):
    ```python
    class StdbHttp:
@@ -65,7 +65,7 @@ Check them with `spacetime --version` and `curl -s http://localhost:3000/v1/ping
    3. Call `publish_bundle` with the fixture's cycle-20 bundle (`fixtures/cache/fixture/main/<20th cycle k>/bundle.json`; find it through `index.json`).
    4. Run `SELECT * FROM cycle` and print the row.
    5. Run `SELECT * FROM command WHERE status = 'pending'` and print what it parses to.
-6. **React-side check.** Write `stdb/spike/subscribe.ts`, run with `npx tsx`, using the generated **TypeScript client** bindings (`spacetime generate --lang typescript --out-dir stdb/spike/bindings --project-path stdb`). It connects, subscribes to `SELECT * FROM cycle`, prints rows as they arrive, then calls `clock_play` with the PIN.
+6. **React-side check.** Write `stdb/spike/subscribe.ts`, run with `npx tsx`, using the generated **TypeScript client** bindings (`spacetime generate --lang typescript --out-dir stdb/spike/bindings --module-path stdb`). It connects, subscribes to `SELECT * FROM cycle`, prints rows as they arrive, then calls `clock_play` with the PIN.
    - While it runs, re-run `hub_spike.py` and check that (a) the new cycle row prints live, and (b) the `command` row from `clock_play` shows up in the Python SQL poll within 1 s.
    - This uses the same client SDK a React page would; say in the summary that the check used a Node script, not a React page.
 
@@ -132,7 +132,7 @@ Work in this order. Commit after each numbered step, and run the relevant tests 
    - Each test starts with `reset_scenario` + `load_scenario` (the fixture scenario: build the `load_scenario` payload from `fixtures/static/fixture/*.json`/`.geojson`).
    - For identity rejection (test 8), call with a fresh identity from `new_identity()`.
    - Test 9: publish all fixture bundles, then measure `len(json)` of the phone subscription tables (`clock`, `cycle_head`, one `person`, `alert`) via SQL as a proxy, and assert < 100 KB.
-9. **Generate the web bindings:** `spacetime generate --lang typescript --out-dir web/src/module_bindings --project-path stdb`. Commit them. Don't write `SpacetimeSource.ts`; that's Linda's data layer.
+9. **Generate the web bindings:** `spacetime generate --lang typescript --out-dir web/src/module_bindings --module-path stdb`. Commit them. Don't write `SpacetimeSource.ts`; that's Linda's data layer.
 10. Republish locally, run `EMBERLINE_HUB_TESTS=1 uv run pytest -q tests/test_hub.py`, then the full `uv run pytest -q`. Mark the PR ready for review.
 
 ## Done when

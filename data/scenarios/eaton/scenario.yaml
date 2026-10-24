@@ -1,0 +1,29 @@
+scenario_id: eaton
+title: "Eaton Fire replay — Jan 7–8, 2025"
+tz: America/Los_Angeles
+t_ref_utc: "2025-01-08T00:00:00Z"        # physics minute 0
+t_ignition_utc: "2025-01-08T02:15:00Z"   # 18:15 PST
+replay_start_utc: "2025-01-08T02:00:00Z"
+replay_end_utc:   "2025-01-08T15:00:00Z"
+ignition: { lon: -118.088, lat: 34.205, radius_m: 300 }
+grid: { crs: "EPSG:32611", cell_m: 90, nx: 340, ny: 340, x0: 381480, y0: 3800280 }  # upper-left corner
+cycle_min: 5
+horizon_min: 360
+step_min: 30                       # LEADS = 30..360
+quantiles: [0.1, 0.3, 0.5, 0.7, 0.9]
+seed: 7
+n_members: 128
+filter: pf                         # pf | reinit | none   (none = open-loop baseline)
+assimilate_sensors: [goes18_fdcc, viirs_n20, viirs_snpp, viirs_n21]   # goes16_fdcc only if enabled (P2)
+viirs_latency: urt                 # urt (t_obs+2 min, stated on screen) | nrt (t_obs+3 h)
+use_documented_reports: false      # 01 §9; the honest number is computed with this false
+area_x:                            # honest-number region; verify on a map, then freeze (01 §6)
+  lon_min: -118.165
+  lon_max: -118.1316               # Lake Ave
+  lat_min: 34.190
+  lat_max: 34.235
+act_by_quantile: 0.3
+honesty:
+  real: [GOES-18 FDC, VIIRS 375m, HRRR winds, USGS 3DEP, LANDFIRE LF2024, Census 2020, LA County zone names, official timeline]
+  simulated: [residents and phones, duty officer, fixed cameras]
+config_hash: null                  # written by scripts/freeze.py; shown in UI

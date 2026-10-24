@@ -44,7 +44,7 @@ uv run python -m emberline.run --scenario eaton --profile online
 uv run python -m emberline.scripts.make_fixture
 uv run python -m emberline.scripts.freeze          # ONCE, per 08 §2
 # hub (develop against local: spacetime start)
-cd stdb && spacetime publish emberline --server local && spacetime generate --lang typescript --out-dir ../web/src/module_bindings --project-path .
+cd stdb && spacetime publish emberline --server local && spacetime generate --lang typescript --out-dir ../web/src/module_bindings --module-path .
 # web
 cd web && npm i && VITE_DATA_SOURCE=file VITE_SCENARIO_ID=fixture npm run dev
 ```

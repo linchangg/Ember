@@ -1,0 +1,44 @@
+{
+  "issued_pst": "20:45",
+  "data_through_pst": "20:45",
+  "forecast_age_min": 0,
+  "alert": {
+    "level": "order_recommended",
+    "rule_text": "P(fire reaches zone within 1 h) ≥ 50%, or act-by time within 15 min"
+  },
+  "zones": [
+    {
+      "zone_id": "FIX-Z3",
+      "name": "Fixture Z3",
+      "p_60": 0.31,
+      "p_120": 0.88,
+      "eta_q50_pst": "22:01",
+      "act_by_pst": "20:55",
+      "evac_min": 45,
+      "population": 860,
+      "critical": [
+        "school"
+      ],
+      "egress_roads": 3,
+      "trend": "flat"
+    }
+  ],
+  "fire": {
+    "burned_ha": 234,
+    "growth_ha_per_h": 312,
+    "head_bearing_deg": 240
+  },
+  "sensors": [
+    {
+      "name": "GOES-18 FDCC",
+      "last_scan_pst": "20:45",
+      "status": "ok"
+    },
+    {
+      "name": "VIIRS NOAA-20",
+      "last_pass_pst": null,
+      "status": "ok"
+    }
+  ],
+  "honesty": "Retrospective replay of Jan 7–8 2025. Decision support only."
+}

@@ -1,0 +1,42 @@
+{
+  "issued_pst": "19:55",
+  "data_through_pst": "19:55",
+  "forecast_age_min": 0,
+  "alert": {
+    "level": "warning",
+    "rule_text": "P(fire reaches zone within 2 h) ≥ 30%"
+  },
+  "zones": [
+    {
+      "zone_id": "FIX-Z2",
+      "name": "Fixture Z2",
+      "p_60": 0.0,
+      "p_120": 0.31,
+      "eta_q50_pst": "22:12",
+      "act_by_pst": "21:05",
+      "evac_min": 45,
+      "population": 420,
+      "critical": [],
+      "egress_roads": 2,
+      "trend": "up"
+    }
+  ],
+  "fire": {
+    "burned_ha": 91,
+    "growth_ha_per_h": 0,
+    "head_bearing_deg": 240
+  },
+  "sensors": [
+    {
+      "name": "GOES-18 FDCC",
+      "last_scan_pst": "19:55",
+      "status": "ok"
+    },
+    {
+      "name": "VIIRS NOAA-20",
+      "last_pass_pst": null,
+      "status": "ok"
+    }
+  ],
+  "honesty": "Retrospective replay of Jan 7–8 2025. Decision support only."
+}
