@@ -1,0 +1,14 @@
+[
+  {
+    "t_sim_ms": 1736302500000,
+    "label": "FIXTURE ignition",
+    "source": "fixture",
+    "kind": "official"
+  },
+  {
+    "t_sim_ms": 1736308500000,
+    "label": "FIXTURE zone warning",
+    "source": "fixture",
+    "kind": "satellite"
+  }
+]

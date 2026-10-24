@@ -1,0 +1,257 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "FIX-Z3",
+      "properties": {
+        "zone_id": "FIX-Z3",
+        "name": "Fixture Z3",
+        "population": 860,
+        "housing": 300,
+        "n_critical": 1,
+        "tier": 2,
+        "evac_min_default": 45.0,
+        "egress_roads": 3,
+        "approximate": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -118.119058,
+              34.173482
+            ],
+            [
+              -118.127351,
+              34.185121
+            ],
+            [
+              -118.141354,
+              34.178228
+            ],
+            [
+              -118.133061,
+              34.16659
+            ],
+            [
+              -118.119058,
+              34.173482
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "FIX-Z2",
+      "properties": {
+        "zone_id": "FIX-Z2",
+        "name": "Fixture Z2",
+        "population": 420,
+        "housing": 150,
+        "n_critical": 0,
+        "tier": 3,
+        "evac_min_default": 45.0,
+        "egress_roads": 2,
+        "approximate": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -118.129834,
+              34.184947
+            ],
+            [
+              -118.138129,
+              34.196585
+            ],
+            [
+              -118.152134,
+              34.189691
+            ],
+            [
+              -118.143838,
+              34.178054
+            ],
+            [
+              -118.129834,
+              34.184947
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "FIX-Z1",
+      "properties": {
+        "zone_id": "FIX-Z1",
+        "name": "Fixture Z1",
+        "population": 180,
+        "housing": 70,
+        "n_critical": 0,
+        "tier": 3,
+        "evac_min_default": 45.0,
+        "egress_roads": 2,
+        "approximate": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -118.151235,
+              34.184892
+            ],
+            [
+              -118.159533,
+              34.196529
+            ],
+            [
+              -118.173536,
+              34.189632
+            ],
+            [
+              -118.165237,
+              34.177997
+            ],
+            [
+              -118.151235,
+              34.184892
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "FIX-Z4",
+      "properties": {
+        "zone_id": "FIX-Z4",
+        "name": "Fixture Z4",
+        "population": 180,
+        "housing": 70,
+        "n_critical": 0,
+        "tier": 3,
+        "evac_min_default": 45.0,
+        "egress_roads": 2,
+        "approximate": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -118.157147,
+              34.163114
+            ],
+            [
+              -118.165444,
+              34.17475
+            ],
+            [
+              -118.179442,
+              34.167853
+            ],
+            [
+              -118.171145,
+              34.156218
+            ],
+            [
+              -118.157147,
+              34.163114
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "FIX-Z5",
+      "properties": {
+        "zone_id": "FIX-Z5",
+        "name": "Fixture Z5",
+        "population": 180,
+        "housing": 70,
+        "n_critical": 0,
+        "tier": 3,
+        "evac_min_default": 45.0,
+        "egress_roads": 2,
+        "approximate": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -118.173011,
+              34.155298
+            ],
+            [
+              -118.181309,
+              34.166933
+            ],
+            [
+              -118.195305,
+              34.160034
+            ],
+            [
+              -118.187006,
+              34.1484
+            ],
+            [
+              -118.173011,
+              34.155298
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "FIX-Z6",
+      "properties": {
+        "zone_id": "FIX-Z6",
+        "name": "Fixture Z6",
+        "population": 180,
+        "housing": 70,
+        "n_critical": 0,
+        "tier": 3,
+        "evac_min_default": 45.0,
+        "egress_roads": 2,
+        "approximate": true
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -118.188872,
+              34.14748
+            ],
+            [
+              -118.197171,
+              34.159114
+            ],
+            [
+              -118.211164,
+              34.152213
+            ],
+            [
+              -118.202864,
+              34.14058
+            ],
+            [
+              -118.188872,
+              34.14748
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

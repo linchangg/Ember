@@ -1,0 +1,35 @@
+{
+  "schema_version": 2,
+  "bundle_id": "bnd_fixture_main_1736301600000",
+  "scenario_id": "fixture",
+  "branch_id": "main",
+  "knowledge_sim_ms": 1736301600000,
+  "cycle": null,
+  "zone_risk": [],
+  "observations": [],
+  "scan_events": [
+    {
+      "scan_id": "goes18_20250108T020000",
+      "scenario_id": "fixture",
+      "branch_id": "main",
+      "sensor_id": "goes18_fdcc",
+      "mode": "CONUS",
+      "t_start_sim_ms": 1736301600000,
+      "t_end_sim_ms": 1736301600000,
+      "available_sim_ms": 1736301600000,
+      "n_pixels_aoi": 90,
+      "n_hot": 0,
+      "n_clear": 90,
+      "assimilated": true,
+      "pixels_path": null,
+      "provenance": "simulated"
+    }
+  ],
+  "sensors": [],
+  "alerts": [],
+  "briefings": [],
+  "people": [],
+  "reports": [],
+  "metrics": [],
+  "events": []
+}
