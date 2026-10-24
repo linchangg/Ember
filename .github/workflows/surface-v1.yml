@@ -1,0 +1,25 @@
+name: Surface physics research engine
+on:
+  push:
+    paths: ['physics/surface_v1/**', '.github/workflows/surface-v1.yml']
+  pull_request:
+    paths: ['physics/surface_v1/**', '.github/workflows/surface-v1.yml']
+permissions:
+  contents: read
+jobs:
+  verify:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: physics/surface_v1
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install 1.99.1 --profile minimal --component rustfmt --component clippy
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - run: cargo test --workspace --locked
+      - run: cargo test --workspace --release --locked

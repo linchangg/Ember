@@ -1,0 +1,38 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/fire-types",
+    "crates/fire-behavior",
+    "crates/fire-propagation",
+    "crates/fire-state",
+    "crates/fire-ensemble",
+    "crates/fire-io",
+    "crates/fire-eval",
+    "crates/fire-cli",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[workspace.dependencies]
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+thiserror = "2.0.17"
+clap = { version = "4.5.48", features = ["derive"] }
+rayon = "1.11.0"
+sha2 = "0.10.9"
+geo = "0.31.0"
+criterion = "0.7.0"
+fire-types = { path = "crates/fire-types" }
+fire-behavior = { path = "crates/fire-behavior" }
+fire-propagation = { path = "crates/fire-propagation" }
+fire-state = { path = "crates/fire-state" }
+fire-ensemble = { path = "crates/fire-ensemble" }
+fire-io = { path = "crates/fire-io" }
+fire-eval = { path = "crates/fire-eval" }
+
+[profile.bench]
+lto = false

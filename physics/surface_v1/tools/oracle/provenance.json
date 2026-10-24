@@ -1,0 +1,19 @@
+{
+  "source": "https://github.com/firelab/behave",
+  "commit": "7e3d7a44b7e7eed271ec3029ec34f0bd66466532",
+  "compiler": "Apple clang version 17.0.0 (clang-1700.0.13.5)",
+  "upstream_test_summary": [
+    "",
+    "Test metric fuel model V-Hb (110) surface rate of spread",
+    "Passed successfully",
+    "",
+    "Total tests performed: 215",
+    "Total tests passed: 215",
+    "Total tests failed: 0",
+    ""
+  ],
+  "cases": 42,
+  "strict_comparison_cases": 36,
+  "documented_curing_convention_cases": 6,
+  "wind_limit": "disabled in upstream; Rust comparison explicitly uses None"
+}
