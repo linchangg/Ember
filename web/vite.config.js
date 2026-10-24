@@ -1,13 +1,19 @@
 import react from '@vitejs/plugin-react'
+import cesium from 'vite-plugin-cesium'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), cesium()],
   server: {
     host: '0.0.0.0',
     port: 5173,
     strictPort: true,
-    // Allow Cursor Agents Window / tunnel Host headers
     allowedHosts: true,
+  },
+  optimizeDeps: {
+    exclude: ['maplibre-gl'],
+  },
+  worker: {
+    format: 'es',
   },
 })

@@ -14,15 +14,20 @@ npm run dev
 
 Open the printed local URL (default `http://localhost:5173`).
 
-### What you get (current mock)
+### Routes
 
-- Rotatable 3D synthetic terrain for the **Sierra Vista Fire** scenario
-- Time scrubber across observed burn + ensemble forecast
-- Ops sidebar: recommendation, town risk probabilities, fire size, data sources
+| Path | What |
+|------|------|
+| `/` | Command dashboard (mock Sierra Vista scene) |
+| `/compare` | Globe pattern bake-off hub |
+| `/compare/cesium` | **Pattern 1** — Cesium only + Esri WorldElevation3D |
+| `/compare/maplibre-three` | **Pattern 2** — MapLibre + AWS Terrarium DEM + Three.js fire layer |
+| `/compare/hybrid` | **Pattern 3** — MapLibre world → handoff to existing incident canvas |
+
+Fire footprints are synthetic. Elevation/imagery are real (Esri / AWS Terrarium). Use the on-screen FPS meter while orbiting/zooming to compare smoothness.
 
 Design reference (exported mockup) is in [`design/command-dashboard-mockup/`](./design/command-dashboard-mockup).
 
 ## Roadmap
 
-- Zoomed-out interactive **world topographic globe**, drill-down into regional terrain
-- Live satellite / FireSat feeds and real physics-ML forecasts
+- Choose a globe stack from the bake-off and wire live satellite / FireSat + physics-ML forecasts
