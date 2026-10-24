@@ -1,0 +1,18 @@
+# Store text with LF in the repo. Windows checkouts can keep CRLF locally;
+# Cursor's cloud agents (Linux) get LF. Prevents whole-file line-ending diffs.
+* text=auto
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.bin binary
+*.npz binary
+*.npy binary
+*.nc binary
+*.tif binary
+*.tiff binary
+*.parquet binary
+*.wav binary
+*.webm binary
+*.mp3 binary

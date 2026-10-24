@@ -2,3 +2,16 @@ node_modules/
 web/dist/
 .DS_Store
 *.local
+
+# Engine, data and secrets (spec/00 §9)
+.env
+engine/.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# engine cache only (root); fixtures/cache/ is committed
+/cache/
+data/scenarios/*/raw/
+.vercel/
+stdb/target/
