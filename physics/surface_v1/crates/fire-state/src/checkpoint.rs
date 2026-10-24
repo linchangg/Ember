@@ -21,6 +21,8 @@ pub struct CheckpointMeta {
     pub diagnostics: DiagnosticCounters,
     pub quality_flags: Vec<String>,
     pub run_manifest: RunManifest,
+    #[serde(default)]
+    pub context: fire_types::PropagationContext,
     pub state_hashes: Vec<(String, String)>,
     pub input_artifact_hashes: Vec<(String, String)>,
 }
@@ -61,6 +63,7 @@ pub fn save_checkpoint(dir: &Path, input: &RunInput, state: &SimulationState) ->
         diagnostics: state.diagnostics.clone(),
         quality_flags: state.quality_flags.clone(),
         run_manifest: input.manifest.clone(),
+        context: input.context.clone(),
         state_hashes: [
             "phi.f64le",
             "arrival_time_s.f64le",
@@ -118,7 +121,7 @@ pub fn load_checkpoint(
             "input manifest hash mismatch",
         ));
     }
-    if meta.run_manifest != input.manifest {
+    if meta.run_manifest != input.manifest || meta.context != input.context {
         return Err(EngineError::new(
             ErrorCode::CheckpointMismatch,
             "run configuration mismatch",
@@ -322,6 +325,7 @@ mod tests {
             artifacts: Vec::new(),
             manifest_sha256: "same".into(),
             bundle_root: ".".into(),
+            context: fire_types::PropagationContext::default(),
             speed_schedule: SpeedSchedule {
                 epochs: vec![(
                     0.0,
@@ -402,6 +406,9 @@ mod regressions {
         let mut changed = input.clone();
         changed.artifacts[0].sha256 = "changed".into();
         assert!(load_checkpoint(&dir, &changed).is_err());
+        let mut changed_context = input.clone();
+        changed_context.context.ros_multiplier = 1.5;
+        assert!(load_checkpoint(&dir, &changed_context).is_err());
         let mut bytes = std::fs::read(dir.join("phi.f64le")).unwrap();
         bytes[0] ^= 1;
         std::fs::write(dir.join("phi.f64le"), bytes).unwrap();

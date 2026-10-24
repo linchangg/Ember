@@ -44,6 +44,20 @@ def main():
         if len(values) != 42:
             raise SystemExit("Unexpected reference matrix size")
         (ROOT / "behave_reference.json").write_text(json.dumps(values, indent=2) + "\n")
+        catalog = ROOT.parent / "catalog"
+        for driver, output in [("export_behave.cpp", "../../docs/spec/sb40.csv"),
+                               ("behave_sb40.cpp", "behave_sb40.json")]:
+            run(["c++", "-std=c++11", "-I", str(source / "src/behave"),
+                 str(catalog / driver), *map(str, objects), "-o", str(executable)])
+            content = run([str(executable)])
+            if driver == "behave_sb40.cpp":
+                cases = json.loads(content)
+                if len(cases) != 80:
+                    raise SystemExit("Unexpected SB40 matrix size")
+                content = json.dumps(cases, indent=2) + "\n"
+            elif len(content.splitlines()) != 41:
+                raise SystemExit("Expected exactly forty Scott/Burgan fuel models")
+            (catalog / output).resolve().write_text(content)
         (ROOT / "provenance.json").write_text(json.dumps({
             "source": "https://github.com/firelab/behave", "commit": PIN,
             "compiler": run(["c++", "--version"]).splitlines()[0],

@@ -119,6 +119,7 @@ pub fn load_run_bundle(manifest_path: &Path, memory_budget_bytes: u64) -> Engine
         artifacts,
         manifest_sha256: sha256_hex(&manifest_bytes),
         bundle_root: root.display().to_string(),
+        context: fire_types::PropagationContext::default(),
         speed_schedule: SpeedSchedule::default(),
     }
     .fix_coverage())

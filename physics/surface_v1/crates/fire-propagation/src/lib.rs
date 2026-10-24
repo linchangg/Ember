@@ -8,6 +8,7 @@ pub mod timestep;
 
 pub use fire_types::{AdvanceReport, RunOutput};
 
+use std::collections::{hash_map::Entry, HashMap};
 use std::sync::Arc;
 
 use fire_behavior::{behavior_with, BehaviorOptions, FuelCatalog, LocalBehavior};
@@ -55,6 +56,20 @@ pub struct SimulationState {
 
 pub fn validate_inputs(input: &RunInput) -> EngineResult<ValidationReport> {
     input.manifest.validate_schema()?;
+    if !input.context.forecast_issue_s.is_finite()
+        || input.context.forecast_issue_s < 0.0
+        || !input.context.ros_multiplier.is_finite()
+        || input.context.ros_multiplier <= 0.0
+        || input
+            .context
+            .urban_rate_m_s
+            .is_some_and(|v| !v.is_finite() || v <= 0.0)
+    {
+        return Err(EngineError::new(
+            ErrorCode::InvalidUnits,
+            "invalid propagation runtime context",
+        ));
+    }
     let n = input.manifest.grid.cell_count()?;
     for (name, len) in [
         ("elevation", input.elevation.len()),
@@ -99,7 +114,9 @@ pub fn validate_inputs(input: &RunInput) -> EngineResult<ValidationReport> {
     let mut pos = 0usize;
     for i in 0..n {
         if input.valid[i] == 1 && input.burnable[i] == 1 {
-            cat.get(input.fuel_id[i])?;
+            if input.fuel_id[i] != 91 || input.context.urban_rate_m_s.is_none() {
+                cat.get(input.fuel_id[i])?;
+            }
             if input.initial_phi[i] == 0.0 {
                 return Err(EngineError::new(
                     ErrorCode::InvalidInitialFront,
@@ -157,7 +174,9 @@ pub fn validate_inputs(input: &RunInput) -> EngineResult<ValidationReport> {
         }
         previous_time = frame.time_s;
         fire_types::time::utc_seconds(&frame.observed_or_valid_utc)?;
-        if fire_types::time::utc_seconds(&frame.available_utc)? > origin {
+        if fire_types::time::utc_seconds(&frame.available_utc)? as f64
+            > origin as f64 + input.context.forecast_issue_s
+        {
             return Err(EngineError::new(
                 ErrorCode::MissingCoverage,
                 "weather was unavailable at forecast origin",
@@ -438,6 +457,7 @@ fn fill_speeds(
                 wind_limit: input.manifest.simulation.wind_limit,
                 ellipse_max_lb: input.manifest.simulation.ellipse_max_lb,
             };
+            let mut behavior_cache: HashMap<[u64; 10], LocalBehavior> = HashMap::new();
             for &i in &prepared.modeled {
                 let moist = Moisture {
                     m1: frame.m1[i],
@@ -452,8 +472,56 @@ fn fill_speeds(
                     gx: prepared.gx[i],
                     gy: prepared.gy[i],
                 };
+                if prepared.fuel_id[i] == 91 {
+                    if let Some(rate) = input.context.urban_rate_m_s {
+                        let heading = if env.wind_east_m_s.hypot(env.wind_north_m_s) > 0.0 {
+                            fire_behavior::wind::lift_heading(
+                                env.gx,
+                                env.gy,
+                                env.wind_east_m_s,
+                                env.wind_north_m_s,
+                            )?
+                        } else {
+                            fire_behavior::wind::terrain_basis(env.gx, env.gy).e_up
+                        };
+                        let normal =
+                            fire_behavior::wind::Vec3::new(-env.gx, -env.gy, 1.0).normalized()?;
+                        let side = normal.cross(heading).normalized()?;
+                        let ellipse = fire_behavior::ellipse::ellipse_from_head(
+                            rate / fire_types::ft_min_to_m_s(1.0),
+                            0.0,
+                            fire_types::m_s_to_ft_min(env.wind_east_m_s.hypot(env.wind_north_m_s)),
+                            heading,
+                            side,
+                            3.0,
+                        )?;
+                        state.speeds[i] = CellSpeed {
+                            d: ellipse.d,
+                            a: ellipse.a_vec,
+                            bv: ellipse.bv,
+                            spread_active: true,
+                        };
+                        push_flag(&mut state.quality_flags, "urban_spread_heuristic");
+                        continue;
+                    }
+                }
                 let fuel = prepared.catalog.get(prepared.fuel_id[i])?;
-                let b = behavior_with(fuel, moist, env, &opts)?;
+                let key = [
+                    prepared.fuel_id[i] as u64,
+                    moist.m1.to_bits(),
+                    moist.m10.to_bits(),
+                    moist.m100.to_bits(),
+                    moist.mlh.to_bits(),
+                    moist.mlw.to_bits(),
+                    env.wind_east_m_s.to_bits(),
+                    env.wind_north_m_s.to_bits(),
+                    env.gx.to_bits(),
+                    env.gy.to_bits(),
+                ];
+                let b = match behavior_cache.entry(key) {
+                    Entry::Occupied(value) => value.into_mut(),
+                    Entry::Vacant(value) => value.insert(behavior_with(fuel, moist, env, &opts)?),
+                };
                 if b.wind_limited {
                     state.diagnostics.wind_limit_counts += 1;
                 }
@@ -463,7 +531,13 @@ fn fill_speeds(
                 if b.live_only {
                     push_flag(&mut state.quality_flags, "unusual_live_only_bed");
                 }
-                let ell = b.ellipse;
+                let mut ell = b.ellipse;
+                let scale = input.context.ros_multiplier;
+                for axis in [&mut ell.d, &mut ell.a_vec, &mut ell.bv] {
+                    for component in axis {
+                        *component *= scale;
+                    }
+                }
                 state.speeds[i] = CellSpeed {
                     d: ell.d,
                     a: ell.a_vec,
@@ -710,6 +784,7 @@ pub fn output_from_state(
     flags.dedup();
     let configuration = serde_json::json!({
         "grid": input.manifest.grid,
+        "runtime_context": input.context,
         "simulation": input.manifest.simulation,
         "model_conventions": {
             "curing": "endpoint_preserving_1_20_0_90",

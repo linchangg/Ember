@@ -351,6 +351,24 @@ pub struct InitialState {
     pub phi: Vec<f64>,
 }
 
+/// Runtime-only controls used by the versioned HazardModel bridge. Defaults preserve surface_v1.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct PropagationContext {
+    pub forecast_issue_s: f64,
+    pub ros_multiplier: f64,
+    pub urban_rate_m_s: Option<f64>,
+}
+impl Default for PropagationContext {
+    fn default() -> Self {
+        Self {
+            forecast_issue_s: 0.0,
+            ros_multiplier: 1.0,
+            urban_rate_m_s: None,
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct RunInput {
     pub manifest: RunManifest,
@@ -365,6 +383,7 @@ pub struct RunInput {
     pub manifest_sha256: String,
     pub bundle_root: String,
     pub speed_schedule: SpeedSchedule,
+    pub context: PropagationContext,
 }
 
 #[derive(Debug, Clone, Default)]
