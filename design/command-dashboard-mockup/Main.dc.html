@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Emberline wildfire dashboard</title>
+<script src="./vendor/react.js"></script>
+<script src="./vendor/react-dom.js"></script>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#C2410C}a:hover{color:#9A3412}
+input[type=range]{accent-color:#E8590C}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #FFFFFF; color: #222222; font-family: Inter, system-ui, sans-serif; font-size: 15px; line-height: 1.5">
+
+<header style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 24px; padding: 18px 28px; border-bottom: 1px solid #ECECEC">
+  <div style="display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap">
+    <span style="font-weight: 700; font-size: 18px; color: #C2410C">Emberline</span>
+    <span style="font-weight: 600; font-size: 16px">Sierra Vista Fire</span>
+    <span style="font-size: 13px; color: #6B6B6B">Mock scenario · synthetic terrain</span>
+  </div>
+  <span style="font-size: 13px; color: #6B6B6B">Last satellite update 14:03 · forecast refreshes every 5 min</span>
+</header>
+
+<div style="display: flex; flex-wrap: wrap; gap: 24px; padding: 24px 28px; align-items: flex-start">
+
+  <main style="flex: 999 1 600px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+    <div ref="{{setWrap}}" style="position: relative; height: 620px; border-radius: 12px; overflow: hidden; background: #FFFFFF; border: 1px solid #ECECEC">
+      <canvas ref="{{setCanvas}}" role="img" aria-label="Rotatable 3D mountain terrain showing the fire's burned area and forecast spread probability" style="position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; touch-action: none"></canvas>
+      <div style="position: absolute; left: 18px; bottom: 16px; pointer-events: none">
+        <div style="font-size: 30px; font-weight: 700; color: #222222">{{clockT}}</div>
+        <div style="font-size: 14px; font-weight: 500; color: {{modeColor}}">{{modeLabel}}</div>
+      </div>
+      <div style="position: absolute; right: 18px; bottom: 18px; font-size: 13px; color: #6B6B6B; pointer-events: none">Drag to rotate</div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <label for="tslider" style="font-size: 13px; color: #6B6B6B">Scroll through time</label>
+      <input id="tslider" type="range" min="-360" max="360" step="5" value="{{t}}" onChange="{{onTime}}" style="width: 100%; height: 32px">
+      <div style="display: flex; justify-content: space-between; font-size: 13px; color: #6B6B6B">
+        <span>08:05 · ignition</span><span>11:05</span><span style="color: #222222; font-weight: 600">14:05 · now</span><span>17:05</span><span>20:05</span>
+      </div>
+    </div>
+  </main>
+
+  <aside style="flex: 1 1 300px; max-width: 360px; display: flex; flex-direction: column; gap: 22px; color: #6B6B6B">
+    <section>
+      <div style="font-size: 13px">Recommendation</div>
+      <div style="font-size: 18px; font-weight: 600; color: #B42318; margin-top: 4px">Evacuation order for Pine Hollow</div>
+      <div style="font-size: 14px; margin-top: 6px">Fire is moving northeast, faster than this morning's forecast.</div>
+    </section>
+
+    <section>
+      <div style="font-size: 13px; margin-bottom: 10px">Chance fire has reached each town by {{clockT}}</div>
+      <sc-for list="{{towns}}" as="town" hint-placeholder-count="3">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; padding: 12px 0; border-top: 1px solid #ECECEC">
+          <span style="font-size: 16px; color: #3A3A3A">{{town.name}}</span>
+          <span style="font-size: 20px; font-weight: 700; color: {{town.color}}">{{town.pct}}</span>
+        </div>
+      </sc-for>
+    </section>
+
+    <section style="font-size: 14px">
+      <div style="font-size: 13px; margin-bottom: 6px">Fire size</div>
+      <div style="font-size: 20px; font-weight: 600; color: #3A3A3A">{{acres}} acres</div>
+    </section>
+
+    <section style="font-size: 13px; line-height: 1.6">
+      <div style="margin-bottom: 4px">Data sources</div>
+      <div>GOES-18 · every 5 min</div>
+      <div>VIIRS · twice daily</div>
+      <div>FireSat · beta</div>
+    </section>
+  </aside>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.N = 60;
+    this.view = { yaw: -0.6, pitch: 0.78 };
+    this.build();
+    this.state = { t: 150 };
+    this.onTime = (e) => this.setState({ t: +e.target.value });
+    this.setWrap = (el) => {
+      this.wrap = el;
+      if (el && !this.ro && window.ResizeObserver) { this.ro = new ResizeObserver(() => this.size()); this.ro.observe(el); }
+    };
+    this.setCanvas = (el) => {
+      if (!el || el === this.canvas) return;
+      this.canvas = el;
+      el.addEventListener('pointerdown', (e) => { this.drag = { x: e.clientX, y: e.clientY }; el.setPointerCapture(e.pointerId); el.style.cursor = 'grabbing'; });
+      el.addEventListener('pointermove', (e) => {
+        if (!this.drag) return;
+        this.view.yaw += (e.clientX - this.drag.x) * 0.008;
+        this.view.pitch = Math.max(0.35, Math.min(1.45, this.view.pitch + (e.clientY - this.drag.y) * 0.005));
+        this.drag = { x: e.clientX, y: e.clientY };
+        this.draw();
+      });
+      const end = () => { this.drag = null; el.style.cursor = 'grab'; };
+      el.addEventListener('pointerup', end);
+      el.addEventListener('pointercancel', end);
+      this.size();
+    };
+  }
+  componentDidMount() { this.size(); }
+  componentDidUpdate() { this.draw(); }
+  componentWillUnmount() { if (this.ro) this.ro.disconnect(); }
+
+  clock(m) {
+    const x = ((14 * 60 + 5 + m) % 1440 + 1440) % 1440;
+    return String(Math.floor(x / 60)).padStart(2, '0') + ':' + String(Math.round(x % 60)).padStart(2, '0');
+  }
+
+  build() {
+    const N = this.N, h = new Float32Array(N * N);
+    const g = (x, y, cx, cy, s) => Math.exp(-((x - cx) ** 2 + (y - cy) ** 2) / s);
+    let mn = 1e9, mx = -1e9;
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+      const x = j / N, y = i / N;
+      const v = 1.0 * g(x, y, 0.72, 0.22, 0.012) + 0.85 * g(x, y, 0.22, 0.18, 0.016) + 0.7 * g(x, y, 0.82, 0.72, 0.014)
+        + 0.55 * g(x, y, 0.5, 0.48, 0.02) + 0.45 * g(x, y, 0.15, 0.7, 0.018)
+        + 0.06 * Math.sin(x * 31 + y * 17) + 0.05 * Math.cos(x * 23 - y * 29);
+      h[i * N + j] = v; mn = Math.min(mn, v); mx = Math.max(mx, v);
+    }
+    for (let k = 0; k < N * N; k++) h[k] = (h[k] - mn) / (mx - mn);
+    this.h = h;
+    const i0 = 47, j0 = 13, h0 = h[i0 * N + j0];
+    const offs = [0, -0.35, 0.3, -0.15, 0.45, -0.5, 0.15, 0.35, -0.25, 0.05];
+    const sp = [1, 0.8, 1.25, 1.1, 0.75, 1.4, 0.9, 1.15, 0.95, 1.3];
+    this.members = offs.map((o, m) => {
+      const th = -Math.PI / 4 + o, wx = Math.cos(th), wy = Math.sin(th), a = new Float32Array(N * N);
+      for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+        const dx = j - j0, dy = i - i0, u = dx * wx + dy * wy, v = -dx * wy + dy * wx;
+        const ue = u > 0 ? u / (1.8 * sp[m]) : -u * 1.6;
+        const eff = Math.sqrt(ue * ue + v * v * 0.9);
+        a[i * N + j] = eff * 22 * Math.exp(-0.8 * (h[i * N + j] - h0)) - 360;
+      }
+      return a;
+    });
+    this.analysis = this.members[0];
+    this.towns = [
+      { name: 'Pine Hollow', i: 22, j: 40 },
+      { name: 'Cedar Flat', i: 36, j: 52 },
+      { name: 'Owl Creek', i: 13, j: 26 }
+    ];
+  }
+
+  probAt(k, T) {
+    if (this.analysis[k] <= Math.min(T, 0)) return 1;
+    if (T <= 0) return 0;
+    let c = 0;
+    for (const m of this.members) if (m[k] <= T) c++;
+    return c / this.members.length;
+  }
+
+  size() {
+    const w = this.wrap, c = this.canvas;
+    if (!w || !c || !w.clientWidth) return;
+    this.cw = w.clientWidth; this.ch = w.clientHeight;
+    this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    c.width = Math.round(this.cw * this.dpr); c.height = Math.round(this.ch * this.dpr);
+    this.draw();
+  }
+
+  draw() {
+    const c = this.canvas;
+    if (!c || !this.cw) return;
+    const ctx = c.getContext('2d'), W = this.cw, H = this.ch, N = this.N, h = this.h, T = this.state.t;
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, W, H);
+    const cy = Math.cos(this.view.yaw), sy = Math.sin(this.view.yaw), cp = Math.cos(this.view.pitch), sp = Math.sin(this.view.pitch);
+    const HS = 22, D = 160, k = Math.min(W, H * 1.3) / 68, ox = W / 2, oy = H * 0.58;
+    const proj = (X, Y, Z) => {
+      const x1 = X * cy - Y * sy, y1 = X * sy + Y * cy;
+      const depth = y1 * cp - Z * sp, f = D / (D + depth);
+      return [ox + x1 * f * k, oy - (Z * cp + y1 * sp) * f * k, depth];
+    };
+    const P = new Array(N * N);
+    for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) P[i * N + j] = proj(j - (N - 1) / 2, (N - 1) / 2 - i, h[i * N + j] * HS);
+    const quads = [];
+    for (let i = 0; i < N - 1; i++) for (let j = 0; j < N - 1; j++) {
+      const a = i * N + j;
+      quads.push([a, (P[a][2] + P[a + 1][2] + P[a + N][2] + P[a + N + 1][2]) / 4]);
+    }
+    quads.sort((p, q) => q[1] - p[1]);
+    const tObs = Math.min(T, 0);
+    for (const [a] of quads) {
+      const dzx = (h[a + 1] - h[a]) * HS, dzy = (h[a + N] - h[a]) * HS;
+      const shade = Math.max(0.55, Math.min(1.08, 0.9 + 0.22 * (dzx + dzy)));
+      const base = 238 - 18 * (1 - h[a]);
+      let col = [base * shade, base * shade, base * shade * 0.985];
+      const an = this.analysis[a];
+      let mix = null, al = 0;
+      if (an <= tObs) { if (tObs - an < 30) { mix = [255, 106, 26]; al = 1; } else { mix = [122, 52, 40]; al = 0.85; } }
+      else if (T > 0) {
+        const p = this.probAt(a, T);
+        if (p > 0.05) { mix = p >= 0.67 ? [217, 58, 43] : p >= 0.34 ? [240, 122, 58] : [249, 185, 138]; al = 0.35 + 0.5 * p; }
+      }
+      if (mix) col = col.map((v, n) => v * (1 - al) + mix[n] * al * (al === 1 ? 1 : shade));
+      const fs = 'rgb(' + (col[0] | 0) + ',' + (col[1] | 0) + ',' + (col[2] | 0) + ')';
+      const p0 = P[a], p1 = P[a + 1], p2 = P[a + N + 1], p3 = P[a + N];
+      ctx.beginPath(); ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.lineTo(p3[0], p3[1]); ctx.closePath();
+      ctx.fillStyle = fs; ctx.fill(); ctx.strokeStyle = fs; ctx.lineWidth = 0.6; ctx.stroke();
+    }
+    // fire centroid for satellite beams
+    let fx = 0, fy = 0, fn = 0;
+    for (let a = 0; a < N * N; a++) { const an = this.analysis[a]; if (an <= tObs && an > tObs - 40) { fx += P[a][0]; fy += P[a][1]; fn++; } }
+    if (fn) { fx /= fn; fy /= fn; }
+    ctx.font = '500 13px Inter, system-ui, sans-serif';
+    const sats = [[W * 0.18, 44, 'GOES-18'], [W * 0.55, 30, 'VIIRS'], [W * 0.84, 52, 'FireSat']];
+    for (const [sx, syy, name] of sats) {
+      if (fn) { ctx.setLineDash([4, 5]); ctx.strokeStyle = 'rgba(232,89,12,0.45)'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(sx, syy + 8); ctx.lineTo(fx, fy); ctx.stroke(); ctx.setLineDash([]); }
+      ctx.strokeStyle = '#8A8A8A'; ctx.lineWidth = 1.4; ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(sx - 6, syy - 6, 12, 12); ctx.strokeRect(sx - 6, syy - 6, 12, 12);
+      ctx.strokeRect(sx - 22, syy - 3, 12, 6); ctx.strokeRect(sx + 10, syy - 3, 12, 6);
+      ctx.beginPath(); ctx.moveTo(sx - 10, syy); ctx.lineTo(sx - 6, syy); ctx.moveTo(sx + 6, syy); ctx.lineTo(sx + 10, syy); ctx.stroke();
+      ctx.fillStyle = '#6B6B6B'; ctx.fillText(name, sx + 28, syy + 5);
+    }
+    // towns
+    for (const tw of this.towns) {
+      const a = tw.i * N + tw.j, p = P[a], top = proj(tw.j - (N - 1) / 2, (N - 1) / 2 - tw.i, h[a] * HS + 5);
+      ctx.strokeStyle = '#555555'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(top[0], top[1]); ctx.stroke();
+      ctx.fillStyle = '#333333'; ctx.beginPath(); ctx.arc(top[0], top[1], 4.5, 0, Math.PI * 2); ctx.fill();
+      ctx.font = '600 13px Inter, system-ui, sans-serif';
+      const tw2 = ctx.measureText(tw.name).width;
+      ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.fillRect(top[0] + 8, top[1] - 11, tw2 + 10, 20);
+      ctx.fillStyle = '#333333'; ctx.fillText(tw.name, top[0] + 13, top[1] + 4);
+    }
+  }
+
+  renderVals() {
+    const T = this.state.t, N = this.N;
+    const rel = (m) => { const a = Math.abs(m), hh = Math.floor(a / 60), mm = a % 60; return (hh ? hh + 'h ' : '') + (mm ? mm + 'm' : '') || '0m'; };
+    let cells = 0;
+    for (let a = 0; a < N * N; a++) if (this.analysis[a] <= Math.min(T, 0)) cells++;
+    const towns = this.towns.map((tw) => {
+      const p = this.probAt(tw.i * N + tw.j, T);
+      return { name: tw.name, pct: Math.round(p * 100) + '%', color: p >= 0.67 ? '#B42318' : p >= 0.34 ? '#E8590C' : p > 0 ? '#F08C4A' : '#9A9A9A' };
+    });
+    return {
+      t: T,
+      onTime: this.onTime,
+      setWrap: this.setWrap,
+      setCanvas: this.setCanvas,
+      clockT: this.clock(T),
+      modeLabel: T === 0 ? 'Now' : T < 0 ? 'Observed · ' + rel(T) + ' ago' : 'Forecast · ' + rel(T) + ' ahead',
+      modeColor: T > 0 ? '#E8590C' : '#6B6B6B',
+      towns: towns,
+      acres: (cells * 9.9).toLocaleString('en-US', { maximumFractionDigits: 0 })
+    };
+  }
+}
+</script>
+</body>
+</html>
