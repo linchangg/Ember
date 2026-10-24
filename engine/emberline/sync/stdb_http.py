@@ -13,9 +13,15 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 from typing import Any
 
 import httpx
+
+from emberline.contracts import ActivityEvent, Briefing, CycleBundle
+
+log = logging.getLogger(__name__)
+BUNDLE_WARN_BYTES = 200_000
 
 BACKOFF_S = (0.5, 1.0, 2.0)
 REJECTED_STATUS = 530
@@ -99,3 +105,77 @@ class StdbHttp:
                 raise ReducerRejected("sql", r.status_code, r.text)
             out.extend(rows_from_result(res) for res in r.json())
         return out
+
+    # ------------------------------------------------------------ poll loop (04 §3)
+
+    async def poll(self, scenario_id: str) -> dict[str, Any]:
+        """Pending commands (sorted by created_wall_ms), the clock, zones and people.
+
+        Multi-statement SQL is unsupported on 2.13, so this is 4 requests.
+        """
+        sid = scenario_id.replace("'", "''")
+        commands, clocks, zones, people = await self.sql(
+            "SELECT * FROM command WHERE status = 'pending'; "
+            f"SELECT * FROM clock WHERE scenario_id = '{sid}'; "
+            f"SELECT * FROM zone WHERE scenario_id = '{sid}'; "
+            f"SELECT * FROM person WHERE scenario_id = '{sid}'"
+        )
+        return {
+            "commands": sorted(commands, key=lambda r: r["created_wall_ms"]),
+            "clock": clocks[0] if clocks else None,
+            "zones": zones,
+            "people": people,
+        }
+
+    # ------------------------------------------------------------ engine reducers
+
+    async def load_scenario(self, payload: dict[str, Any]) -> None:
+        await self.call("load_scenario", json.dumps(payload))
+
+    async def publish_bundle(self, b: CycleBundle) -> None:
+        await self.call("publish_bundle", _sized(b.model_dump_json(), b.bundle_id))
+
+    async def publish_bundles(self, bundles: list[CycleBundle]) -> None:
+        assert 0 < len(bundles) <= 10, "publish_bundles takes 1-10 bundles"
+        body = "[" + ",".join(b.model_dump_json() for b in bundles) + "]"
+        await self.call("publish_bundles", _sized(body, f"{len(bundles)} bundles"))
+
+    async def rewind(self, scenario_id: str, branch_id: str, sim_ms: int) -> None:
+        await self.call("rewind", scenario_id, branch_id, sim_ms)
+
+    async def set_clock_status(self, scenario_id: str, status: str) -> None:
+        await self.call("set_clock_status", scenario_id, status)
+
+    async def create_branch(self, branch: dict[str, Any]) -> None:
+        await self.call("create_branch", json.dumps(branch))
+
+    async def upsert_alert_draft(
+        self, alert_id: str, text: str, voice_script: str, draft_source: str, briefing: Briefing
+    ) -> None:
+        await self.call("upsert_alert_draft", alert_id, text, voice_script, draft_source, briefing.model_dump_json())
+
+    async def update_alert_call(self, alert_id: str, state: str, call_id: str | None, call_status: str | None) -> None:
+        await self.call("update_alert_call", alert_id, state, call_id or "", call_status or "")
+
+    async def append_events(self, events: list[ActivityEvent]) -> None:
+        await self.call("append_events", json.dumps([e.model_dump(mode="json") for e in events]))
+
+    async def mark_command(self, command_id: str, status: str, result: dict[str, Any] | None = None) -> None:
+        await self.call("mark_command", command_id, status, "" if result is None else json.dumps(result))
+
+    async def submit_report_engine(self, report: dict[str, Any], transcript: str) -> None:
+        await self.call("submit_report_engine", json.dumps(report), transcript)
+
+    # ------------------------------------------------------------ service reducers
+
+    async def submit_report(self, report: dict[str, Any], transcript: str) -> None:
+        await self.call("submit_report", json.dumps(report), transcript)
+
+    async def ack_alert(self, alert_id: str, via: str) -> None:
+        await self.call("ack_alert", alert_id, via)
+
+
+def _sized(body: str, what: str) -> str:
+    if len(body.encode()) > BUNDLE_WARN_BYTES:
+        log.warning("%s is %d bytes (> %d); consider splitting observations", what, len(body.encode()), BUNDLE_WARN_BYTES)
+    return body

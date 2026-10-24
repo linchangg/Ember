@@ -10,6 +10,80 @@ import {
   type Infer as __Infer,
 } from "spacetimedb";
 
+export const ActivityEvent = __t.object("ActivityEvent", {
+  eventId: __t.string(),
+  scenarioId: __t.string(),
+  branchId: __t.string(),
+  seq: __t.u32(),
+  simMs: __t.f64(),
+  wallMs: __t.f64(),
+  stage: __t.string(),
+  actor: __t.string(),
+  level: __t.string(),
+  message: __t.string(),
+  refKind: __t.option(__t.string()),
+  refId: __t.option(__t.string()),
+  durationMs: __t.option(__t.i32()),
+});
+export type ActivityEvent = __Infer<typeof ActivityEvent>;
+
+export const Alert = __t.object("Alert", {
+  alertId: __t.string(),
+  scenarioId: __t.string(),
+  branchId: __t.string(),
+  zoneIdsJson: __t.string(),
+  level: __t.string(),
+  ruleId: __t.string(),
+  ruleText: __t.string(),
+  cycleId: __t.string(),
+  triggeredSimMs: __t.f64(),
+  actBySimMs: __t.option(__t.f64()),
+  state: __t.string(),
+  text: __t.string(),
+  voiceScript: __t.string(),
+  draftSource: __t.string(),
+  briefingId: __t.option(__t.string()),
+  decidedBy: __t.option(__t.string()),
+  decidedWallMs: __t.option(__t.f64()),
+  callId: __t.option(__t.string()),
+  callStatus: __t.option(__t.string()),
+  ackedVia: __t.option(__t.string()),
+  ackedWallMs: __t.option(__t.f64()),
+  ackedSimMs: __t.option(__t.f64()),
+});
+export type Alert = __Infer<typeof Alert>;
+
+export const Branch = __t.object("Branch", {
+  branchId: __t.string(),
+  scenarioId: __t.string(),
+  parentId: __t.option(__t.string()),
+  forkSimMs: __t.option(__t.f64()),
+  reason: __t.string(),
+  createdWallMs: __t.f64(),
+});
+export type Branch = __Infer<typeof Branch>;
+
+export const Briefing = __t.object("Briefing", {
+  briefingId: __t.string(),
+  scenarioId: __t.string(),
+  branchId: __t.string(),
+  cycleId: __t.string(),
+  alertId: __t.string(),
+  model: __t.string(),
+  promptVersion: __t.string(),
+  inputHash: __t.string(),
+  headline: __t.string(),
+  bulletsJson: __t.string(),
+  text: __t.string(),
+  voiceScript: __t.string(),
+  grounded: __t.bool(),
+  unmatchedTokensJson: __t.string(),
+  fallbackUsed: __t.bool(),
+  latencyMs: __t.u32(),
+  createdWallMs: __t.f64(),
+});
+export type Briefing = __Infer<typeof Briefing>;
+
 export const Clock = __t.object("Clock", {
   scenarioId: __t.string(),
   mode: __t.string(),
@@ -52,7 +126,226 @@ export const Cycle = __t.object("Cycle", {
   scenarioId: __t.string(),
   branchId: __t.string(),
   knowledgeSimMs: __t.f64(),
+  dataThroughSimMs: __t.f64(),
+  createdWallMs: __t.f64(),
+  source: __t.string(),
+  filterMode: __t.string(),
+  nMembers: __t.u32(),
+  ess: __t.f64(),
+  temperingAlpha: __t.f64(),
+  resampled: __t.bool(),
+  nObsByKindJson: __t.string(),
+  horizonMin: __t.u32(),
+  stepMin: __t.u32(),
+  assetsJson: __t.string(),
+  dangerJson: __t.string(),
   burnedHa: __t.f64(),
+  frontKm: __t.f64(),
+  growthHaPerH: __t.f64(),
+  headBearingDeg: __t.option(__t.f64()),
+  paramsSummaryJson: __t.string(),
+  modelVersion: __t.string(),
+  configHash: __t.option(__t.string()),
+  durationMs: __t.u32(),
 });
 export type Cycle = __Infer<typeof Cycle>;
+
+export const CycleHead = __t.object("CycleHead", {
+  id: __t.string(),
+  scenarioId: __t.string(),
+  branchId: __t.string(),
+  cycleId: __t.string(),
+  knowledgeSimMs: __t.f64(),
+  dangerJson: __t.string(),
+  burnedHa: __t.f64(),
+});
+export type CycleHead = __Infer<typeof CycleHead>;
+
+export const Metric = __t.object("Metric", {
+  id: __t.string(),
+  key: __t.string(),
+  scenarioId: __t.string(),
+  branchId: __t.string(),
+  label: __t.string(),
+  value: __t.option(__t.f64()),
+  unit: __t.string(),
+  definition: __t.string(),
+  computedSimMs: __t.option(__t.f64()),
+  detailJson: __t.string(),
+});
+export type Metric = __Infer<typeof Metric>;
+
+export const Observation = __t.object("Observation", {
+  obsId: __t.string(),
+  scenarioId: __t.string(),
+  branchId: __t.string(),
+  sensorId: __t.string(),
+  kind: __t.string(),
+  observedSimMs: __t.f64(),
+  availableSimMs: __t.f64(),
+  geometryJson: __t.string(),
+  hot: __t.bool(),
+  footprintKey: __t.option(__t.string()),
+  fdcClass: __t.option(__t.i32()),
+  reportKind: __t.option(__t.string()),
+  confidence: __t.f64(),
+  frpMw: __t.option(__t.f64()),
+  trust: __t.f64(),
+  provenance: __t.string(),
+  sourceRef: __t.option(__t.string()),
+  status: __t.string(),
+  cycleId: __t.option(__t.string()),
+  influence: __t.option(__t.f64()),
+});
+export type Observation = __Infer<typeof Observation>;
+
+export const Person = __t.object("Person", {
+  personId: __t.string(),
+  scenarioId: __t.string(),
+  kind: __t.string(),
+  label: __t.string(),
+  lon: __t.f64(),
+  lat: __t.f64(),
+  locationSource: __t.string(),
+  zoneId: __t.option(__t.string()),
+  status: __t.string(),
+  p60: __t.option(__t.f64()),
+  etaQ50SimMs: __t.option(__t.f64()),
+  actBySimMs: __t.option(__t.f64()),
+  alertedAlertId: __t.option(__t.string()),
+  acknowledged: __t.bool(),
+  lastSeenWallMs: __t.f64(),
+  provenance: __t.string(),
+});
+export type Person = __Infer<typeof Person>;
+
+export const Report = __t.object("Report", {
+  reportId: __t.string(),
+  scenarioId: __t.string(),
+  branchId: __t.string(),
+  personId: __t.option(__t.string()),
+  channel: __t.string(),
+  kind: __t.string(),
+  summary: __t.string(),
+  lon: __t.f64(),
+  lat: __t.f64(),
+  radiusM: __t.f64(),
+  trust: __t.f64(),
+  observedSimMs: __t.f64(),
+  createdWallMs: __t.f64(),
+  status: __t.string(),
+  rejectReason: __t.option(__t.string()),
+  observationId: __t.option(__t.string()),
+  provenance: __t.string(),
+});
+export type Report = __Infer<typeof Report>;
+
+export const ReportText = __t.object("ReportText", {
+  reportId: __t.string(),
+  transcript: __t.string(),
+});
+export type ReportText = __Infer<typeof ReportText>;
+
+export const ScanEvent = __t.object("ScanEvent", {
+  scanId: __t.string(),
+  scenarioId: __t.string(),
+  branchId: __t.string(),
+  sensorId: __t.string(),
+  mode: __t.string(),
+  tStartSimMs: __t.f64(),
+  tEndSimMs: __t.f64(),
+  availableSimMs: __t.f64(),
+  nPixelsAoi: __t.u32(),
+  nHot: __t.u32(),
+  nClear: __t.u32(),
+  assimilated: __t.bool(),
+  pixelsPath: __t.option(__t.string()),
+  provenance: __t.string(),
+});
+export type ScanEvent = __Infer<typeof ScanEvent>;
+
+export const Scenario = __t.object("Scenario", {
+  scenarioId: __t.string(),
+  title: __t.string(),
+  tz: __t.string(),
+  manifestJson: __t.string(),
+  configHash: __t.option(__t.string()),
+  replayStartSimMs: __t.f64(),
+  replayEndSimMs: __t.f64(),
+});
+export type Scenario = __Infer<typeof Scenario>;
+
+export const Sensor = __t.object("Sensor", {
+  sensorId: __t.string(),
+  scenarioId: __t.string(),
+  kind: __t.string(),
+  name: __t.string(),
+  platform: __t.string(),
+  provenance: __t.string(),
+  enabled: __t.bool(),
+  status: __t.string(),
+  lastDataSimMs: __t.option(__t.f64()),
+  latencyS: __t.option(__t.f64()),
+  lon: __t.option(__t.f64()),
+  lat: __t.option(__t.f64()),
+  headingDeg: __t.option(__t.f64()),
+  hfovDeg: __t.option(__t.f64()),
+  pixelM: __t.option(__t.f64()),
+});
+export type Sensor = __Infer<typeof Sensor>;
+
+export const SpawnPoint = __t.object("SpawnPoint", {
+  spawnId: __t.string(),
+  scenarioId: __t.string(),
+  joinCode: __t.string(),
+  ord: __t.u32(),
+  lon: __t.f64(),
+  lat: __t.f64(),
+  zoneId: __t.string(),
+  street: __t.string(),
+  takenBy: __t.option(__t.string()),
+  takenWallMs: __t.option(__t.f64()),
+});
+export type SpawnPoint = __Infer<typeof SpawnPoint>;
+
+export const Zone = __t.object("Zone", {
+  zoneId: __t.string(),
+  scenarioId: __t.string(),
+  name: __t.string(),
+  population: __t.u32(),
+  housing: __t.u32(),
+  nCritical: __t.u32(),
+  tier: __t.u32(),
+  evacMinDefault: __t.f64(),
+  egressRoads: __t.u32(),
+  approximate: __t.bool(),
+  evacMin: __t.f64(),
+});
+export type Zone = __Infer<typeof Zone>;
+
+export const ZoneRisk = __t.object("ZoneRisk", {
+  id: __t.string(),
+  cycleId: __t.string(),
+  scenarioId: __t.string(),
+  branchId: __t.string(),
+  zoneId: __t.string(),
+  knowledgeSimMs: __t.f64(),
+  pByLeadJson: __t.string(),
+  etaQ10SimMs: __t.option(__t.f64()),
+  etaQ50SimMs: __t.option(__t.f64()),
+  etaQ90SimMs: __t.option(__t.f64()),
+  actBySimMs: __t.option(__t.f64()),
+  actByBasis: __t.string(),
+  evacMin: __t.f64(),
+  population: __t.u32(),
+  housing: __t.u32(),
+  nCritical: __t.u32(),
+  tier: __t.u32(),
+  riskScore: __t.f64(),
+  rank: __t.u32(),
+  status: __t.string(),
+  trend: __t.string(),
+  driversJson: __t.string(),
+});
+export type ZoneRisk = __Infer<typeof ZoneRisk>;
 
