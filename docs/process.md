@@ -10,3 +10,7 @@ Format: `Sat 13:05 · Cody · C0 contracts + fixture merged (PR #3) · Cursor ag
 
 - Sat Oct 24 · Abby · Verified surface_v1 research import prepared on integration/surface-v1-verified from main; added independent Behave oracle, numerical/workflow regressions, correction/checkpoint/ensemble/evaluation fixes and isolated CI; Python HazardModel replacement remains gated · Codex
 - Sat 13:13 · Cody · C0 contracts + analytic fixture · Cursor agent
+- Sat 13:13 · Cody · C0 contracts + analytic fixture opened (PR #4) · Cursor agent
+- Sat 15:05 · Cody · G1-a GOES gate: GO (Eaton), t_sat_goes 02:11 PST · Claude
+- Sat 15:20 · Cody · G1-b SpacetimeDB spike PASS (local) · Claude
+- Sat 15:30 · Cody · T0/T3/T4/T5/T6/T7 engine wave 1 (106 tests green) · Claude
