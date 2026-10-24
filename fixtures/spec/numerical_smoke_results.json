@@ -1,0 +1,44 @@
+{
+  "notice": "Python specification smoke tests, not validation of an implemented Rust engine.",
+  "mode": "full",
+  "results": [
+    {
+      "case": "circle",
+      "dx_m": 20,
+      "steps": 40,
+      "max_error_m": 6.591123468470073,
+      "mean_error_m": 6.43425019663757,
+      "relative_area_error": 0.05685959649247203
+    },
+    {
+      "case": "circle",
+      "dx_m": 10,
+      "steps": 60,
+      "max_error_m": 3.096365677060817,
+      "mean_error_m": 3.0503665770807737,
+      "relative_area_error": 0.020181914133845943
+    },
+    {
+      "case": "circle",
+      "dx_m": 5,
+      "steps": 120,
+      "max_error_m": 1.5079500041759388,
+      "mean_error_m": 1.4959805895552964,
+      "relative_area_error": 0.011449132619887349
+    },
+    {
+      "case": "ellipse",
+      "dx_m": 10,
+      "steps": 71,
+      "max_support_error_m": 3.5390291046128084,
+      "mean_support_error_m": 2.5916306640339557
+    },
+    {
+      "case": "weather_switch",
+      "dx_m": 10,
+      "steps": 72,
+      "max_support_error_m": 4.200802303813447,
+      "mean_support_error_m": 3.608999669981566
+    }
+  ]
+}

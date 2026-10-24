@@ -1,0 +1,107 @@
+[
+  {
+    "path": "burnable.u8",
+    "bytes": 4096,
+    "sha256": "3431383721510cf1c211de027cf958c183e16db5fabb6b230eb284c85e196aa9"
+  },
+  {
+    "path": "elevation.f64le",
+    "bytes": 32768,
+    "sha256": "c35020473aed1b4642cd726cad727b63fff2824ad68cedd7ffb73c7cbd890479"
+  },
+  {
+    "path": "fuel_id.u16le",
+    "bytes": 8192,
+    "sha256": "c8bfe5e05da1ab03bc491e9fbeab93c25c34a8dd3684443e7a0b7b364bf606be"
+  },
+  {
+    "path": "fuel_models.csv",
+    "bytes": 1216,
+    "sha256": "f1c101ff1d9b65a0114ac899c8a5c449a2a6453c4de2f2e7e8fedf5d4b8fc50d"
+  },
+  {
+    "path": "initial_phi.f64le",
+    "bytes": 32768,
+    "sha256": "642f761dfcd0ba018662871541a468a5bb82459164a6c7abbcba417c057d215d"
+  },
+  {
+    "path": "manifest.json",
+    "bytes": 1366,
+    "sha256": "69599136dbef7b130db795cdf7d7bec75eb8c0386f31423b7a201e5c56456ea8"
+  },
+  {
+    "path": "valid.u8",
+    "bytes": 4096,
+    "sha256": "3431383721510cf1c211de027cf958c183e16db5fabb6b230eb284c85e196aa9"
+  },
+  {
+    "path": "weather/000000/m1.f64le",
+    "bytes": 32768,
+    "sha256": "fe8b5630817d362b5b3345b0e69c0f086b1f48a25a43c19578398c87765c4cc9"
+  },
+  {
+    "path": "weather/000000/m10.f64le",
+    "bytes": 32768,
+    "sha256": "f214b425ee460b7ba97306446a878c6d17baffbbc271f042cdd42a38c75c3386"
+  },
+  {
+    "path": "weather/000000/m100.f64le",
+    "bytes": 32768,
+    "sha256": "860d4765cca511d7657cd676a110cb8cdbdfe1afc96c8d735152461588eb94b6"
+  },
+  {
+    "path": "weather/000000/mlh.f64le",
+    "bytes": 32768,
+    "sha256": "a43745314fb9f2114ae5973c594154d734b90b3b38339f06bf51a86aadc74ea1"
+  },
+  {
+    "path": "weather/000000/mlw.f64le",
+    "bytes": 32768,
+    "sha256": "8861df6e202e73e65685eb03088ae93a3d1f92ec85a94c003f3d8caf4d0787c7"
+  },
+  {
+    "path": "weather/000000/wind_east.f64le",
+    "bytes": 32768,
+    "sha256": "c35020473aed1b4642cd726cad727b63fff2824ad68cedd7ffb73c7cbd890479"
+  },
+  {
+    "path": "weather/000000/wind_north.f64le",
+    "bytes": 32768,
+    "sha256": "c35020473aed1b4642cd726cad727b63fff2824ad68cedd7ffb73c7cbd890479"
+  },
+  {
+    "path": "weather/000600/m1.f64le",
+    "bytes": 32768,
+    "sha256": "fe8b5630817d362b5b3345b0e69c0f086b1f48a25a43c19578398c87765c4cc9"
+  },
+  {
+    "path": "weather/000600/m10.f64le",
+    "bytes": 32768,
+    "sha256": "f214b425ee460b7ba97306446a878c6d17baffbbc271f042cdd42a38c75c3386"
+  },
+  {
+    "path": "weather/000600/m100.f64le",
+    "bytes": 32768,
+    "sha256": "860d4765cca511d7657cd676a110cb8cdbdfe1afc96c8d735152461588eb94b6"
+  },
+  {
+    "path": "weather/000600/mlh.f64le",
+    "bytes": 32768,
+    "sha256": "a43745314fb9f2114ae5973c594154d734b90b3b38339f06bf51a86aadc74ea1"
+  },
+  {
+    "path": "weather/000600/mlw.f64le",
+    "bytes": 32768,
+    "sha256": "8861df6e202e73e65685eb03088ae93a3d1f92ec85a94c003f3d8caf4d0787c7"
+  },
+  {
+    "path": "weather/000600/wind_east.f64le",
+    "bytes": 32768,
+    "sha256": "c35020473aed1b4642cd726cad727b63fff2824ad68cedd7ffb73c7cbd890479"
+  },
+  {
+    "path": "weather/000600/wind_north.f64le",
+    "bytes": 32768,
+    "sha256": "c35020473aed1b4642cd726cad727b63fff2824ad68cedd7ffb73c7cbd890479"
+  }
+]
