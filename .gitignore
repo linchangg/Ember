@@ -15,3 +15,6 @@ __pycache__/
 data/scenarios/*/raw/
 .vercel/
 stdb/target/
+
+# Isolated Rust surface-fire research workspace
+/physics/surface_v1/target/

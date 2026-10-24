@@ -30,3 +30,8 @@ Design reference (exported mockup) is in [`design/command-dashboard-mockup/`](./
 ## Engine build plan
 
 See [Engine Build Plan](ENGINE_BUILD_PLAN.md) for the proposed Rust physics engine, equations, input/output contracts, implementation milestones, and runnable reference fixtures. It is a research proposal alongside the current Emberline demo specifications.
+
+## Rust surface physics research engine
+
+The separately runnable Rust engine lives in [`physics/surface_v1/`](physics/surface_v1/README.md).
+Its [model audit and verification report](physics/surface_v1/docs/MODEL_AUDIT.md) explains the tested physics, independent Behave comparisons, and remaining integration gates. It does not activate a new backend in Emberline's Python demo.
