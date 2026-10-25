@@ -26,6 +26,15 @@ jobs:
         with:
           node-version: '22'
       - run: npm ci --ignore-scripts
+      # Precomputed Eaton replay (all branches, call cards, lead times): too big for git, kept as a release asset.
+      - name: Fetch the Eaton demo data
+        working-directory: .
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download demo-data-eaton-v1 --pattern eaton-demo-data.tar.gz
+          tar xzf eaton-demo-data.tar.gz
+          ls cache/eaton
       - run: npm run build:pages
         env:
           VITE_BASE: /${{ github.event.repository.name }}/

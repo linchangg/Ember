@@ -7,9 +7,10 @@ import { fileURLToPath } from 'node:url'
 
 const root = fileURLToPath(new URL('../..', import.meta.url))
 const dist = fileURLToPath(new URL('../dist', import.meta.url))
+// cache: the scenario's cache dir (every branch plus lead_times.json); the fixture only has main
 const SOURCES = {
-  fixture: { static: 'fixtures/static/fixture', cache: 'fixtures/cache/fixture/main' },
-  eaton: { static: 'data/scenarios/eaton/web', cache: 'cache/eaton/main' },
+  fixture: { static: 'fixtures/static/fixture', cache: 'fixtures/cache/fixture/main', branch: 'main' },
+  eaton: { static: 'data/scenarios/eaton/web', cache: 'cache/eaton' },
 }
 // vite-plugin-cesium writes its files under dist/<base>/cesium; the page asks for <base>cesium/, which is dist/cesium on Pages
 const nested = join(dist, (process.env.VITE_BASE ?? '/').replace(/^\/|\/$/g, ''))
@@ -27,7 +28,7 @@ for (const [id, src] of Object.entries(SOURCES)) {
     continue
   }
   cpSync(s, join(dist, 'static', id), { recursive: true })
-  cpSync(c, join(dist, 'cache', id, 'main'), { recursive: true })
+  cpSync(c, join(dist, 'cache', id, ...(src.branch ? [src.branch] : [])), { recursive: true })
   console.log(`${id}: ${(size(join(dist, 'static', id)) / 1e6).toFixed(1)} MB static, ${(size(join(dist, 'cache', id)) / 1e6).toFixed(1)} MB cache`)
 }
 cpSync(join(dist, 'index.html'), join(dist, '404.html'))
