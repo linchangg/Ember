@@ -8,23 +8,23 @@ import pytest
 
 from emberline.ai.validate import allowed_tokens, extract_tokens, p_words, validate
 
-# Saved from the fixture's cycle-20 alert (FIX-Z2 warning; p_60 0.0, p_120 0.31, act by 21:05).
+# Saved from the fixture's cycle-20 alert (FIX-Z2 warning; p_60 0.0, p_120 0.31, act by 21:07).
 INP = json.loads((Path(__file__).parent / "data" / "briefing_inputs" / "c20.json").read_text(encoding="utf-8"))
 
 GOOD = {
-    "headline": "Warning for Fixture Z2 (FIX-Z2): act by 21:05 PST",
+    "headline": "Warning for Fixture Z2 (FIX-Z2): act by 21:07 PST",
     "bullets": [
         "Fire is possible to reach FIX-Z2 within 2 h (P 31%).",
-        "Median arrival 22:12 PST; about 420 residents, 2 egress roads.",
+        "Median arrival 22:15 PST; about 420 residents, 2 egress roads.",
         "Forecast 19:55 PST, satellite data through 19:55; data age 0 min.",
     ],
     "text": (
         "DEMO REPLAY (Jan 2025). Warning for FIX-Z2: fire possible within 2 h (P 31%). "
-        "Act by 21:05 PST. About 420 residents. Forecast 19:55, satellite data through 19:55."
+        "Act by 21:07 PST. About 420 residents. Forecast 19:55, satellite data through 19:55."
     ),
     "voice_script": (
         "This is an Emberline demo replay of January 2025. A warning is recommended for Fixture Z2. "
-        "Fire is possible to reach the zone within 2 hours. Act by 9:05 PM. About 420 residents. "
+        "Fire is possible to reach the zone within 2 hours. Act by 9:07 PM. About 420 residents. "
         "Forecast issued at 7:55 PM. You make the call."
     ),
 }
@@ -45,7 +45,7 @@ def with_bullets(bullets: list[str]) -> dict:
 
 CASES = [
     ("correct", GOOD, None),
-    ("altered time", mutate("text", "21:05 PST", "21:15 PST"), "time 21:15"),
+    ("altered time", mutate("text", "21:07 PST", "21:15 PST"), "time 21:15"),
     ("altered pct", mutate("text", "P 31%", "P 35%"), "pct 35%"),
     ("altered population", mutate("text", "420 residents", "450 residents"), "num 450"),
     ("invented zone", mutate("text", "FIX-Z2:", "FIX-Z9:"), "zone FIX-Z9"),
@@ -119,3 +119,11 @@ def test_p_words_table() -> None:
         "possible",
         "unlikely",
     ]
+
+
+def test_p_words_is_the_alerts_table() -> None:
+    from emberline.ai import validate as v
+    from emberline.risk import alerts
+
+    assert v.p_words is alerts.p_words and v.P_WORDS is alerts.P_WORDS
+
