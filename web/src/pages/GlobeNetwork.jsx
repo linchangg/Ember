@@ -299,6 +299,30 @@ export default function GlobeNetwork() {
   const scenario = useMemo(() => (snap.manifest ? createGlobeView(snap, extras) : null), [snap, extras])
   const scnRef = useRef(null)
   const act = (promise) => promise.catch((e) => console.warn(e.message))
+  // the time slider drives the replay itself: dragging seeks the clock (throttled), so every moment shows its own forecast
+  const [dragT, setDragT] = useState(null)
+  const seekTimer = useRef(null)
+  const seekLatest = useRef(null)
+  const scrubTo = (v) => {
+    setDragT(v)
+    seekLatest.current = v
+    if (!seekTimer.current) {
+      seekTimer.current = setTimeout(() => {
+        seekTimer.current = null
+        act(source.actions.seek(seekLatest.current))
+      }, 120)
+    }
+  }
+  const releaseScrub = () => {
+    clearTimeout(seekTimer.current)
+    seekTimer.current = null
+    if (seekLatest.current != null) act(source.actions.seek(seekLatest.current))
+  }
+  useEffect(() => {
+    // let go of the dragged value once the data layer has caught up with it
+    if (dragT != null && !seekTimer.current && Math.abs(snap.view.viewTime - dragT) < 1000) setDragT(null)
+  }, [snap, dragT])
+  const homeRef = useRef(null)
   const [lead, setLead] = useState(60) // forecast slider: minutes after the forecast's issue time
   const leadRef = useRef(60)
   const [compare, setCompare] = useState(true) // draw the previous forecast for comparison
@@ -1494,6 +1518,13 @@ export default function GlobeNetwork() {
       view.spin = 0
       view.target = { lon, lat, zoom }
     }
+    // closing an event: fly back out to the whole globe; it starts turning again as soon as the flight ends
+    homeRef.current = () => {
+      view.spin = 0
+      view.auto = false
+      view.lastInteract = 0
+      view.target = { lon: view.lon, lat: 28, zoom: 1 }
+    }
 
     const focus = new URLSearchParams(window.location.search).get('focus')?.toLowerCase()
     const first = focus ? events.find((e) => e.title.toLowerCase().includes(focus)) : null
@@ -1712,11 +1743,7 @@ export default function GlobeNetwork() {
       })() : null}
       {showTime ? (() => {
         const m = scenario.manifest
-        const now = scenario.simTime
-        const t = scenario.viewTime
-        const clk = scenario.clock
-        const scrub = scenario.scrubbing ? t : null
-        const actions = source.actions
+        const t = dragT ?? scenario.viewTime
         const K = scenario.cycleAt()
         const en = K != null ? scenario.entry(K) : null
         const cyc = en?.bundle.cycle ?? null
@@ -1726,10 +1753,9 @@ export default function GlobeNetwork() {
         const obsKinds = cyc ? Object.entries(cyc.n_obs_by_kind ?? {}).map(([k, v]) => `${v} ${k.replace('_', ' ')}${v === 1 ? '' : 's'}`).join(', ') : ''
         return (
           <div className="gn__time">
-            <button onClick={() => act(clk?.playing ? actions.pause() : actions.play())} aria-label={clk?.playing ? 'Pause' : 'Play'}>{clk?.playing ? '❚❚' : '▶'}</button>
             <div className="gn__time-main">
               <div className="gn__badges">
-                <span className="gn__badge gn__badge--mode">REPLAY {clk?.speed ?? 240}× · local clock (file source)</span>
+                <span className="gn__badge gn__badge--mode">BACKTEST REPLAY · drag the time slider</span>
                 {m.is_fixture ? <span className="gn__badge" title={`Simulated in this scenario: ${m.honesty.simulated.join(', ')}`}>{m.title}</span> : <span className="gn__badge gn__badge--real" title={`Real: ${m.honesty.real.join(', ')}\nSimulated: ${m.honesty.simulated.join(', ')}`}>REAL INPUTS</span>}
               </div>
               <div className="gn__legend2">
@@ -1739,11 +1765,10 @@ export default function GlobeNetwork() {
               </div>
               <div className="gn__time-row"><b>Actual time</b><span>{fmtPT(t)}</span></div>
               <div className="gn__slider">
-                <input type="range" min={m.replay_start_sim_ms} max={m.replay_end_sim_ms} step={60000} value={t} onChange={(e) => act(actions.setScrub(+e.target.value))} />
+                <input type="range" min={m.replay_start_sim_ms} max={m.replay_end_sim_ms} step={60000} value={t} onChange={(e) => scrubTo(+e.target.value)} onPointerUp={releaseScrub} onKeyUp={releaseScrub} />
                 {scenario.timeline.map((ev) => (
                   <i key={ev.t_sim_ms} className="gn__tick" style={{ left: `${((ev.t_sim_ms - m.replay_start_sim_ms) / span) * 100}%` }} title={`${fmtPT(ev.t_sim_ms)} · ${ev.label}`} />
                 ))}
-                <i className="gn__now" style={{ left: `${((now - m.replay_start_sim_ms) / span) * 100}%` }} title="Replay clock" />
               </div>
               <div className="gn__time-row">
                 <b>Forecast</b>
@@ -1760,11 +1785,6 @@ export default function GlobeNetwork() {
                 ) : <span>Before the first forecast (the fire starts at {fmtHM(m.t_ignition_sim_ms)} PT).</span>}
               </div>
               <div className="gn__time-row gn__time-ctl">
-                <button onClick={() => act(actions.reset())} title="Rewind to the start of the replay">⏮ Restart</button>
-                {[60, 240, 600].map((v) => (
-                  <button key={v} className={clk?.speed === v ? 'on' : ''} onClick={() => act(actions.setSpeed(v))}>{v}×</button>
-                ))}
-                {scrub != null ? <button className="on" onClick={() => act(actions.goLive())}>Follow clock</button> : null}
                 <button className={compare ? 'on' : ''} onClick={() => setCompare((c) => !c)} title="Dashed line = the previous forecast, so you can see how new observations moved it">Compare to previous forecast</button>
                 {snap.pending ? <span className="gn__warn">loading forecast…</span> : null}
               </div>
@@ -1774,7 +1794,7 @@ export default function GlobeNetwork() {
       })() : null}
       {pick ? (
         <aside className="gn__side">
-          <button className="gn__close" onClick={() => setPick(null)} aria-label="Close">×</button>
+          <button className="gn__close" onClick={() => { setPick(null); setProbe(null); setSelZone(null); homeRef.current?.() }} aria-label="Close">×</button>
           <h2>{pick.title}</h2>
           <button className="gn__fit" onClick={() => fitRef.current?.(pick)}>Fit to fire</button>
           {showTime ? (
