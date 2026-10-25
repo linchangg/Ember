@@ -2,43 +2,43 @@
   "demo": [
     {
       "spawn_id": "fix-spawn-FIX-Z3",
-      "lon": -118.130808,
-      "lat": 34.175559,
+      "lon": -118.131264,
+      "lat": 34.175335,
       "zone_id": "FIX-Z3",
       "street": "Fixture Lane 3"
     },
     {
       "spawn_id": "fix-spawn-FIX-Z2",
-      "lon": -118.140832,
-      "lat": 34.187394,
+      "lon": -118.141315,
+      "lat": 34.187156,
       "zone_id": "FIX-Z2",
       "street": "Fixture Lane 2"
     },
     {
       "spawn_id": "fix-spawn-FIX-Z1",
-      "lon": -118.162234,
-      "lat": 34.187337,
+      "lon": -118.162717,
+      "lat": 34.187099,
       "zone_id": "FIX-Z1",
       "street": "Fixture Lane 1"
     },
     {
       "spawn_id": "fix-spawn-FIX-Z4",
-      "lon": -118.168143,
-      "lat": 34.165558,
+      "lon": -118.168626,
+      "lat": 34.16532,
       "zone_id": "FIX-Z4",
       "street": "Fixture Lane 4"
     },
     {
       "spawn_id": "fix-spawn-FIX-Z5",
-      "lon": -118.184006,
-      "lat": 34.157741,
+      "lon": -118.184489,
+      "lat": 34.157503,
       "zone_id": "FIX-Z5",
       "street": "Fixture Lane 5"
     },
     {
       "spawn_id": "fix-spawn-FIX-Z6",
-      "lon": -118.199866,
-      "lat": 34.149922,
+      "lon": -118.200349,
+      "lat": 34.149684,
       "zone_id": "FIX-Z6",
       "street": "Fixture Lane 6"
     }

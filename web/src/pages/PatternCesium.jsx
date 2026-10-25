@@ -61,6 +61,9 @@ export default function PatternCesium() {
         if (!cancelled) setStatus('Terrain fallback (ellipsoid) — imagery only')
       }
 
+      // The terrain request may finish after navigation or StrictMode cleanup.
+      if (cancelled || viewer.isDestroyed()) return
+
       viewer.scene.globe.depthTestAgainstTerrain = true
       viewer.scene.globe.enableLighting = false
       viewer.scene.fog.enabled = true
@@ -136,6 +139,7 @@ export default function PatternCesium() {
     }
 
     boot().catch((e) => {
+      if (cancelled) return
       console.error(e)
       setStatus(String(e.message || e))
     })

@@ -176,6 +176,7 @@ export default function PatternMapLibreThree() {
   useEffect(() => {
     if (!containerRef.current) return
     let cancelled = false
+    let activationTimer
 
     const map = new maplibregl.Map({
       container: containerRef.current,
@@ -288,7 +289,7 @@ export default function PatternMapLibreThree() {
 
       map.once('moveend', activateThree)
       // Safety if moveend already happened or fly was skipped
-      setTimeout(activateThree, 3000)
+      activationTimer = setTimeout(activateThree, 3000)
     })
 
     map.on('error', (e) => {
@@ -297,6 +298,7 @@ export default function PatternMapLibreThree() {
 
     return () => {
       cancelled = true
+      clearTimeout(activationTimer)
       map.remove()
       mapRef.current = null
     }

@@ -54,4 +54,13 @@ def test_template():
 
 def test_grid_json_fresh():
     on_disk = json.loads((scenario_dir("eaton") / "grid.json").read_text(encoding="utf-8"))
-    assert on_disk == json.loads(json.dumps(grid.grid_json(G)))
+    expected = json.loads(json.dumps(grid.grid_json(G)))
+    # PROJ/libm can differ in the final binary digit across macOS and Linux.
+    # Keep the actual grid definition exact; 1e-9 degree is well below a millimeter.
+    assert {k: v for k, v in on_disk.items() if k not in {"corners", "bbox"}} == {
+        k: v for k, v in expected.items() if k not in {"corners", "bbox"}
+    }
+    assert set(on_disk["corners"]) == set(expected["corners"])
+    for key in expected["corners"]:
+        assert on_disk["corners"][key] == pytest.approx(expected["corners"][key], abs=1e-9, rel=0)
+    assert on_disk["bbox"] == pytest.approx(expected["bbox"], abs=1e-9, rel=0)

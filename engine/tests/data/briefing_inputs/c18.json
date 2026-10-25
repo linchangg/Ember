@@ -11,9 +11,9 @@
       "zone_id": "FIX-Z3",
       "name": "Fixture Z3",
       "p_60": 0.0,
-      "p_120": 0.31,
-      "eta_q50_pst": "22:01",
-      "act_by_pst": "20:55",
+      "p_120": 0.32,
+      "eta_q50_pst": "22:10",
+      "act_by_pst": "20:57",
       "evac_min": 45,
       "population": 860,
       "critical": [
@@ -24,8 +24,8 @@
     }
   ],
   "fire": {
-    "burned_ha": 85,
-    "growth_ha_per_h": 156,
+    "burned_ha": 52,
+    "growth_ha_per_h": 0,
     "head_bearing_deg": 240
   },
   "sensors": [

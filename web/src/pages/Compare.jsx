@@ -23,7 +23,7 @@ const PATTERNS = [
     to: '/compare/network',
     pattern: 'Experiment',
     title: 'Global hazard network',
-    body: 'Dark globe with softly pulsing country borders. Pulsing points are live open events from NASA EONET (wildfires, storms, volcanoes).',
+    body: 'Dark globe with softly pulsing country borders. Pulsing points are historical January 2025 events from NASA EONET (wildfires, storms, volcanoes).',
   },
 ]
 

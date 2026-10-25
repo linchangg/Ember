@@ -96,6 +96,7 @@ fn bundle(
         artifacts: Vec::new(),
         manifest_sha256: "test".into(),
         bundle_root: ".".into(),
+        context: fire_types::PropagationContext::default(),
         speed_schedule: schedule,
     }
 }
@@ -630,6 +631,46 @@ fn weather_frame_changes_physical_speed_at_exact_event() {
             let i = g.index(r, c);
             let expected = g.center(r, c).0 - 15.0 - distance;
             assert!((output.horizons[0].phi[i] - expected).abs() < 1e-8);
+        }
+    }
+}
+
+#[test]
+fn runtime_surface_multiplier_and_urban_rate_match_planar_solution() {
+    let g = grid(41, 21, 1.0);
+    let n = g.cell_count().unwrap();
+    let phi: Vec<_> = (0..21)
+        .flat_map(|r| {
+            (0..41).map({
+                let g = &g;
+                move |c| g.center(r, c).0 - 15.0
+            })
+        })
+        .collect();
+    for urban in [false, true] {
+        let mut input = bundle(
+            g.clone(),
+            phi.clone(),
+            vec![1; n],
+            vec![1; n],
+            vec![10.0],
+            SpeedSchedule::default(),
+        );
+        input.context.ros_multiplier = 2.0;
+        let expected = if urban {
+            input.fuel_id.fill(91);
+            input.context.urban_rate_m_s = Some(0.1);
+            0.1
+        } else {
+            2.0 * 0.024733996158492002
+        };
+        let output = run(&input).unwrap();
+        for r in 8..13 {
+            for c in 13..18 {
+                let i = g.index(r, c);
+                let exact = phi[i] - 10.0 * expected;
+                assert!((output.horizons[0].phi[i] - exact).abs() < 1e-8);
+            }
         }
     }
 }

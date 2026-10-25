@@ -9,6 +9,7 @@ members = [
     "crates/fire-io",
     "crates/fire-eval",
     "crates/fire-cli",
+    "crates/fire-bridge",
 ]
 
 [workspace.package]

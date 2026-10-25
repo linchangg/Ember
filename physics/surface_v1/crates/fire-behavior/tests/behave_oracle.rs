@@ -138,3 +138,81 @@ fn documented_behave_curing_rounding_difference() {
     }
     assert_eq!(count, 6);
 }
+
+#[test]
+fn all_forty_sb40_models_have_finite_behavior() {
+    let text = include_str!("../../../docs/spec/sb40.csv");
+    let catalog = FuelCatalog::parse_csv(text).unwrap();
+    let mut count = 0;
+    for line in text.lines().skip(1) {
+        let id = line.split(',').next().unwrap().parse::<u16>().unwrap();
+        for wind in [0.0, 3.0] {
+            let b = behavior_with(
+                catalog.get(id).unwrap(),
+                Moisture {
+                    m1: 0.03,
+                    m10: 0.04,
+                    m100: 0.05,
+                    mlh: 0.3,
+                    mlw: 0.6,
+                },
+                LocalEnvironment {
+                    wind_east_m_s: wind,
+                    wind_north_m_s: 0.0,
+                    gx: 0.3,
+                    gy: 0.0,
+                },
+                &BehaviorOptions::default(),
+            )
+            .unwrap();
+            assert!(b.r_head_m_s.is_finite() && b.r_head_m_s >= 0.0, "fuel {id}");
+        }
+        count += 1;
+    }
+    assert_eq!(count, 40);
+}
+
+#[test]
+fn independent_usfs_behave_all_sb40_models() {
+    let catalog = FuelCatalog::parse_csv(include_str!("../../../docs/spec/sb40.csv")).unwrap();
+    let cases: serde_json::Value =
+        serde_json::from_str(include_str!("../../../tools/catalog/behave_sb40.json")).unwrap();
+    assert_eq!(cases.as_array().unwrap().len(), 80);
+    for case in cases.as_array().unwrap() {
+        let id = case["fuel"].as_u64().unwrap() as u16;
+        let wind = case["wind_m_s"].as_f64().unwrap();
+        let b = behavior_with(
+            catalog.get(id).unwrap(),
+            Moisture {
+                m1: 0.03,
+                m10: 0.04,
+                m100: 0.05,
+                mlh: 0.3,
+                mlw: 0.6,
+            },
+            LocalEnvironment {
+                wind_east_m_s: wind,
+                wind_north_m_s: 0.0,
+                gx: 0.3,
+                gy: 0.0,
+            },
+            &BehaviorOptions {
+                wind_limit: WindLimitPolicy::None,
+                ellipse_max_lb: 8.0,
+            },
+        )
+        .unwrap();
+        for (key, actual) in [
+            ("r_head_m_s", b.r_head_m_s),
+            ("ir", b.ir),
+            ("h_sink", b.h_sink),
+            ("beta", b.beta),
+        ] {
+            let expected = case[key].as_f64().unwrap();
+            assert!(
+                (actual - expected).abs() <= 1e-9 * expected.abs().max(1e-6),
+                "fuel={id},wind={wind},field={key},Rust={actual},Behave={expected}"
+            );
+        }
+    }
+}

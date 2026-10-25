@@ -1,0 +1,14 @@
+{
+  "platform": "macOS-15.7.9-arm64-arm-64bit",
+  "python": "3.12.14",
+  "packages": {
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "pyproj": "3.8.0",
+    "pydantic": "2.14.1",
+    "shapely": "2.2.0",
+    "rasterio": "1.5.2",
+    "xarray": "2026.9.0",
+    "pytest": "9.1.1"
+  }
+}

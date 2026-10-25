@@ -54,6 +54,13 @@ v1.1, Sat Oct 24 2026 ~06:15 PT. It folds in two independent reviews: a feasibil
 
 ## 2. Locked decisions
 
+**Owner-approved implementation update (Oct 24):** D3's solver implementation is
+now the Rust surface engine behind the Python `HazardModel` API, with Python
+observation inference. This supersedes the planned numba/MTT implementation choice
+only; shared contracts and scientific/performance acceptance gates remain intact.
+See [the implementation decision](docs/RUST_HAZARD_BACKEND.md). The current level-set
+backend has not passed every scientific or latency gate and remains experimental.
+
 | # | Decision | Revisit if |
 |---|---|---|
 | D1 | **Demo fire: Eaton, Jan 7–8 2025, hybrid replay.** Real: satellite, winds, terrain, fuels, zone names, timeline. Simulated (labeled): residents, phones, duty officer. **Backup: Palisades** (same GOES/HRRR files). Last resort: synthetic "TRAINING SCENARIO". | **G1-a 09:30:** `area_x_satellite_hit` finds no GOES-18 hit before 03:25 PST → VIIRS as the honest-number sensor, else Palisades |

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { CITIES, LOCAL, STATES } from '../labels.js'
+import { newHeli } from '../lib/globeData.js'
 import { createClock } from '../lib/replayClock.js'
 import { loadScenario } from '../lib/scenarioData.js'
 
@@ -213,17 +214,6 @@ function contourChunk(ch, fine) {
   return out.map((a) => (a.length ? Float32Array.from(a) : null))
 }
 
-function newHeli(events) {
-  for (let tries = 0; tries < 40; tries++) {
-    const a = events[(Math.random() * events.length) | 0]
-    const b = events[(Math.random() * events.length) | 0]
-    const dot = a.v[0] * b.v[0] + a.v[1] * b.v[1] + a.v[2] * b.v[2]
-    const ang = Math.acos(Math.min(1, dot))
-    if (ang > 0.06 && ang < 0.9) return { a: a.v, b: b.v, ang, t: 0, speed: rnd(0.02, 0.04), hue: Math.random() }
-  }
-  return null
-}
-
 function slerp(a, b, ang, s) {
   const k0 = Math.sin((1 - s) * ang) / Math.sin(ang)
   const k1 = Math.sin(s * ang) / Math.sin(ang)
@@ -283,25 +273,27 @@ export default function GlobeNetwork() {
   const canvasRef = useRef(null)
   const wrapRef = useRef(null)
   const [events, setEvents] = useState(null)
-  const [, setError] = useState(null)
+  const [error, setError] = useState(null)
   const [pick, setPick] = useState(null)
   const selRef = useRef(false)
-  selRef.current = !!pick
   const fitRef = useRef(null)
   const spinRef = useRef(null)
   const [hover, setHover] = useState(null)
   const scnId = new URLSearchParams(window.location.search).get('scn') || import.meta.env.VITE_SCENARIO_ID || 'fixture'
   const [scenario, setScenario] = useState(null)
   const scnRef = useRef(null)
-  scnRef.current = scenario
   const clockRef = useRef(null)
   const [scrub, setScrub] = useState(null) // null = follow the replay clock; a number = looking at another time
   const scrubRef = useRef(null)
-  scrubRef.current = scrub
   const [ui, setUi] = useState(null)
   const showTime = !!pick && !!scenario && /eaton/i.test(pick.title)
   const timeRef = useRef(false)
-  timeRef.current = showTime
+  useEffect(() => {
+    selRef.current = !!pick
+    scnRef.current = scenario
+    scrubRef.current = scrub
+    timeRef.current = showTime
+  }, [pick, scenario, scrub, showTime])
 
   // Scenario files (Cody's formats) + the replay clock (hub if VITE_STDB_URI is set, else local)
   useEffect(() => {
@@ -324,19 +316,29 @@ export default function GlobeNetwork() {
   }, [])
 
   useEffect(() => {
-    fetch(EONET)
+    const controller = new AbortController()
+    fetch(EONET, { signal: controller.signal })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`EONET ${r.status}`))))
-      .then((d) => setEvents(toEvents(d.events)))
+      .then((d) => {
+        if (controller.signal.aborted) return
+        const listed = toEvents(d.events)
+        setEvents(listed)
+        const focus = new URLSearchParams(window.location.search).get('focus')?.toLowerCase()
+        if (focus) setPick(listed.find((e) => e.title.toLowerCase().includes(focus)) ?? null)
+      })
       .catch((e) => {
+        if (controller.signal.aborted) return
         setError(e.message)
         setEvents([])
       })
+    return () => controller.abort()
   }, [])
 
   useEffect(() => {
     if (events === null) return undefined
     const cv = canvasRef.current
     const ctx = cv.getContext('2d')
+    let alive = true
     let rings = []
     fetch('/data/countries.geojson')
       .then((r) => r.json())
@@ -381,13 +383,13 @@ export default function GlobeNetwork() {
     }
     const sampleAt = (lo, la) => sampleRaw(lo, la) ?? 0
     const pump = () => {
-      while (active < 4 && queue.length) {
+      while (alive && active < 4 && queue.length) {
         const [z, cx0, cy0] = queue.shift()
         const key = `${z}_${cx0}_${cy0}`
         if (chunks.has(key)) continue
         chunks.set(key, 'loading')
         active++
-        buildChunk(z, cx0, cy0).then((ch) => chunks.set(key, ch)).catch(() => chunks.delete(key)).finally(() => { active--; pump() })
+        buildChunk(z, cx0, cy0).then((ch) => { if (alive) chunks.set(key, ch) }).catch(() => chunks.delete(key)).finally(() => { active--; if (alive) pump() })
       }
     }
     // load whichever terrain chunks the current view needs (near tiles up close, coarse tiles from far away), nearest first
@@ -459,7 +461,6 @@ export default function GlobeNetwork() {
     }
     const sprites = {}
     const spr = (c) => (sprites[c.join()] ??= sprite(c))
-    const white = sprite([255, 255, 255])
 
     // ambient: stars + out-of-focus bokeh
     const stars = Array.from({ length: 260 }, () => ({ x: Math.random(), y: Math.random(), s: rnd(0.4, 1.4), tw: Math.random() * 6 }))
@@ -1094,7 +1095,7 @@ export default function GlobeNetwork() {
       ctx.globalAlpha = 1
 
       // bloom: blurred downsamples added back on top
-      small.forEach((c, i) => {
+      small.forEach((c) => {
         const g = c.getContext('2d')
         g.setTransform(1, 0, 0, 1, 0, 0)
         g.globalCompositeOperation = 'copy'
@@ -1290,7 +1291,6 @@ export default function GlobeNetwork() {
     if (first) {
       view.spin = 0
       fitRef.current(first)
-      setPick(first)
     }
 
     // interaction
@@ -1403,6 +1403,8 @@ export default function GlobeNetwork() {
     cv.addEventListener('wheel', onWheel, { passive: false })
 
     return () => {
+      alive = false
+      queue.length = 0
       cancelAnimationFrame(raf)
       window.removeEventListener('resize', resize)
       cv.removeEventListener('pointerleave', onLeave)
@@ -1419,6 +1421,7 @@ export default function GlobeNetwork() {
       <canvas ref={canvasRef} className="gn__map" />
       <header className="gn__bar">
         <span className="gn__title">EMBERLINE</span>
+        {error ? <span role="status">Event feed unavailable. Map remains available.</span> : null}
       </header>
       <div className="gn__spin">
         <button onClick={() => spinRef.current?.(-1)} aria-label="Spin counterclockwise" title="Spin counterclockwise">↺</button>

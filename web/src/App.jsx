@@ -1,14 +1,15 @@
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { Link, Navigate, Route, Routes } from 'react-router-dom'
 import TerrainMap from './components/TerrainMap'
 import TimeSlider from './components/TimeSlider'
 import Sidebar from './components/Sidebar'
-import Compare from './pages/Compare'
-import PatternCesium from './pages/PatternCesium'
-import PatternMapLibreThree from './pages/PatternMapLibreThree'
-import PatternHybrid from './pages/PatternHybrid'
 import GlobeNetwork from './pages/GlobeNetwork'
 import './App.css'
+
+const Compare = lazy(() => import('./pages/Compare'))
+const PatternCesium = lazy(() => import('./pages/PatternCesium'))
+const PatternMapLibreThree = lazy(() => import('./pages/PatternMapLibreThree'))
+const PatternHybrid = lazy(() => import('./pages/PatternHybrid'))
 
 function Dashboard() {
   const [t, setT] = useState(150)
@@ -46,15 +47,17 @@ function Dashboard() {
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<GlobeNetwork />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/compare" element={<Compare />} />
-      <Route path="/compare/cesium" element={<PatternCesium />} />
-      <Route path="/compare/maplibre-three" element={<PatternMapLibreThree />} />
-      <Route path="/compare/hybrid" element={<PatternHybrid />} />
-      <Route path="/compare/network" element={<Navigate to="/" replace />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <Suspense fallback={<div className="app" role="status">Loading map…</div>}>
+      <Routes>
+        <Route path="/" element={<GlobeNetwork />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/compare" element={<Compare />} />
+        <Route path="/compare/cesium" element={<PatternCesium />} />
+        <Route path="/compare/maplibre-three" element={<PatternMapLibreThree />} />
+        <Route path="/compare/hybrid" element={<PatternHybrid />} />
+        <Route path="/compare/network" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   )
 }

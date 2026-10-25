@@ -135,7 +135,8 @@ def test_template_times_and_unknown_act_by():
 
 
 def test_fixture_cross_check():
-    """Our evaluate() over the committed fixture zone_risk rows reproduces the committed alerts."""
+    """evaluate() over the committed zone_risk rows reproduces the committed alerts' (cycle, rule, zone, state,
+    act_by_sim_ms). Text is not compared: make_fixture's alert_copy words critical assets differently."""
     zones = json.loads((STATIC / "zones.geojson").read_text(encoding="utf-8"))["features"]
     names = {f["properties"]["zone_id"]: f["properties"]["name"] for f in zones}
     crit: dict[str, list[str]] = {}
@@ -154,8 +155,8 @@ def test_fixture_cross_check():
                        b.branch_id, RULES, names, crit, b.cycle.data_through_sim_ms)
         for a in out.all:
             hub[a.alert_id] = a
-            ours.append((n, a.rule_id, a.zone_ids[0], a.state))
-        theirs += [(n, a.rule_id, a.zone_ids[0], a.state) for a in b.alerts]
+            ours.append((n, a.rule_id, a.zone_ids[0], a.state, a.act_by_sim_ms))
+        theirs += [(n, a.rule_id, a.zone_ids[0], a.state, a.act_by_sim_ms) for a in b.alerts]
 
     expected = [
         (18, "R1_WARNING", "FIX-Z3", "proposed"),
@@ -165,15 +166,8 @@ def test_fixture_cross_check():
         (32, "R2_ORDER", "FIX-Z2", "proposed"),
         (32, "R1_WARNING", "FIX-Z2", "superseded"),
     ]
-    assert theirs == expected
-    # KNOWN FIXTURE DISCREPANCY (reported, not fudged). make_fixture.rule_holds tests R2's act-by in float
-    # minutes, where q30 = 205.00000000000045 (FIX-Z3) / 215.00000000000023 (FIX-Z2): float noise just above
-    # the "<= 15 min" boundary. The committed zone_risk rows store act_by in integer ms, so act_by - k is
-    # exactly 15 min one cycle earlier (29 for Z3, 31 for Z2), and per 00 §7 ("including" the boundary)
-    # R2 fires there. Fix belongs in make_fixture.py (test R2 on the integer-ms act_by) + regenerate; then
-    # this collapses to `ours == expected`.
-    shifted = {(30, "FIX-Z3"): 29, (32, "FIX-Z2"): 31}
-    assert ours == [(shifted.get((n, z), n), rule, z, state) for n, rule, z, state in expected]
+    assert [t[:4] for t in theirs] == expected
+    assert ours == theirs
     for a in hub.values():
         assert len(a.text) <= 300 and len(a.voice_script.split()) <= 110
         assert "Fixture school" not in a.text + a.voice_script
