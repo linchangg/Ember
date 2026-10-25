@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "run_id": "synthetic-matched-v1",
+  "dataset_kind": "synthetic",
+  "members": 32,
+  "seeds": [11, 13],
+  "calibration_seeds": [7, 8, 9],
+  "modes": ["persistence", "none", "reinit", "pf"],
+  "issue_start_min": 5,
+  "issue_stop_min": 120,
+  "issue_step_min": 5,
+  "lead_minutes": [0, 60, 120],
+  "workers": 2,
+  "timeout_s": 300,
+  "horizon_min": 360,
+  "grid": {
+    "crs": "EPSG:32611",
+    "x0": 380000,
+    "y0": 3803000,
+    "cell_m": 90,
+    "height": 65,
+    "width": 81,
+    "t_ref_s": 1736294400
+  },
+  "truth": {
+    "ros_mult": 1.6,
+    "wind_speed_mult": 1.0,
+    "wind_dir_bias_deg": 20.0,
+    "dfm_1h": 0.04,
+    "urban_ros": 2.0,
+    "member": 0
+  },
+  "include_delayed_ground": true,
+  "delayed_ground_cycles": 1,
+  "gates": {
+    "angle_truth_deg": 20,
+    "angle_tolerance_deg": 8,
+    "ros_truth": 1.6,
+    "ros_relative_tolerance": 0.25,
+    "ess_floor": 0.2,
+    "ess_cycle_fraction": 0.8,
+    "report_shift_gate_m": 300
+  }
+}
