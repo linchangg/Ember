@@ -3,7 +3,7 @@
 import json
 from pathlib import Path
 
-from emberline.scripts.lead_times import compute, first_times, lead_min, load_branch
+from ember.scripts.lead_times import compute, first_times, lead_min, load_branch
 
 REPO = Path(__file__).resolve().parents[2]
 EATON = REPO / "data" / "scenarios" / "eaton"

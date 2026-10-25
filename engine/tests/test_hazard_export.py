@@ -1,6 +1,6 @@
 from shapely.geometry import shape
 import numpy as np
-from emberline.hazard.export import mask_geometry
+from ember.hazard.export import mask_geometry
 
 
 def test_export_preserves_islands_holes_and_lonlat_order(setup_model):
@@ -30,6 +30,6 @@ def test_export_empty_geometry_is_serializable(setup_model):
 
 def test_publication_branch_cannot_escape_asset_root(tmp_path):
     import pytest
-    from emberline.hazard.export import publish
+    from ember.hazard.export import publish
     with pytest.raises(ValueError, match="branch ID"):
         publish(tmp_path, *([None] * 12), branch="../escape")

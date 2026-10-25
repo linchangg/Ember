@@ -13,7 +13,7 @@
 **Goal.** One command builds a self-contained, offline scenario package. Every downstream component (physics, engine, frontend) reads only this package. Nothing in the demo touches NOAA, NASA or USGS at runtime.
 
 ```
-python -m emberline.data.build_scenario --scenario eaton [--only grid,statics,goes,viirs,hrrr,vectors,terrain,truth,manifest]
+python -m ember.data.build_scenario --scenario eaton [--only grid,statics,goes,viirs,hrrr,vectors,terrain,truth,manifest]
 ```
 
 Each step is idempotent: it skips work if its output exists, and `--force` overrides that. Raw downloads go to `data/scenarios/eaton/raw/`, which is git-ignored.
@@ -77,7 +77,7 @@ Run this before building anything else. It decides Eaton vs Palisades.
 3. **Parallax-correct each pixel centre.** Shift it toward the sub-satellite point by `h · tan(VZA)`, where `h` is the DEM elevation at the apparent position. For GOES-18 at Altadena that is about 0.99 km per 1000 m. Iterate twice.
 4. Produce `check_goes_report.html`, a matplotlib grid of frames every 15 min plus a summary table, containing:
    - (a) first detection time after 02:15Z
-   - (b) **`t_sat_goes` computed with `emberline.data.area_x.area_x_satellite_hit()`**. This is the *same* function `risk/metrics.py` uses (`03` §9). A scan is a hit if a corrected `GOES_STRONG` pixel has ≥ 50% of its area inside area X and lies wholly west of Lake Ave; `t_sat_goes` needs 2 of 3 consecutive scans to be hits.
+   - (b) **`t_sat_goes` computed with `ember.data.area_x.area_x_satellite_hit()`**. This is the *same* function `risk/metrics.py` uses (`03` §9). A scan is a hit if a corrected `GOES_STRONG` pixel has ≥ 50% of its area inside area X and lies wholly west of Lake Ave; `t_sat_goes` needs 2 of 3 consecutive scans to be hits.
    - (c) persistence and bleed behaviour
    - (d) whether FDCM shows the run more clearly (informational only; FDCM ingest is P2)
 5. **Area X.** Before running (b), check the area-X box from `scenario.yaml` on a map against the foothills west of Lake Ave. Adjust it **now if needed**; it is frozen with the config later (`03` §5).
@@ -194,7 +194,7 @@ Target 20–60 zones in the AOI. **Note:** current polygons are post-fire edits 
 
 ### Story geometry
 - `lake_ave.geojson`: the Lake Ave centerline from OSM (`name="North Lake Avenue"`), clipped to the AOI. Verify that it sits around lon −118.1316.
-- **`area_x.geojson`** (honest-number region): the lon/lat box from `scenario.yaml` `area_x` (default: −118.165 to −118.1316, 34.190–34.235 N), i.e. the west-Altadena foothills and edge (research 06 §2). **All cells inside count, any fuel.** Write `static/area_x_index.tif` and `emberline/data/area_x.py` with:
+- **`area_x.geojson`** (honest-number region): the lon/lat box from `scenario.yaml` `area_x` (default: −118.165 to −118.1316, 34.190–34.235 N), i.e. the west-Altadena foothills and edge (research 06 §2). **All cells inside count, any fuel.** Write `static/area_x_index.tif` and `ember/data/area_x.py` with:
   - `area_x_polygon()`
   - `area_x_satellite_hit(pixels)`: the shared function (§2)
 - **`spawn_points.json`:** `{ "demo": [{spawn_id, lon, lat, zone_id, street}] × 6 }`. These are judges' phones' assigned locations: on streets inside at-risk west-Altadena zones, not in canyons. Hand-pick them on a map. `load_scenario` seeds them into the hub (`04` §2.2).
@@ -264,7 +264,7 @@ The web build copies `data/scenarios/eaton/web/` to `web/public/static/eaton/`.
 
 ## 11. Live mode (roadmap; P2 at most)
 
-`emberline/data/live.py` implements the same source interface as replay: `poll(now) -> new manifest rows`. Live versions of each source:
+`ember/data/live.py` implements the same source interface as replay: `poll(now) -> new manifest rows`. Live versions of each source:
 
 | Source | Live behaviour |
 |---|---|

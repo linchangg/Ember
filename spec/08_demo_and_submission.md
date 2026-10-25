@@ -16,7 +16,7 @@
 
 | t | Beat | Clock | Who / what | Fallback |
 |---|---|---|---|---|
-| 0:00 | "Nineteen people died in the Eaton Fire, eighteen west of Lake Avenue. That night a weather satellite imaged Altadena every 5 minutes. Most spread forecasts are run from a fixed start and aren't continuously re-fit to new observations. **Emberline re-fits to every satellite look.**" | paused | Presenter | — |
+| 0:00 | "Nineteen people died in the Eaton Fire, eighteen west of Lake Avenue. That night a weather satellite imaged Altadena every 5 minutes. Most spread forecasts are run from a fixed start and aren't continuously re-fit to new observations. **Ember re-fits to every satellite look.**" | paused | Presenter | — |
 | 0:20 | Operator presses **Play (240×)**. GOES pulses every 5 min; the forecast redraws. The presenter drags the slider into the future ("where it can be in two hours") and points at Lake Ave. | 240× | Presenter / operator | Screenshot slide |
 | 0:40 | The judge's phone shows **Act by** and a countdown. "You live here now." | 240× | Wrangler | `/control` view |
 | ~0:50 | A zone crosses the frozen rule. **The hub auto-pauses**; the top bar shows "Paused for operator review" and the alert card opens. "Claude drafted this; a validator checked every number against the forecast. A human approves." Operator holds **Approve & call**. | **auto-paused** | Operator | Template text is fine |
@@ -91,7 +91,7 @@
 ## 6. Devpost submission (target Sun 08:30; hard close 09:00)
 
 - [ ] Team name, table number, and the pitch:
-  > *"Emberline re-fits a wildfire spread forecast every time a satellite looks. It assimilates GOES and VIIRS detections into a physics ensemble every 5 minutes, ranks who is in the way with act-by times, and phones a duty officer after a human approves. Shown as a retrospective replay of the Eaton Fire night."*
+  > *"Ember re-fits a wildfire spread forecast every time a satellite looks. It assimilates GOES and VIIRS detections into a physics ensemble every 5 minutes, ranks who is in the way with act-by times, and phones a duty officer after a human approves. Shown as a retrospective replay of the Eaton Fire night."*
 - [ ] Image: a dashboard screenshot with the alert card.
 - [ ] **Public repo.** Check that no secrets are in the history (`git log -p | grep -iE "sk_|key=|token|\+1[0-9]{10}"`) and that `.env.example` exists.
 - [ ] **Video ≤ 3:00, demo-first:** phone rings → forecast shifts → problem → how built → Evaluation card. Backup video at M4 (Sun 02:00); final at M5.

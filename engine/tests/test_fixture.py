@@ -6,8 +6,8 @@ from pathlib import Path
 
 import numpy as np
 
-from emberline.contracts import SCHEMA_VERSION, CycleBundle, lead_idx
-from emberline.scripts.make_fixture import (
+from ember.contracts import SCHEMA_VERSION, CycleBundle, lead_idx
+from ember.scripts.make_fixture import (
     HEADING,
     IGN_LAT,
     IGN_LON,
@@ -112,7 +112,7 @@ def test_fixture_bundles_alerts_and_size():
         for alert in bundle.alerts:
             assert len(alert.text) <= 300
             assert len(alert.voice_script.split()) <= 110
-            assert alert.voice_script.startswith("This is Emberline.")
+            assert alert.voice_script.startswith("This is Ember.")
         cycles.append(bundle)
 
     assert len(pre) == 3

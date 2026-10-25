@@ -1,6 +1,6 @@
 # 03: Engine: clock, replay loop, publisher, risk, alerts (owner: Cody; `metrics.py` by Abby)
 
-**Goal.** One Python 3.12 process on the demo laptop: `python -m emberline.run --scenario eaton --profile online|offline`.
+**Goal.** One Python 3.12 process on the demo laptop: `python -m ember.run --scenario eaton --profile online|offline`.
 
 **What it does**
 - Releases data at its real availability time.
@@ -99,12 +99,12 @@ def physics_cycle(host, branch, k, new_obs, scans) -> PhysicsOutput:
 
 **obs_used → observation status.** `used=True` → `assimilated`, `influence = ll_spread`; `used=False` → `rejected`. Only published observations need this.
 
-## 5. Precompute and cache (`python -m emberline.scripts.precompute`)
+## 5. Precompute and cache (`python -m ember.scripts.precompute`)
 
 ```
-python -m emberline.scripts.precompute --scenario eaton --branch main     --filter pf
-python -m emberline.scripts.precompute --scenario eaton --branch openloop --filter none
-python -m emberline.scripts.precompute --scenario eaton --branch demo_b1 --script config/demo_report.yaml   # §10.3
+python -m ember.scripts.precompute --scenario eaton --branch main     --filter pf
+python -m ember.scripts.precompute --scenario eaton --branch openloop --filter none
+python -m ember.scripts.precompute --scenario eaton --branch demo_b1 --script config/demo_report.yaml   # §10.3
 ```
 
 **Per cycle**, it writes to `cache/{scn}/{branch}/{k}/`:
@@ -121,7 +121,7 @@ python -m emberline.scripts.precompute --scenario eaton --branch demo_b1 --scrip
 
 **Freeze protocol** (one protocol; `08` §2):
 1. Choose `pf` vs `reinit` and tune priors on the twin experiment + **the first 2 h of the Eaton fire only** (18:15–20:15 PST).
-2. Run `python -m emberline.scripts.freeze` **once**. It hashes `scenario.yaml` + `config/alert_rules.yaml` + `hazard.MODEL_VERSION` and writes `config_hash` into `scenario.yaml` and `web/manifest.json`.
+2. Run `python -m ember.scripts.freeze` **once**. It hashes `scenario.yaml` + `config/alert_rules.yaml` + `hazard.MODEL_VERSION` and writes `config_hash` into `scenario.yaml` and `web/manifest.json`.
 3. The **first full `main` + `openloop` precompute after the freeze is the reported run (v1).**
 4. Any later change produces v2. It is published alongside v1 and disclosed. Target: freeze by **Sat 20:00**.
 
@@ -201,7 +201,7 @@ def build_bundle(phys: PhysicsOutput, hub: HubSnapshot) -> CycleBundle:
 ```
 text:  "{LEVEL} recommended — {zones}: fire {p_words} within {lead_h} h (P {p:.0%}). Act by {act_by:%H:%M} PST.
         ~{pop:,} residents{, critical types}. Forecast {k:%H:%M}, satellite data through {data_through:%H:%M}."
-voice: "This is Emberline. Briefing for the duty officer. Recommend {level_words} for
+voice: "This is Ember. Briefing for the duty officer. Recommend {level_words} for
         {zones_spoken}. Fire is {p_words} to reach the zone within {lead_words}. Act by {act_by_spoken}. About {pop}
         residents{, critical_spoken}. This is decision support; you make the call. Say 'acknowledged' to confirm."
 ```

@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
-from emberline.hazard.api import Grid, Landscape, Weather, ModelConfig, Ignition
-from emberline.hazard.model import RustHazardModel
-from emberline.hazard.bridge import BackendOptions
+from ember.hazard.api import Grid, Landscape, Weather, ModelConfig, Ignition
+from ember.hazard.model import RustHazardModel
+from ember.hazard.bridge import BackendOptions
 
 
 @pytest.fixture
@@ -50,7 +50,7 @@ def observation(
     kind="ground_report",
 ):
     from pyproj import Transformer
-    from emberline.contracts import ObservationRecord
+    from ember.contracts import ObservationRecord
 
     g = model.land.grid
     x = model._ignition_xy[0, 0] + east_cells * g.cell_m

@@ -3,10 +3,10 @@ import { CITIES, LOCAL, STATES } from '../labels.js'
 import { newHeli } from '../lib/globeData.js'
 import { FileSource } from '../data/fileSource.ts'
 import { acquireSource } from '../data/store.ts'
-import { createGlobeView, loadExtras } from '../lib/globeView.js'
+import { compareWithOfficial, createGlobeView, loadExtras } from '../lib/globeView.js'
 import { AlertsTab, ZonesTab } from './GlobePanels.jsx'
-import { BranchSwitcher, DutyOfficerCall, LeadTimesTab } from './ReplayPanels.jsx'
-import { branchDescriptors, leadRows, useAvailableBranches, useReplayJson } from './replayData.js'
+import { BranchSwitcher, DutyOfficerCall } from './ReplayPanels.jsx'
+import { branchDescriptors, useAvailableBranches } from './replayData.js'
 
 const EONET = 'https://eonet.gsfc.nasa.gov/api/v3/events?status=all&start=2025-01-05&end=2025-01-09&limit=500'
 const FOCUS_MS = Date.parse('2025-01-07T12:00:00Z')
@@ -22,6 +22,8 @@ const FEATURED = [
   { re: /whakaari/i, label: 'WHAKAARI VOLCANO', sub: 'Volcano · click for details', color: [255, 110, 90], phase: 0.5 },
   { re: /a23b/i, label: 'ICEBERG A23B', sub: 'Sea ice · click for details', color: [170, 225, 255], phase: 0.75 },
 ]
+// Zones the guided tour stops at where the engine's alert preceded the county's (kept if the data shows a lead; others fill in up to three)
+const TOUR_ZONES = ['PAS-E022', 'ALD-CANON', 'ALD-CHANEY']
 const FORECAST_LABELS = ['≥10%', '≥30%', '≥50%', '≥70%', '≥90%']
 const STATUS_COLOR = { order: [255, 90, 60], warning: [255, 176, 58], watch: [232, 211, 106], clear: [90, 140, 210] }
 const fmtPT = (ms) => `${new Date(ms).toLocaleString('en-US', { timeZone: 'America/Los_Angeles', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} PT`
@@ -299,7 +301,6 @@ export default function GlobeNetwork() {
   const snap = useSyncExternalStore(source.subscribe, source.getSnapshot)
   const [extras, setExtras] = useState(null)
   const branchIds = useAvailableBranches(scnId) // precomputed runs with their own index.json
-  const leadTimes = useReplayJson(`cache/${scnId}/lead_times.json`) // how early vs the official orders; null when absent
   const scenario = useMemo(() => (snap.manifest ? createGlobeView(snap, extras) : null), [snap, extras])
   const scnRef = useRef(null)
   const act = (promise) => promise.catch((e) => console.warn(e.message))
@@ -355,7 +356,7 @@ export default function GlobeNetwork() {
     try {
       setPick(null); setProbe(null); setSelZone(null); setCompare(true); setLead(120); setTab('zones')
       homeRef.current?.()
-      say('Emberline', 'A wildfire forecast that re-fits every time a satellite looks. We replay the Eaton Fire night, Jan 7–8, 2025.')
+      say('Ember', 'A wildfire forecast that re-fits every time a satellite looks. We replay the Eaton Fire night, Jan 7–8, 2025.')
       await wait(4500)
       const t0 = Math.min(m.replay_end_sim_ms, m.t_ignition_sim_ms + 45 * 60000)
       await act(source.actions.seek(t0))
@@ -386,20 +387,64 @@ export default function GlobeNetwork() {
       }
       await wait(1200)
       setTab('alerts')
-      say('A zone crosses a rule', 'The engine proposes an alert with a briefing whose every number is checked. A person approves; nothing is sent in this replay.')
-      await wait(7500)
-      setTab('zones')
-      const top = [...snapRef.current.zoneRisk].filter((r) => r.status !== 'clear').sort((a, b) => a.rank - b.rank)[0]
-      const feat = top && sc.zones.features.find((f) => f.properties.zone_id === top.zone_id)
-      if (feat) {
+      // the first alert already has a lead over the county's first order; say so with the real numbers
+      const firstLead = [...compareWithOfficial(snapRef.current.alerts, sc.official).values()].filter((v) => v.lead_min > 0).sort((a, b) => a.engine_t - b.engine_t)[0]
+      const firstLeadName = firstLead && (sc.zones.features.find((f) => f.properties.zone_id === firstLead.zone_id)?.properties.name ?? firstLead.zone_id)
+      if (firstLead) setSelZone(firstLead.zone_id)
+      say('A zone crosses a rule', `The engine proposes an alert with a briefing whose every number is checked. A person approves; nothing is sent in this replay.${firstLead ? ` This first one, for ${firstLeadName} at ${fmtHM(firstLead.engine_t)} PT, is ${firstLead.lead_min} minutes before the county's first ${firstLead.official_level === 'order' ? 'evacuation order' : 'evacuation warning'} for that zone (${fmtHM(firstLead.official_t)} PT).` : ''}`)
+      await wait(firstLead ? 11000 : 7500)
+      setSelZone(null)
+
+      // ---- racing the county: stops at zones where Ember's alert came before the official one ----
+      // the replay is run to its end first, so every alert the engine ever proposed is known and can be compared with the official times
+      await act(source.actions.seek(m.replay_end_sim_ms))
+      await wait(2500)
+      const vs = compareWithOfficial(snapRef.current.alerts, sc.official)
+      const zname = (id) => sc.zones.features.find((f) => f.properties.zone_id === id)?.properties.name ?? id
+      const ahead = [...vs.values()].filter((v) => v.lead_min > 0)
+      const picks = TOUR_ZONES.map((id) => vs.get(id)).filter((v) => v && v.lead_min > 0)
+      for (const v of [...ahead].sort((a, b) => b.lead_min - a.lead_min)) if (picks.length < 3 && !picks.includes(v)) picks.push(v)
+      picks.sort((a, b) => a.engine_t - b.engine_t)
+      const levelWord = (v) => (v.official_level === 'order' ? 'evacuation order' : 'evacuation warning')
+      for (const v of picks) {
+        const feat = sc.zones.features.find((f) => f.properties.zone_id === v.zone_id)
+        if (!feat) continue
         const c = center(feat)
-        setSelZone(top.zone_id)
-        flyRef.current?.(c.lon, c.lat, 3500)
-        say('Who is in the way', 'Zones ranked by risk, each with an act-by time: the moment to start evacuating.')
-        await wait(7500)
-        setSelZone(null)
+        const name = zname(v.zone_id)
+        await act(source.actions.seek(v.engine_t))
+        setTab('alerts')
+        setSelZone(v.zone_id)
+        setLead(60)
+        flyRef.current?.(c.lon, c.lat, 2600)
+        say(`${name}: Ember alerts first`, `At ${fmtHM(v.engine_t)} PT the engine ${v.engine_level === 'order_recommended' ? 'recommends an order' : 'proposes a warning'} for ${name}. The county's first ${levelWord(v)} for this zone comes at ${fmtHM(v.official_t)} PT: ${v.lead_min} minutes later. The orange mark on the time slider is Ember, the white mark is the county, and the green bar is the lead.`)
+        await wait(11000)
+        say(`${name}: the county acts`, `Time runs forward to ${fmtHM(v.official_t)} PT, when the official ${v.official_level} goes out. Ember's alert had been waiting ${v.lead_min} minutes.`)
+        const steps = 8
+        for (let k = 1; k <= steps; k++) {
+          await act(source.actions.seek(Math.round(v.engine_t + ((v.official_t - v.engine_t) * k) / steps)))
+          await wait(450)
+        }
+        await wait(3500)
+      }
+      setSelZone(null)
+      await act(source.actions.seek(m.replay_end_sim_ms))
+      setTab('zones')
+      const both = [...vs.values()]
+      const first = both.filter((v) => v.lead_min > 0).length
+      if (both.length) {
+        const lastCycle = snapRef.current.cycles[snapRef.current.cycles.length - 1]?.knowledge_sim_ms ?? m.replay_end_sim_ms
+        const countyInWindow = (sc.official?.orders ?? []).filter((o) => o.t_sim_ms <= lastCycle).length
+        say('Across the night', `In the ${both.length} zones where both Ember and the county sent an alert, Ember was first in ${first}. In the part of the night replayed so far, the county alerted ${countyInWindow} zones and Ember flagged ${both.length} of them. Official times are from the county's after-action report.`)
+        await wait(11000)
+      }
+
+      const last = picks[picks.length - 1]
+      const lastFeat = last && sc.zones.features.find((f) => f.properties.zone_id === last.zone_id)
+      if (lastFeat) {
+        const c = center(lastFeat)
+        await act(source.actions.seek(last.engine_t))
         fitRef.current(eaton)
-        await wait(5000)
+        await wait(5500)
         const cell = sc.cellAt(c.lon, c.lat)
         if (cell != null) {
           setProbe({ lon: c.lon, lat: c.lat, cell, x: Math.max(40, (window.innerWidth - 340) / 2 - 190), y: window.innerHeight / 2 - 40 })
@@ -408,13 +453,6 @@ export default function GlobeNetwork() {
         }
       }
       setProbe(null)
-      const names = new Map(sc.zones.features.map((f) => [f.properties.zone_id, f.properties.name]))
-      const early = leadTimes?.branches ? leadRows(leadTimes, 'satellites-only', names).filter((r) => r.kind === 'order' && r.lead > 0) : []
-      if (early.length) {
-        setTab('lead')
-        say('How early', `Using satellite data only, Emberline recommended an evacuation order before the official order in ${early.length} zone${early.length === 1 ? '' : 's'}; ${early[0].name} came ${early[0].lead} minutes earlier.`)
-        await wait(8000)
-      }
       say('Your turn', 'Drag the actual-time and forecast sliders, click a zone, or click the map.')
       await wait(6000)
     } catch {
@@ -428,13 +466,14 @@ export default function GlobeNetwork() {
   const leadRef = useRef(60)
   const [compare, setCompare] = useState(true) // draw the previous forecast for comparison
   const compareRef = useRef(true)
-  const [tab, setTab] = useState('zones') // right panel: zones | alerts | event
+  const [tab, setTab] = useState('zones') // right panel: zones | alerts
   const [selZone, setSelZone] = useState(null)
   const selZoneRef = useRef(null)
   const flyRef = useRef(null)
   const [probe, setProbe] = useState(null) // clicked spot for the arrival-time estimate
   const probeRef = useRef(null)
   const showTime = !!pick && !!scenario && /eaton/i.test(pick.title)
+  const newAlerts = scenario ? scenario.alerts.filter((a) => a.state === 'proposed').length : 0 // proposed alerts waiting for a decision
   const timeRef = useRef(false)
   useEffect(() => {
     selRef.current = !!pick
@@ -1852,7 +1891,7 @@ export default function GlobeNetwork() {
       <div className="gn__bg" />
       <canvas ref={canvasRef} className="gn__map" />
       <header className="gn__bar">
-        <span className="gn__title">EMBERLINE</span>
+        <span className="gn__title">EMBER</span>
         {error ? <span role="status">Event feed unavailable. Map remains available.</span> : null}
       </header>
       <div className="gn__credit">Roads, places, water: US Census TIGERweb · USGS · Terrain: AWS Terrain Tiles · Events: NASA EONET</div>
@@ -1914,6 +1953,9 @@ export default function GlobeNetwork() {
         const prevK = K != null ? scenario.prevCycle(K) : null
         const prev = prevK != null ? scenario.cycleOf(prevK) : null
         const span = m.replay_end_sim_ms - m.replay_start_sim_ms
+        const pct = (ms) => ((ms - m.replay_start_sim_ms) / span) * 100
+        const hz = selZone ? scenario.vsOfficial.get(selZone) : null // the zone picked in the panel: its alert and the county's, on the slider
+        const zoneNames = new Map(scenario.zones.features.map((f) => [f.properties.zone_id, f.properties.name]))
         const obsKinds = cyc ? Object.entries(cyc.n_obs_by_kind ?? {}).map(([k, v]) => `${v} ${k.replace('_', ' ')}${v === 1 ? '' : 's'}`).join(', ') : ''
         return (
           <div className="gn__time">
@@ -1927,11 +1969,22 @@ export default function GlobeNetwork() {
                 <span><i style={{ background: '#96ebff' }} />Observation</span>
               </div>
               <div className="gn__time-row"><b>Actual time</b><span>{fmtPT(t)}</span></div>
-              <div className="gn__slider">
+              <div className={`gn__slider ${hz ? 'has-mark' : ''}`}>
                 <input type="range" min={m.replay_start_sim_ms} max={m.replay_end_sim_ms} step={60000} value={t} onChange={(e) => scrubTo(+e.target.value)} onPointerUp={releaseScrub} onKeyUp={releaseScrub} />
                 {scenario.timeline.map((ev) => (
                   <i key={ev.t_sim_ms} className="gn__tick" style={{ left: `${((ev.t_sim_ms - m.replay_start_sim_ms) / span) * 100}%` }} title={`${fmtPT(ev.t_sim_ms)} · ${ev.label}`} />
                 ))}
+                {hz ? (
+                  <>
+                    <b className="gn__zonelbl">{zoneNames.get(hz.zone_id) ?? hz.zone_id}</b>
+                    <span className="gn__leadbar" style={{ left: `${pct(Math.min(hz.engine_t, hz.official_t))}%`, width: `${Math.abs(pct(hz.official_t) - pct(hz.engine_t))}%` }} />
+                    <i className="gn__mark eng" style={{ left: `${pct(hz.engine_t)}%` }} />
+                    <i className="gn__mark off" style={{ left: `${pct(hz.official_t)}%` }} />
+                    <span className={`gn__marklbl eng ${hz.engine_t <= hz.official_t ? 'first' : 'second'}`} style={{ left: `${pct(hz.engine_t)}%` }}>Ember {fmtHM(hz.engine_t)}</span>
+                    <span className={`gn__marklbl off ${hz.engine_t <= hz.official_t ? 'second' : 'first'}`} style={{ left: `${pct(hz.official_t)}%` }}>Official {hz.official_level} {fmtHM(hz.official_t)}</span>
+                    {hz.lead_min > 0 ? <span className="gn__barlbl" style={{ left: `${(pct(hz.engine_t) + pct(hz.official_t)) / 2}%` }}>{hz.lead_min} min ahead</span> : null}
+                  </>
+                ) : null}
               </div>
               <div className="gn__time-row">
                 <b>Forecast</b>
@@ -1963,15 +2016,17 @@ export default function GlobeNetwork() {
           <button className="gn__fit" onClick={() => fitRef.current?.(pick)}>Fit to fire</button>
           {showTime ? (
             <div className="gn__tabs">
-              {[['zones', 'Zones'], ['alerts', `Alerts${scenario.alerts.filter((a) => a.state === 'proposed').length ? ` (${scenario.alerts.filter((a) => a.state === 'proposed').length} new)` : ''}`], ...(leadTimes?.branches ? [['lead', 'How early']] : []), ['event', 'Event']].map(([id, label]) => (
-                <button key={id} className={tab === id ? 'on' : ''} onClick={() => setTab(id)}>{label}</button>
+              {[['zones', 'Zones'], ['alerts', 'Alerts']].map(([id, label]) => (
+                <button key={id} className={tab === id ? 'on' : ''} onClick={() => setTab(id)}>
+                  {label}
+                  {id === 'alerts' && newAlerts ? <i className="gn__count" aria-label={`${newAlerts} new`}>{newAlerts}</i> : null}
+                </button>
               ))}
             </div>
           ) : null}
           {showTime && tab === 'zones' ? <ZonesTab scenario={scenario} selZone={selZone} onSelect={(z) => { setSelZone(z.id); flyRef.current?.(z.lon, z.lat, 3500) }} /> : null}
-          {showTime && tab === 'alerts' ? <AlertsTab scenario={scenario} actions={source.actions} act={act} /> : null}
-          {showTime && tab === 'lead' && leadTimes?.branches ? <LeadTimesTab lead={leadTimes} zones={scenario.zones.features} /> : null}
-          {!showTime || tab === 'event' ? (
+          {showTime && tab === 'alerts' ? <AlertsTab scenario={scenario} actions={source.actions} act={act} focusZone={selZone} /> : null}
+          {!showTime ? (
             <dl>
               <dt>Type</dt><dd>{pick.kind}</dd>
               <dt>Started</dt><dd>{fmtDate(pick.started)}</dd>

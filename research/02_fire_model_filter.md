@@ -240,7 +240,7 @@ step(t_k, new_obs):                                    # called every cycle_min 
   return summarise(T, w, t_k)                           # ForecastSnapshot
 ```
 
-## 10. Interface (backend calls this; `emberline/hazard/api.py`)
+## 10. Interface (backend calls this; `ember/hazard/api.py`)
 
 ```python
 from dataclasses import dataclass, field

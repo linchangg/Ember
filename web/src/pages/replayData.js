@@ -51,7 +51,7 @@ export function useAvailableBranches(scn) {
 
 /**
  * One comparison row per zone with an official warning or order: the order where there was an official order, else the warning.
- * lead_min > 0 means Emberline was earlier. Sorted earliest-first, zones with no Emberline alert last.
+ * lead_min > 0 means Ember was earlier. Sorted earliest-first, zones with no Ember alert last.
  */
 export function leadRows(lead, branch, names) {
   const zones = lead?.branches?.[branch]?.zones ?? {}

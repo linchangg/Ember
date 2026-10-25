@@ -2,10 +2,10 @@ from dataclasses import fields
 import inspect
 import numpy as np
 import pytest
-from emberline.hazard.api import HazardModel, ForecastArrays, ModelConfig
-from emberline.hazard.cdf import summarize_arrivals, encode_arrival, region_arrivals
-from emberline.hazard.geometry import north_to_south
-from emberline.hazard.model import RustHazardModel
+from ember.hazard.api import HazardModel, ForecastArrays, ModelConfig
+from ember.hazard.cdf import summarize_arrivals, encode_arrival, region_arrivals
+from ember.hazard.geometry import north_to_south
+from ember.hazard.model import RustHazardModel
 
 
 def test_exact_public_contract():
@@ -77,6 +77,6 @@ def test_bad_cdf_weights_rejected(weights):
 
 
 def test_shared_api_compatibility_probe():
-    from emberline.hazard.compatibility import check_contracts
+    from ember.hazard.compatibility import check_contracts
 
     assert check_contracts()["wire_schema"] == 2

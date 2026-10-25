@@ -2,7 +2,7 @@
 
 Historical research-branch report (baseline `8cea5fc`). On 2026-10-24 the research
 adapter was combined with the separate Rust-backed HazardModel implementation.
-`engine/emberline/hazard/` now exists; the statements below about its absence
+`engine/ember/hazard/` now exists; the statements below about its absence
 describe this report’s original baseline. See `docs/MAIN_INTEGRATION_REVIEW.md`
 at the repository root for the combined verification and remaining gates.
 
@@ -26,7 +26,7 @@ python3.12 -m pip install 'numpy>=2' 'pytest>=8'
 FIRE_CLI=target/release/fire-cli python -m pytest adapter/tests -q
 ```
 
-Outcome: `38 passed` (numpy 2.5.4). That includes grid, time, and arrival unit tests, subprocess failure classes, and the synthetic Rust path. The synthetic path is not a `HazardModel` acceptance test. `engine/emberline/hazard/` is still absent.
+Outcome: `38 passed` (numpy 2.5.4). That includes grid, time, and arrival unit tests, subprocess failure classes, and the synthetic Rust path. The synthetic path is not a `HazardModel` acceptance test. `engine/ember/hazard/` is still absent.
 
 ## Smoke benchmark
 

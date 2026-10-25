@@ -44,7 +44,7 @@ uv sync --project engine --locked
 npm --prefix web ci --ignore-scripts
 npm --prefix stdb ci --ignore-scripts
 cargo build --manifest-path physics/surface_v1/Cargo.toml -p fire-bridge --release --locked
-uv run --project engine python -m emberline.hazard.compatibility
+uv run --project engine python -m ember.hazard.compatibility
 uv run --project engine pytest engine/tests -q
 PYTHONPATH=engine uv run --project engine python -m unittest discover \
   -s scripts/validation -p 'test_release_audit.py' -v
@@ -69,7 +69,7 @@ forecasts, ending at 2025-01-08 08:35 UTC. Data smoke verified 22 HRRR files and
 weather at 157 issues; it is not a full target-profile replay.
 
 Existing code: `scripts/precompute.py`, `runtime/{loop,model_host,cache,sources}.py`,
-`sync/cache_sink.py`, `data/{hrrr,statics}.py`; paths are under `engine/emberline/`.
+`sync/cache_sink.py`, `data/{hrrr,statics}.py`; paths are under `engine/ember/`.
 Use these components instead of adding another orchestrator.
 
 1. Run `scripts/validation/eaton_data_smoke.py` with `PYTHONPATH=engine` and the
@@ -89,7 +89,7 @@ Use these components instead of adding another orchestrator.
    there; reserve `cache/` beneath it for the model. Generate one development branch:
 
    ```sh
-   uv run --project engine python -m emberline.scripts.precompute --scenario eaton \
+   uv run --project engine python -m ember.scripts.precompute --scenario eaton \
      --branch main --filter pf --profile dev --workers 2 --memory-gb 2 \
      --timeout-s 900 --no-briefings --cache-root /tmp/eaton-r1-run/cache
    ```
@@ -136,7 +136,7 @@ Keep the homepage globe intact; verify `/dashboard` and each homepage widget sep
    provenance and `255` transparency. Missing/truncated assets must hide invalid
    numbers; a late response must not overwrite a newer selection.
 5. In a dedicated local hub, run the actual runtime with Eaton inputs, then repeat
-   with two browsers. `emberline.run` currently uses the canonical cache root and
+   with two browsers. `ember.run` currently uses the canonical cache root and
    fixture-only bundle replay. Add/test explicit cache-root or generic bundle-replay
    support if R1 artifacts must be consumed by the runtime; file mode already consumes
    a separate served root. Do not assume `run --cache-root` exists.
@@ -171,7 +171,7 @@ parallel with R1 if separately approved; do not call assimilation pixels ground 
 5. Run the scorer:
 
    ```sh
-   uv run --project engine python -m emberline.hazard.historical \
+   uv run --project engine python -m ember.hazard.historical \
      --manifest /path/to/frozen-experiment/experiment.json \
      --out /path/to/reports/historical-report.json
    uv run --project engine pytest engine/tests/test_historical.py -q

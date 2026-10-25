@@ -1,6 +1,6 @@
 """T9b: web manifest, terrain, story geometry, timeline (01 §6-§10). Offline, against written files.
 
-Build first: `uv run --no-sync python -m emberline.data.webpack --scenario eaton` (needs network once).
+Build first: `uv run --no-sync python -m ember.data.webpack --scenario eaton` (needs network once).
 """
 
 from __future__ import annotations
@@ -12,11 +12,11 @@ import pytest
 import rasterio
 from PIL import Image
 
-from emberline.data.config import load_scenario, scenario_dir, utc_ms
-from emberline.data.grid import transform
-from emberline.data.terrain import aoi_bbox, dem10_path, terrarium_decode, terrarium_encode
-from emberline.data.truth import pst_to_utc_ms
-from emberline.data.webpack import (
+from ember.data.config import load_scenario, scenario_dir, utc_ms
+from ember.data.grid import transform
+from ember.data.terrain import aoi_bbox, dem10_path, terrarium_decode, terrarium_encode
+from ember.data.truth import pst_to_utc_ms
+from ember.data.webpack import (
     EVIDENCE, SENSOR_DATA, ZONES_DISCLOSED, ZONES_LABEL, has_data, parse_tle, tle_checksum_ok, zones_from_snapshot,
 )
 
@@ -44,7 +44,7 @@ MANIFEST: dict = {
 
 def _need(path):
     if not path.exists():
-        pytest.skip(f"{path} not built; run python -m emberline.data.webpack")
+        pytest.skip(f"{path} not built; run python -m ember.data.webpack")
     return path
 
 
@@ -191,7 +191,7 @@ def test_satellites_and_sensors():
 def test_overpass_remark_is_not_cached(monkeypatch, tmp_path):
     import httpx
 
-    from emberline.data import story
+    from ember.data import story
 
     timeout = {"elements": [], "remark": 'runtime error: Query timed out in "query" at line 1 after 2 seconds.'}
     monkeypatch.setattr(story, "scenario_dir", lambda scn: tmp_path)

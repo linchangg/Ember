@@ -11,11 +11,11 @@ from hazard_standin import flat_landscape
 from test_engine import FlatForcing, synth_source, write_scenario
 from test_sources import MIN, SCN, T0, _build
 
-from emberline.data.config import scenario_dir
-from emberline.runtime import publisher
-from emberline.runtime.loop import load_scenario_dir
-from emberline.runtime.sources import ReplaySource, documented_reports
-from emberline.scripts.precompute import apply_overrides, precompute
+from ember.data.config import scenario_dir
+from ember.runtime import publisher
+from ember.runtime.loop import load_scenario_dir
+from ember.runtime.sources import ReplaySource, documented_reports
+from ember.scripts.precompute import apply_overrides, precompute
 
 T_REP = T0 + 7 * MIN
 TIMELINE = [

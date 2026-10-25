@@ -8,8 +8,8 @@ import pytest
 from pyproj import Transformer
 from shapely.geometry import shape
 
-from emberline.runtime import summarize as s
-from emberline.scripts import make_fixture
+from ember.runtime import summarize as s
+from ember.scripts import make_fixture
 
 # Eaton grid numbers: 340x340 at 90 m.
 G = {"cell_m": 90.0, "nx": 340, "ny": 340, "x0": 381_480.0, "y0": 3_800_280.0, "crs": "EPSG:32611"}

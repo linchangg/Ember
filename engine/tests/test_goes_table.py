@@ -3,12 +3,12 @@
 import pandas as pd
 import pytest
 
-from emberline.contracts import GOES_FIRE
-from emberline.data import goes
-from emberline.data.config import scenario_dir
+from ember.contracts import GOES_FIRE
+from ember.data import goes
+from ember.data.config import scenario_dir
 
 OBS = scenario_dir("eaton") / "obs"
-needs_table = pytest.mark.skipif(not (OBS / "goes18_fdcc.parquet").exists(), reason="run python -m emberline.data.goes")
+needs_table = pytest.mark.skipif(not (OBS / "goes18_fdcc.parquet").exists(), reason="run python -m ember.data.goes")
 COLS = ["scan_id", "sensor_id", "scan_start_ms", "scan_end_ms", "created_ms", "s3_last_modified_ms", "available_ms",
         "px_x", "px_y", "lon", "lat", "ring", "mask", "dqf", "hot", "clear", "frp_mw", "trust"]
 EV_COLS = ["scan_id", "sensor_id", "mode", "t_start_sim_ms", "t_end_sim_ms", "available_sim_ms", "n_pixels_aoi",

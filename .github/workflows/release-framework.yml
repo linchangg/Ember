@@ -1,9 +1,9 @@
 name: Release framework checks
 on:
   push:
-    paths: ['scripts/validation/release_audit.py', 'scripts/validation/test_release_audit.py', 'engine/emberline/contracts.py', 'fixtures/**', '.github/workflows/release-framework.yml']
+    paths: ['scripts/validation/release_audit.py', 'scripts/validation/test_release_audit.py', 'engine/ember/contracts.py', 'fixtures/**', '.github/workflows/release-framework.yml']
   pull_request:
-    paths: ['scripts/validation/release_audit.py', 'scripts/validation/test_release_audit.py', 'engine/emberline/contracts.py', 'fixtures/**', '.github/workflows/release-framework.yml']
+    paths: ['scripts/validation/release_audit.py', 'scripts/validation/test_release_audit.py', 'engine/ember/contracts.py', 'fixtures/**', '.github/workflows/release-framework.yml']
 permissions:
   contents: read
 jobs:

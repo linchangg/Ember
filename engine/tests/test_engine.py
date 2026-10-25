@@ -1,8 +1,8 @@
 """Engine M1 acceptance tests, spec/03 §14 tests 1–5 (WAVE2 T10), plus the forcing/cache/profile wiring.
 
-SyntheticSource + the FakeHazardModel double (on the real emberline.hazard.api) + an in-memory
+SyntheticSource + the FakeHazardModel double (on the real ember.hazard.api) + an in-memory
 fake hub, over a flat synthetic scenario written to tmp_path. Test 1 also has a hub-gated variant
-on scenario "synth" (EMBERLINE_HUB_TESTS=1, local `spacetime start`). The same orchestrator on
+on scenario "synth" (EMBER_HUB_TESTS=1, local `spacetime start`). The same orchestrator on
 Abby's Rust backend is tests/test_engine_native.py (needs a built fire-bridge).
 """
 
@@ -27,23 +27,23 @@ import yaml
 from hazard_standin import flat_landscape
 from rasterio.transform import Affine
 
-from emberline.ai import briefing as brf
-from emberline.contracts import ClockState, CycleBundle, ScanEvent
-from emberline.data import grid as gridlib
-from emberline.hazard.api import MODEL_VERSION, HazardModel, Weather
-from emberline.hazard import bridge, checkpoint
-from emberline.hazard.bridge import sha256_file
-from emberline.runtime import cache, publisher
-from emberline.runtime import loop as loop_mod
-from emberline.runtime.clock import FastClock, SimClock, sim_now_ms
-from emberline.runtime.loop import Loop, NcForcing, WeatherAsOf, load_scenario_dir, run_hash
-from emberline.runtime.model_host import landscape, make_host, model_config, model_grid, model_version, rust_backend
-from emberline.runtime.publisher import CycleInputs, build_bundle
-from emberline.runtime.sources import InboxSource, SyntheticSource
-from emberline.scripts.precompute import precompute
-from emberline.sync.cache_sink import CacheSink
-from emberline.sync.poller import Poller
-from emberline.sync.sink import HubSnapshot, apply_alerts
+from ember.ai import briefing as brf
+from ember.contracts import ClockState, CycleBundle, ScanEvent
+from ember.data import grid as gridlib
+from ember.hazard.api import MODEL_VERSION, HazardModel, Weather
+from ember.hazard import bridge, checkpoint
+from ember.hazard.bridge import sha256_file
+from ember.runtime import cache, publisher
+from ember.runtime import loop as loop_mod
+from ember.runtime.clock import FastClock, SimClock, sim_now_ms
+from ember.runtime.loop import Loop, NcForcing, WeatherAsOf, load_scenario_dir, run_hash
+from ember.runtime.model_host import landscape, make_host, model_config, model_grid, model_version, rust_backend
+from ember.runtime.publisher import CycleInputs, build_bundle
+from ember.runtime.sources import InboxSource, SyntheticSource
+from ember.scripts.precompute import precompute
+from ember.sync.cache_sink import CacheSink
+from ember.sync.poller import Poller
+from ember.sync.sink import HubSnapshot, apply_alerts
 
 SCN = "synth"
 MIN = 60_000
@@ -152,7 +152,7 @@ def write_hrrr(ctx, d: Path) -> list[tuple[int, Path]]:
     A at t_ref, every band out an hour before replay start (toward 240° at 6 m/s);
     B an hour later (toward 260° at 8 m/s): f00 out at k0+10 min, f01-f02 at k0+40 min
     (f02 is valid after that issue), f03-f09 never out during the replay."""
-    from emberline.data.hrrr import forcing_dataset, write_forcing
+    from ember.data.hrrr import forcing_dataset, write_forcing
 
     xs, ys = gridlib.cell_centers(G)
     k0, never = ctx.k0_ms, ctx.end_ms + 600 * MIN
@@ -428,12 +428,12 @@ def test_cache_coverage_stays_at_most_one(ctx, tmp_path):
     assert loop.status["cache_coverage"] == 1.0
 
 
-@pytest.mark.skipif(not os.environ.get("EMBERLINE_HUB_TESTS"), reason="hub")
+@pytest.mark.skipif(not os.environ.get("EMBER_HUB_TESTS"), reason="hub")
 def test_1_hub_variant(ctx, tmp_path):
     """Replay at 900x into the local hub (scenario synth), then reset, seek +3 h, seek back to +1 h."""
-    from emberline.run import load_payload
-    from emberline.sync.stdb_http import StdbHttp
-    from emberline.sync.stdb_sink import StdbSink
+    from ember.run import load_payload
+    from ember.sync.stdb_http import StdbHttp
+    from ember.sync.stdb_sink import StdbSink
 
     brf.load_env()
     pin = os.environ.get("OPERATOR_PIN", "")
@@ -457,7 +457,7 @@ def test_1_hub_variant(ctx, tmp_path):
         return (await hub.sql(q))[0]
 
     async def main() -> None:
-        hub = StdbHttp(os.environ.get("STDB_URI", "http://localhost:3000"), os.environ.get("STDB_DB", "emberline"),
+        hub = StdbHttp(os.environ.get("STDB_URI", "http://localhost:3000"), os.environ.get("STDB_DB", "ember"),
                        os.environ["STDB_TOKEN"])
         sink = CountingSink(hub, SCN)
         sink.published = []
@@ -893,8 +893,8 @@ def test_poller_offline_call_and_report(ctx, tmp_path):
 
 def test_bundle_replay_of_committed_fixture():
     """`run --fixtures` path: the committed fixture bundles publish as-is, each once, in order."""
-    from emberline.run import FIXTURES, fixture_scenario
-    from emberline.runtime.loop import BundleReplayLoop
+    from ember.run import FIXTURES, fixture_scenario
+    from ember.runtime.loop import BundleReplayLoop
 
     fx = fixture_scenario(FIXTURES / "static" / "fixture")
     hub = FakeHub(fx)
@@ -933,7 +933,7 @@ def test_scan_events_carry_sensor_status(ctx, tmp_path):
 
 
 def test_publication_failure_retries_exact_batch_without_advancing_or_rebuilding(ctx, tmp_path, monkeypatch):
-    from emberline.sync.sink import PublicationUnavailable
+    from ember.sync.sink import PublicationUnavailable
     sink = FakeHub(ctx)
     eng = Engine(ctx, sink, tmp_path / "cache")
     calls, built = [], []

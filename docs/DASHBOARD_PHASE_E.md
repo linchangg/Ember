@@ -109,7 +109,7 @@ uv sync --project engine --locked
 npm --prefix web ci --ignore-scripts
 npm --prefix stdb ci --ignore-scripts
 cargo build --manifest-path physics/surface_v1/Cargo.toml -p fire-bridge --release --locked
-uv run --project engine python -m emberline.hazard.demo \
+uv run --project engine python -m ember.hazard.demo \
   --out /tmp/phase-e-fixture --members 16 --report-branch
 ```
 
@@ -121,7 +121,7 @@ Publish the existing module to a new disposable database:
 spacetime publish phase-e-demo --server http://127.0.0.1:3017 --module-path stdb --anonymous --yes
 PYTHONPATH=engine uv run --project engine python tools/seed_dashboard_hub.py \
   /tmp/phase-e-fixture rust-fixture /tmp/phase-e-credentials.json
-uv run --project engine python -m emberline.hazard.fixture_server \
+uv run --project engine python -m ember.hazard.fixture_server \
   --root /tmp/phase-e-fixture --port 8796 --allow-origin http://127.0.0.1:5190
 ```
 
@@ -148,7 +148,7 @@ The immutable fixture path is a hub-connected replay, not a newly arriving weath
 
 For actual runtime production, configure the existing engine's `STDB_URI`, `STDB_DB`,
 `STDB_TOKEN`, `OPERATOR_PIN` and asset host. Once the scenario's real statics, forcing
-and replay manifest exist, use `uv run --project engine python -m emberline.run
+and replay manifest exist, use `uv run --project engine python -m ember.run
 --scenario SCENARIO --profile online --members-profile dev`. The target profile uses
 128 members; dev uses 16 and is labelled. There is no fabricated fallback landscape
 or forcing when those files are absent. The runtime publishes new heads as eligible

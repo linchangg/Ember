@@ -2,8 +2,8 @@
 
 import numpy as np
 
-from emberline.contracts import Person, ZoneRisk, lead_idx
-from emberline.risk.risk import eta_quantile, p_at, people, rank, zone_probs, zone_risks
+from ember.contracts import Person, ZoneRisk, lead_idx
+from ember.risk.risk import eta_quantile, p_at, people, rank, zone_probs, zone_risks
 
 T_REF = 1_736_294_400_000  # 2025-01-08T00:00Z
 W = np.array([0.4, 0.3, 0.2, 0.1])

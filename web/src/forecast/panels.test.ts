@@ -12,9 +12,9 @@ import { panelModel, displayProbability, displayTime } from './panelModel.ts'
 import type { Snapshot } from '../data/source.ts'
 import type { Branch } from '../contracts.ts'
 const root =
-  process.env.EMBERLINE_FIXTURE_DIR ??
+  process.env.EMBER_FIXTURE_DIR ??
   fileURLToPath(new URL('../../../fixtures/', import.meta.url))
-const scenario = process.env.EMBERLINE_SCENARIO_ID ?? 'fixture'
+const scenario = process.env.EMBER_SCENARIO_ID ?? 'fixture'
 const base = 'https://fixture.test/'
 const index = JSON.parse(
   await readFile(path.join(root, `cache/${scenario}/main/index.json`), 'utf8')

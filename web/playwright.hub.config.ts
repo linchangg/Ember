@@ -24,9 +24,9 @@ export default defineConfig({
       VITE_DATA_SOURCE: 'stdb',
       VITE_STDB_URI: process.env.STDB_URI ?? 'http://127.0.0.1:3017',
       VITE_STDB_DB: process.env.STDB_DB ?? 'phase-e-demo',
-      VITE_SCENARIO_ID: process.env.EMBERLINE_SCENARIO_ID ?? 'rust-fixture',
+      VITE_SCENARIO_ID: process.env.EMBER_SCENARIO_ID ?? 'rust-fixture',
       VITE_ASSET_BASE:
-        process.env.EMBERLINE_ASSET_BASE ?? 'http://127.0.0.1:8796/',
+        process.env.EMBER_ASSET_BASE ?? 'http://127.0.0.1:8796/',
     },
   },
 })

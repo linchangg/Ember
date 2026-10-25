@@ -17,8 +17,8 @@ The core rule is **no future data**, enforced in code.
 - `docs/briefs/T6_hrrr.md`, the "Output format" section: the NetCDF format `ForcingProvider` reads
 
 ## You own
-- `engine/emberline/runtime/sources.py`
-- `engine/emberline/runtime/__init__.py` (empty, 0 bytes; T5 may create the same empty file)
+- `engine/ember/runtime/sources.py`
+- `engine/ember/runtime/__init__.py` (empty, 0 bytes; T5 may create the same empty file)
 - `engine/tests/test_sources.py`
 
 The real input tables don't exist yet (wave-2 T8 and T13 write them). **Your tests build tiny tables in `tmp_path`** using exactly the column names below. The column lists below are the contract those tasks must follow, so put them in a module docstring at the top of `sources.py`.
@@ -70,7 +70,7 @@ The real input tables don't exist yet (wave-2 T8 and T13 write them). **Your tes
    - VIIRS is always `ok`, with `last_data_sim_ms` = the last pass.
 
    Return only `sensor_id`, `status` and `last_data_sim_ms`.
-6. **`ForcingProvider`.** **Write this last, only once `engine/emberline/hazard/api.py` is on `main`** (Abby's A0 creates it). Check with `git fetch && git ls-tree origin/main engine/emberline/hazard/api.py`. If it isn't there when you reach this step, ship everything else, mark this step "blocked on A0" in the PR, and stop. **Don't create `hazard/api.py` yourself.**
+6. **`ForcingProvider`.** **Write this last, only once `engine/ember/hazard/api.py` is on `main`** (Abby's A0 creates it). Check with `git fetch && git ls-tree origin/main engine/ember/hazard/api.py`. If it isn't there when you reach this step, ship everything else, mark this step "blocked on A0" in the PR, and stop. **Don't create `hazard/api.py` yourself.**
    ```python
    @dataclass
    class WeatherAsOf:
@@ -96,7 +96,7 @@ The real input tables don't exist yet (wave-2 T8 and T13 write them). **Your tes
    - **InboxSource:** `drain` returns only due records, and a second `drain` returns nothing.
    - **SyntheticSource:** produces valid `ObservationRecord`s (`model_validate` round-trip).
    - **`sensor_status`:** stale after 15 sim-min with no scan, ok otherwise, down when disabled.
-   - **ForcingProvider** (only if `hazard/api.py` exists; otherwise `pytest.importorskip("emberline.hazard.api")`): write 2 fake NetCDF inits in T6's format with staggered `available_ms_by_fxx`, then check:
+   - **ForcingProvider** (only if `hazard/api.py` exists; otherwise `pytest.importorskip("ember.hazard.api")`): write 2 fake NetCDF inits in T6's format with staggered `available_ms_by_fxx`, then check:
      - at a time between their availabilities, the older init is chosen and only its available bands appear;
      - later, the newer init is chosen;
      - before either, it raises `LookupError`.

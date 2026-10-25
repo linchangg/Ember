@@ -11,9 +11,9 @@
 - `AGENTS.md`, the "Claude API" rule
 
 ## You own
-- `engine/emberline/ai/__init__.py` (empty)
-- `engine/emberline/ai/briefing.py`, `engine/emberline/ai/validate.py`
-- `engine/emberline/ai/prompts/briefing_v1.md`, `engine/emberline/ai/prompts/cartesia_agent_v1.md`
+- `engine/ember/ai/__init__.py` (empty)
+- `engine/ember/ai/briefing.py`, `engine/ember/ai/validate.py`
+- `engine/ember/ai/prompts/briefing_v1.md`, `engine/ember/ai/prompts/cartesia_agent_v1.md`
 - `engine/tests/test_validate.py`, `engine/tests/test_briefing.py`, `engine/tests/data/briefing_inputs/*.json`
 
 ## Claude API facts (checked Oct 24; don't "fix" these from memory)
@@ -79,7 +79,7 @@
         - the scenario/branch/cycle/alert IDs
    - **CLI** for Cody's one-real-call check:
      ```bash
-     uv run python -m emberline.ai.briefing --fixture-cycle 20
+     uv run python -m ember.ai.briefing --fixture-cycle 20
      ```
      It builds the input from the fixture bundle of the 20th cycle (its first proposed alert, its `zone_risk`, its `cycle`, its `sensors`, plus zone names, egress and critical types from `fixtures/static/fixture/*`), prints the input, calls `draft`, and prints the Briefing JSON plus `VALIDATED` or `FALLBACK: <tokens>`.
 5. **`ai/validate.py`.** Pure functions; the most important file in this task.
@@ -106,7 +106,7 @@
      3. **Banned phrases,** case-insensitive. `evacuate now` is allowed only when `level == "order_recommended"`.
      4. **Prefix rules:**
         - `text` starts with `"DEMO REPLAY (Jan 2025)."`;
-        - `voice_script` starts with `"This is an Emberline demo replay of January 2025."`;
+        - `voice_script` starts with `"This is an Ember demo replay of January 2025."`;
         - `voice_script` ends with `"You make the call."` (ignore trailing whitespace).
      5. **Lengths:**
         - headline ≤ 90 chars;
@@ -143,11 +143,11 @@
        - a valid output → `grounded=True`;
        - an output with a wrong time → `fallback_used=True` with the template text;
        - a client that raises → `fallback_used=True`, and no exception escapes.
-   - **Smoke** (`05` §8 test 2; only when `EMBERLINE_LIVE_TESTS=1` and `ANTHROPIC_API_KEY` are set):
+   - **Smoke** (`05` §8 test 2; only when `EMBER_LIVE_TESTS=1` and `ANTHROPIC_API_KEY` are set):
      - 3 inputs from the fixture's proposed alerts (cycles 18, 20 and 30), saved as `engine/tests/data/briefing_inputs/c18.json`, `c20.json` and `c30.json` so they're reviewable;
      - send them to real Claude and assert `grounded` on ≥ 2 of 3;
      - print the failures for the rest.
-8. Run `uv run pytest -q`. If you have a key, also run `EMBERLINE_LIVE_TESTS=1 uv run pytest -q tests/test_briefing.py` and the CLI. Paste both outputs.
+8. Run `uv run pytest -q`. If you have a key, also run `EMBER_LIVE_TESTS=1 uv run pytest -q tests/test_briefing.py` and the CLI. Paste both outputs.
 
 ## Done when
 - The 12 validator cases plus the extras pass, and the offline briefing tests pass.

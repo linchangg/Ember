@@ -4,18 +4,18 @@
 - `scripts/check_goes.py`, which reads the archived GOES-18 fire product for the Eaton night, parallax-corrects the pixels, and prints a GO/NO-GO with `t_sat_goes`.
 - One shared hit function, `area_x_satellite_hit()`. The engine's metrics will import it later, so the gate and the reported number use **one** definition.
 
-**Follow `docs/briefs/README.md` §2 for all general rules.** Branch: `c-t1-goes-gate`. **Start only after T0 is merged** (you import `emberline.data.grid` and `emberline.data.config`). Time box: **90 minutes**. If S3 listing or reading fights you for more than 20 min, switch to `goes2go` (step 3).
+**Follow `docs/briefs/README.md` §2 for all general rules.** Branch: `c-t1-goes-gate`. **Start only after T0 is merged** (you import `ember.data.grid` and `ember.data.config`). Time box: **90 minutes**. If S3 listing or reading fights you for more than 20 min, switch to `goes2go` (step 3).
 
 ## Read
 - `spec/01_data_pipeline.md` §2 (the whole gate) and §6 "Story geometry" (the `area_x.py` part only)
 - `spec/03_engine.md` §9: the hit definition table and the `t_sat_goes` row
 - `research/01_data_sources.md` §2, lines 36–123. This has the file naming, the `geos` projection recipe and the pixel geometry at Altadena. **Snippets there are unverified; test them.**
-- `spec/00_contracts.md` §3.1: `GOES_FIRE` and `GOES_STRONG` (import them from `emberline.contracts`; don't redefine them)
+- `spec/00_contracts.md` §3.1: `GOES_FIRE` and `GOES_STRONG` (import them from `ember.contracts`; don't redefine them)
 
 ## You own
-- `engine/emberline/data/area_x.py`
-- `engine/emberline/data/goes.py`: only the read/geometry helpers below. Wave-2 task T8 adds the pixel-table writer to this same file later.
-- `engine/emberline/scripts/check_goes.py`
+- `engine/ember/data/area_x.py`
+- `engine/ember/data/goes.py`: only the read/geometry helpers below. Wave-2 task T8 adds the pixel-table writer to this same file later.
+- `engine/ember/scripts/check_goes.py`
 - `engine/tests/test_area_x.py`, `engine/tests/test_goes_geo.py`
 
 Outputs go under `data/scenarios/eaton/raw/` (git-ignored) and `data/scenarios/eaton/check_goes_report.html` (don't commit the HTML; Cody decides).
@@ -28,7 +28,7 @@ uv add s3fs h5netcdf xarray shapely pyproj matplotlib py3dep
 ```
 If `py3dep` won't install on Windows within 10 minutes, drop it and use the fallback DEM in step 4.
 
-### 2. `engine/emberline/data/area_x.py` (pure functions, no I/O except reading `scenario.yaml`)
+### 2. `engine/ember/data/area_x.py` (pure functions, no I/O except reading `scenario.yaml`)
 ```python
 def area_x_box(cfg: dict) -> tuple[float, float, float, float]   # (lon_min, lat_min, lon_max, lat_max) from cfg["area_x"]
 def area_x_polygon(cfg: dict) -> shapely.Polygon                  # lon/lat box
@@ -45,7 +45,7 @@ def t_sat_goes(scans: list[tuple[int, bool]]) -> int | None       # [(scan_start
   - (c) every ring vertex has `lon < lake_ave_lon(cfg)`, so the footprint lies wholly west of Lake Ave.
 - **`t_sat_goes`:** the first scan `i` that is a hit where **at least 2 of scans `i, i+1, i+2`** are hits. Return that scan's start ms, or `None`. If `i` is near the end of the list, count only the scans that exist (2 of what's there).
 
-### 3. `engine/emberline/data/goes.py`: read + geometry helpers
+### 3. `engine/ember/data/goes.py`: read + geometry helpers
 - `GOES18_LON = -137.2` (sub-satellite longitude).
 - `list_fdc(product: str, day_of_year: int, hours: range) -> list[str]`: anonymous `s3fs.S3FileSystem(anon=True)`, listing `noaa-goes18/{product}/2025/{doy:03d}/{hh:02d}/`. Return the keys sorted.
 - `parse_times(key) -> dict`: from the filename fields `s`, `e`, `c` (format `YYYYJJJHHMMSSt`; the last digit is tenths of a second) to `scan_start_ms`, `scan_end_ms`, `created_ms`. Unit-test it with the example filename in research 01 line 38.
@@ -75,8 +75,8 @@ def t_sat_goes(scans: list[tuple[int, bool]]) -> int | None       # [(scan_start
 
 Return a function `(lon, lat) -> metres` that uses nearest-cell lookup.
 
-### 5. `engine/emberline/scripts/check_goes.py`
-CLI: `uv run python -m emberline.scripts.check_goes --scenario eaton [--hours 2-15] [--no-fdcm]`.
+### 5. `engine/ember/scripts/check_goes.py`
+CLI: `uv run python -m ember.scripts.check_goes --scenario eaton [--hours 2-15] [--no-fdcm]`.
 1. Load `cfg = load_scenario(scn)` and `bbox = bbox_lonlat(cfg["grid"])` (from T0).
 2. **Area-X sanity (spec step 5).** Make a small PNG of the area-X box, the Lake Ave meridian and the ignition point over the DEM hillshade, and embed it at the top of the report. **Don't change `scenario.yaml`.** If the box looks wrong, say so in the summary for Cody to decide.
 3. For every FDCC key for day 008, hours 02–15 UTC:
@@ -112,10 +112,10 @@ CLI: `uv run python -m emberline.scripts.check_goes --scenario eaton [--hours 2-
   - `parse_times` on the research example filename.
   - `parallax_shift` at Altadena (−118.12, 34.20) with 1000 m moves the point **0.9–1.1 km** (spec: ~0.99 km per 1000 m), toward the south-west (both lon and lat decrease).
   - `elev 0` → no move.
-- **Network test** (skipped unless `EMBERLINE_NETWORK_TESTS`): `list_fdc("ABI-L2-FDCC", 8, range(2, 3))` returns 12 keys. Then `read_crop` on the first one returns arrays with matching shapes.
+- **Network test** (skipped unless `EMBER_NETWORK_TESTS`): `list_fdc("ABI-L2-FDCC", 8, range(2, 3))` returns 12 keys. Then `read_crop` on the first one returns arrays with matching shapes.
 
 ### 7. Run the check
-`uv run python -m emberline.scripts.check_goes --scenario eaton`. Paste the full console output, including the final G1-a line, into the PR body.
+`uv run python -m ember.scripts.check_goes --scenario eaton`. Paste the full console output, including the final G1-a line, into the PR body.
 
 ## Done when
 - The script runs end to end against `s3://noaa-goes18` and writes the HTML report.
@@ -126,4 +126,4 @@ CLI: `uv run python -m emberline.scripts.check_goes --scenario eaton [--hours 2-
 ## Don't
 - Write the GOES pixel parquet table, the replay manifest or the VIIRS ingest. Those are wave-2 T8/T13.
 - Edit `scenario.yaml`. Report box problems instead.
-- Put a second copy of the hit logic anywhere. Wave-2 metrics imports `area_x_satellite_hit` and `t_sat_goes` from `emberline.data.area_x`.
+- Put a second copy of the hit logic anywhere. Wave-2 metrics imports `area_x_satellite_hit` and `t_sat_goes` from `ember.data.area_x`.

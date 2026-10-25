@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from emberline.hazard.geometry import signed_distance
+from ember.hazard.geometry import signed_distance
 from conftest import observation
 
 
@@ -24,7 +24,7 @@ def test_true_lonlat_order_and_subcell_footprint(setup_model):
         update={
             "kind": "viirs_pixel",
             "geometry": __import__(
-                "emberline.contracts", fromlist=["Footprint"]
+                "ember.contracts", fromlist=["Footprint"]
             ).Footprint(ring=ring),
         }
     )
@@ -69,7 +69,7 @@ def test_mismatched_sensor_geometry_is_rejected(setup_model):
 
 
 def test_camera_true_bearing_uses_geographic_north(setup_model):
-    from emberline.contracts import BearingRay
+    from ember.contracts import BearingRay
 
     model = setup_model[-1]()
     point = observation(model, east_cells=0).geometry

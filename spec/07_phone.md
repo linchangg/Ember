@@ -13,7 +13,7 @@
 ## 1. Flow
 
 1. **Open** `https://<vercel-app>/p?j=demo` (the join code selects the spawn set in `spawn_points.json`). A consent screen:
-   > "Emberline demo. You'll play a resident of Altadena on the night of Jan 7, 2025, at a simulated location. We store a random ID and your reports. If you speak a report, the audio is sent to xAI for transcription and the text to Anthropic for parsing. Transcripts are deleted at reset. Not a real alert system."
+   > "Ember demo. You'll play a resident of Altadena on the night of Jan 7, 2025, at a simulated location. We store a random ID and your reports. If you speak a report, the audio is sent to xAI for transcription and the text to Anthropic for parsing. Transcripts are deleted at reset. Not a real alert system."
 
    [Join]
 
@@ -38,7 +38,7 @@
    - **Status buttons:** I'm safe · I'm evacuating · I need help (`set_person_status`).
 4. **When an alert covering my zone becomes `approved`:**
    - full-width banner in amber (warning) or red (order) + `navigator.vibrate([300,100,300])`
-   - play `/api/tts` audio: "Emberline alert for {zone}: fire {p_words} within {lead}. Act by {time}."
+   - play `/api/tts` audio: "Ember alert for {zone}: fire {p_words} within {lead}. Act by {time}."
    - show the alert `text`
    - fire once per alert ID (remember in localStorage)
 5. **After a report:**

@@ -9,9 +9,9 @@ import json
 import os
 from pathlib import Path
 from urllib.parse import urlparse
-from emberline.contracts import ActivityEvent, CycleBundle
-from emberline.run import load_payload
-from emberline.sync.stdb_http import StdbHttp
+from ember.contracts import ActivityEvent, CycleBundle
+from ember.run import load_payload
+from ember.sync.stdb_http import StdbHttp
 
 async def seed(a):
     if urlparse(a.uri).hostname not in {"127.0.0.1", "localhost", "::1"}:

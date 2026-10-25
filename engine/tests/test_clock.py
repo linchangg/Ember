@@ -1,8 +1,8 @@
 import asyncio
 import time
 
-from emberline.contracts import ClockState
-from emberline.runtime.clock import FastClock, SimClock, sim_now_ms
+from ember.contracts import ClockState
+from ember.runtime.clock import FastClock, SimClock, sim_now_ms
 
 ANCHOR_SIM = 1_736_301_600_000
 ANCHOR_WALL = 1_761_000_000_000

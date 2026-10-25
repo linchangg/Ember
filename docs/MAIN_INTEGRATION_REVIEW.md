@@ -7,7 +7,7 @@ Rust-backed HazardModel. Integrate as an experimental component; passing softwar
 checks does not establish historical forecast skill or operational safety.
 
 - Main reviewed: `9e00a67`, including the Cursor command dashboard and Eaton globe.
-- `cursor/emberline-command-dashboard-3b97` is already merged into main; its remote
+- `cursor/ember-command-dashboard-3b97` is already merged into main; its remote
   branch was deleted. Preserve its UI and routes.
 - `cursor/surface-v1-physics-engine` remains `99b7f45`, an unrelated root history.
   Its relocated, corrected engine already landed through PR #7. Do not overlay the
@@ -22,14 +22,14 @@ checks does not establish historical forecast skill or operational safety.
 
 | Section | Present and checked | Remaining work / limits |
 |---|---|---|
-| `engine/emberline/hazard/` | Python API, persistent Rust bridge, weighted arrivals, PF likelihoods/tempering/resampling, observation availability checks, checkpoint identity and restart parity, complete synthetic replay/export | Calibration and latency gates fail; no historical skill claim; spotting explicitly disabled; no deep-learning model |
+| `engine/ember/hazard/` | Python API, persistent Rust bridge, weighted arrivals, PF likelihoods/tempering/resampling, observation availability checks, checkpoint identity and restart parity, complete synthetic replay/export | Calibration and latency gates fail; no historical skill claim; spotting explicitly disabled; no deep-learning model |
 | `physics/surface_v1/crates/` | Rothermel surface behavior, level-set solver, ensemble and bridge/CLI; release tests pass | NB91 urban behavior is heuristic; pyretechnics parity and independent historical evaluation remain gates |
 | `physics/surface_v1/adapter/` | Independent research CLI adapter, unit/origin/time conversions, validation, smoke benchmark, 38 tests | Unweighted research interface, not the HazardModel factory or live assimilation path; retain separately |
-| `engine/emberline/data/` | Grid/config, HRRR and GOES helpers, Area X code and fixture data | Production ForcingProvider, complete static-data/scenario assembly and end-to-end real-source replay still need completion |
-| `engine/emberline/runtime/` | Replay/synthetic sources, cache, clock and summarization | Missing top-level replay/online orchestrator, availability-audited forcing assembly and atomic publishing loop |
-| `engine/emberline/risk/` | Risk and alert functions exercised by the fixture | Preserve alert state across branch/restart; prove complete orchestration and sensor failure behavior |
-| `engine/emberline/sync/`, `stdb/` | HTTP hub helpers and strict TypeScript module; SDK remains pinned to 2.13.0 | No local SpacetimeDB executable was available for live publish/subscription acceptance; type checking is not service verification |
-| `engine/emberline/ai/` | Briefing/validation and prompt code | Live API-dependent checks skipped; report parsing, voice/notification and full API endpoints remain follow-ups per spec |
+| `engine/ember/data/` | Grid/config, HRRR and GOES helpers, Area X code and fixture data | Production ForcingProvider, complete static-data/scenario assembly and end-to-end real-source replay still need completion |
+| `engine/ember/runtime/` | Replay/synthetic sources, cache, clock and summarization | Missing top-level replay/online orchestrator, availability-audited forcing assembly and atomic publishing loop |
+| `engine/ember/risk/` | Risk and alert functions exercised by the fixture | Preserve alert state across branch/restart; prove complete orchestration and sensor failure behavior |
+| `engine/ember/sync/`, `stdb/` | HTTP hub helpers and strict TypeScript module; SDK remains pinned to 2.13.0 | No local SpacetimeDB executable was available for live publish/subscription acceptance; type checking is not service verification |
+| `engine/ember/ai/` | Briefing/validation and prompt code | Live API-dependent checks skipped; report parsing, voice/notification and full API endpoints remain follow-ups per spec |
 | `web/` | Globe, dashboard and three comparison routes; local browser smoke; lint/build and new regression tests | Globe uses historical EONET plus explicitly simulated spread. Dashboard is a mock. Neither is wired to Rust forecast bundles or hub subscriptions yet |
 | `fixtures/`, `data/scenarios/`, `tools/` | Canonical fixture preserved; synthetic Rust demo exports 39 entries; Node validates raster decoding | Scenario metadata is not evidence of a complete historical replay. Keep synthetic and real provenance visible |
 | `.github/workflows/`, `docs/`, `spec/` | Existing cross-platform physics/backend checks retained; web/hub checks added; historical research docs labeled | Frozen API probe remains required; update compatibility fixtures deliberately when Cody/Linda change interfaces |
@@ -80,9 +80,9 @@ cargo build --manifest-path physics/surface_v1/Cargo.toml --workspace --release 
 engine/.venv/bin/python -m pytest engine/tests -q
 FIRE_CLI="$PWD/physics/surface_v1/target/release/fire-cli" engine/.venv/bin/python -m pytest physics/surface_v1/adapter/tests -q
 cargo test --manifest-path physics/surface_v1/Cargo.toml --workspace --release --locked
-engine/.venv/bin/python -m emberline.hazard.compatibility
-engine/.venv/bin/python -m emberline.hazard.demo --out /tmp/emberline-combined-demo --members 16
-node tools/check_hazard_frontend.mjs /tmp/emberline-combined-demo
+engine/.venv/bin/python -m ember.hazard.compatibility
+engine/.venv/bin/python -m ember.hazard.demo --out /tmp/ember-combined-demo --members 16
+node tools/check_hazard_frontend.mjs /tmp/ember-combined-demo
 node --test tools/check_hazard_frontend.test.mjs
 ```
 

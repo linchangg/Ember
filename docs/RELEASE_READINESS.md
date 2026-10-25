@@ -19,7 +19,7 @@ workers took **94.649 s**, versus a **0.5 s** target. Target not met. macOS 15.7
 arm64, 10 logical CPUs. Python peak RSS 635,387,904 bytes and child peak RSS
 685,637,632 bytes are separate process peaks, not a simultaneous process-tree total.
 This run has no observations/reanchoring and is not a p95 or a historical accuracy test.
-Reproduce with `python -m emberline.hazard.benchmark --out NEW_PATH --members 128
+Reproduce with `python -m ember.hazard.benchmark --out NEW_PATH --members 128
 --size 340 --workers 2`. Next optimization must preserve native numerical parity:
 profile member propagation, move authoritative state incrementally, cache forcing and
 landscape transforms, then consider bounded active regions. Measure isolated repeated

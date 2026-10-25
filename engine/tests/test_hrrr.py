@@ -5,10 +5,10 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from emberline.data import hrrr
-from emberline.data.config import load_scenario, scenario_dir
+from ember.data import hrrr
+from ember.data.config import load_scenario, scenario_dir
 
-needs_net = pytest.mark.skipif(not os.environ.get("EMBERLINE_NETWORK_TESTS"), reason="network")
+needs_net = pytest.mark.skipif(not os.environ.get("EMBER_NETWORK_TESTS"), reason="network")
 
 INIT_MS = 1736316000000  # 2025-01-08T06:00Z
 
@@ -44,7 +44,7 @@ def test_available_ms():
 
 def test_output_contract_round_trip(tmp_path):
     g = {"crs": "EPSG:32611", "cell_m": 90, "nx": 4, "ny": 3, "x0": 381480, "y0": 3800280}
-    from emberline.data.grid import cell_centers
+    from ember.data.grid import cell_centers
 
     xs, ys = cell_centers(g)
     shape = (10, 3, 4)

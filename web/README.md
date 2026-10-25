@@ -1,4 +1,4 @@
-# Emberline web
+# Ember web
 
 ```bash
 npm install
@@ -21,7 +21,7 @@ UI changes. Comparison map engines load only when their route is opened.
 
 Phase B provides the typed `src/data/` FileSource/store/hooks and validated assets.
 Run `npm run typecheck` and `npm test` (Node 22.18+ or Node 24). Tests use the canonical
-fixture by default; `EMBERLINE_FIXTURE_DIR` plus `EMBERLINE_SCENARIO_ID` select a
+fixture by default; `EMBER_FIXTURE_DIR` plus `EMBER_SCENARIO_ID` select a
 separately generated Rust fixture. See [Phase B details](../docs/DASHBOARD_PHASE_B.md).
 Phase C connects `/dashboard` to the validated forecast raster and published vectors.
 Phase D connects published zone risk, statistics, provenance, observation/activity history, local alert review and matched parent/child assimilation comparison. See [Phase D](../docs/DASHBOARD_PHASE_D.md) for its paired native fixture and commands. Phase E remains confirmation-gated.
@@ -30,8 +30,8 @@ The file-backed map is flat and georeferenced; it does not use the mock terrain.
 From the repository root, with a generated Phase A fixture available:
 
 ```sh
-engine/.venv/bin/python -m emberline.hazard.fixture_server \
-  --root /private/tmp/emberline-dashboard-phase-a --port 8791 \
+engine/.venv/bin/python -m ember.hazard.fixture_server \
+  --root /private/tmp/ember-dashboard-phase-a --port 8791 \
   --allow-origin http://127.0.0.1:5175
 ```
 

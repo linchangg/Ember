@@ -24,7 +24,7 @@
 
 **Hard rule.** No model computes a probability, a time, or a fire behavior. Models only phrase, parse and converse over numbers that our physics and risk code produced. Every model output is validated or echoed back.
 
-## 1. Claude briefing (`engine/emberline/ai/briefing.py`)
+## 1. Claude briefing (`engine/ember/ai/briefing.py`)
 
 **When:** on every new alert proposal. During precompute for the mainline (cached), live for branches. The alert is published with **template text first** (`03_engine` §8). The Claude draft replaces it through `upsert_alert_draft` only if it validates and the alert is still `proposed`.
 
@@ -60,7 +60,7 @@
 
 **System prompt** (`ai/prompts/briefing_v1.md`; record `prompt_version`):
 - You write decision-support briefings for an incident commander. Use only facts in the input JSON.
-- `voice_script` must begin with "This is Emberline."
+- `voice_script` must begin with "This is Ember."
 - Refer to facilities by type ("a nursing home"), never by name. The input carries types only.
 - Copy times, percentages, zone names and counts exactly.
 - Probability words must follow this mapping: ≥ 90% "very likely", ≥ 70% "likely", ≥ 50% "more likely than not", ≥ 30% "possible", otherwise "unlikely".
@@ -118,7 +118,7 @@ The phone page (`07_phone`) records ≤ 15 s of audio. **Encode WAV in the brows
 - Max 400 characters.
 - **Used for:**
   - (a) report readbacks;
-  - (b) the **resident in-app alert**: when an alert for the phone's zone becomes `approved`, the phone requests `/api/tts` with "Emberline alert for {zone}: fire {p_words} within {lead}. Act by {time}."
+  - (b) the **resident in-app alert**: when an alert for the phone's zone becomes `approved`, the phone requests `/api/tts` with "Ember alert for {zone}: fire {p_words} within {lead}. Act by {time}."
 
 **Why Grok and not Cartesia here:** public-facing voice and officials-facing voice are separate jobs and separate prizes (`SPEC.md` D8). Mention in README that **Grok Voice API is used for speech-to-text and text-to-speech of public reports**. Confirm at the SpaceXSI booth that this satisfies "Grok … Voice API". If not, swap the phone readback to Grok's realtime voice endpoint (stretch, +2–3 h).
 
@@ -135,8 +135,8 @@ The phone page (`07_phone`) records ≤ 15 s of audio. **Encode WAV in the brows
 3. **Test:** outbound call to a teammate's phone with a dummy `voice_script`. **Pass = the phone rings, the script is read, and "acknowledged" triggers the ack tool.** If the free plan can't dial out, ask at the booth for a credit. Otherwise: **fallback D7**, the dashboard plays the voice script and the "call" is shown as unavailable.
 4. **Default duty officer = a teammate's phone.** Save the Cartesia number as a contact, so iOS "Silence Unknown Callers" and spam filters let it through, and put it on speaker for the judge. Calling a judge's own phone is optional: they type the number into the **dashboard** (`06` §5.4), which posts to the engine's `/dev/duty-officer`.
 
-**Agent system prompt** (store a copy in `engine/emberline/ai/prompts/cartesia_agent_v1.md`):
-- You are Emberline's briefing line for a fire duty officer.
+**Agent system prompt** (store a copy in `engine/ember/ai/prompts/cartesia_agent_v1.md`):
+- You are Ember's briefing line for a fire duty officer.
 - Read `{{voice_script}}` first, verbatim.
 - Answer follow-up questions only from `{{...}}` variables or the `get_status` tool. If you don't know, say so. Never estimate numbers yourself.
 - Never issue or confirm an evacuation order; the officer decides.

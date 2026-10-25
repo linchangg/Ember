@@ -1,4 +1,4 @@
-# 06: Demo scenario selection (Emberline)
+# 06: Demo scenario selection (Ember)
 
 **Recommendation.** PRIMARY: **Eaton Fire, Jan 7-8 2025, hybrid replay.** Real GOES-18/16, VIIRS, HRRR, 3DEP and LANDFIRE data, plus documented responder reports, with simulated cameras, people and phones layered on top and labeled. BACKUP: **Palisades Fire, same day.** It reuses the same GOES and HRRR downloads and needs only a different bounding box. FALLBACK MODE: a synthetic ignition on the Eaton terrain, fuels and wind (an OSSE-style test), clearly labeled "training scenario". Use it only if the real replay fails the first-hour checks.
 
@@ -87,7 +87,7 @@ The sources disagree on the official story. LA County's Citygate investigation (
    - No post-fire LANDFIRE.
    - No parameter tuning after looking at the score. Commit the hash.
 4. **Headline:** "Lead time = T_sat − T_fc minutes." Show it for **DA vs open-loop (no assimilation)**, so the value of the filter is visible. **Report it even if it is negative.**
-5. **Context line, kept separate and not a score:** "Emberline's forecast reached 50% for zone ALD-FARNSWORTH at T_fc. Electronic evacuation orders for that zone went out at 03:25. The first structure fire west of Lake Ave was reported at 23:49." Add on screen: *"Retrospective replay. Officials did not have this tool. This is not a claim about outcomes."*
+5. **Context line, kept separate and not a score:** "Ember's forecast reached 50% for zone ALD-FARNSWORTH at T_fc. Electronic evacuation orders for that zone went out at 03:25. The first structure fire west of Lake Ave was reported at 23:49." Add on screen: *"Retrospective replay. Officials did not have this tool. This is not a claim about outcomes."*
 6. Optional cross-check: compare against the documented point observations at 23:49, 02:18, 03:27 and 05:13. Use them as validation hits, or feed them as real ground reports (see below).
 
 ### What is real and what is simulated

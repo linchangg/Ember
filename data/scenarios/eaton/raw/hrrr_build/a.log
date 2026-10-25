@@ -56,16 +56,16 @@ During handling of the above exception, another exception occurred:
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\emberline\data\hrrr.py", line 262, in <module>
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\ember\data\hrrr.py", line 262, in <module>
     ap = argparse.ArgumentParser()
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\emberline\data\hrrr.py", line 242, in build
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\ember\data\hrrr.py", line 242, in build
     if only and init_tag(init) not in only:
                     ^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\emberline\data\hrrr.py", line 132, in fetch_init
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\ember\data\hrrr.py", line 132, in fetch_init
     def fetch_init(init: datetime, raw_dir: Path, bounds, force: bool = False) -> xr.Dataset:
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\emberline\data\hrrr.py", line 109, in fetch_one
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\ember\data\hrrr.py", line 109, in fetch_one
     H = Herbie(init.replace(tzinfo=None), model="hrrr", product="sfc", fxx=fxx,
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\.venv\Lib\site-packages\herbie\core.py", line 308, in __init__
