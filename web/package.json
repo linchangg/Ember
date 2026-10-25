@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
-    "test": "node --test src/lib/globeData.test.js src/data/*.test.ts",
+    "test": "node --test src/lib/globeData.test.js src/data/*.test.ts src/forecast/*.test.ts",
     "preview": "vite preview",
     "fetch:firms": "node scripts/fetch_firms.mjs",
     "make:synthetic": "node scripts/make_synthetic_spread.mjs",
@@ -16,6 +16,7 @@
   "dependencies": {
     "cesium": "^1.146.0",
     "maplibre-gl": "^6.15.0",
+    "proj4": "2.22.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router-dom": "^7.18.4",

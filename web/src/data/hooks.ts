@@ -1,4 +1,4 @@
-/** Prepared hooks for Phase C/D consumers; no existing renderer is connected yet. */
+/** Shared hooks for the connected forecast map and later panel consumers. */
 import {
   createContext,
   createElement,
@@ -163,4 +163,10 @@ export function useDataStatus() {
     () => ({ status, error, pending, forecastStatus }),
     [status, error, pending, forecastStatus]
   )
+}
+
+export function useMapSelection() {
+  const cycle = useSelected(useCallback((s: Snapshot) => s.cycle, []))
+  const assets = useSelected(useCallback((s: Snapshot) => s.mapAssets, []))
+  return useMemo(() => ({ cycle, assets }), [cycle, assets])
 }
