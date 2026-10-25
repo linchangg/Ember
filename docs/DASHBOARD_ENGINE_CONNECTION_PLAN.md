@@ -1,5 +1,7 @@
 # Dashboard–engine connection plan
 
+Progress: A–C restored and verified; owner approved Phase D, now implemented in explicit file mode. See [Phase D implementation/evidence](DASHBOARD_PHASE_D.md). Phase E remains gated. The baseline readiness table below records the original planning state.
+
 Based on the merged PR #8 implementation (`c5e2599`) and its recorded verification.
 This is a proposed implementation plan, not a claim that the following integration
 already exists. Preserve Linda’s current routes and visual design.

@@ -95,3 +95,80 @@
 .forecast-map__notice {
   top: 52px;
 }
+.forecast-panels {
+  max-height: calc(100vh - 100px);
+  overflow: auto;
+}
+.forecast-facts {
+  display: grid;
+  grid-template-columns: minmax(90px, 1fr) minmax(0, 1.8fr);
+  gap: 5px 10px;
+  font-size: 12px;
+  margin: 12px 0;
+}
+.forecast-facts dt {
+  color: var(--muted);
+}
+.forecast-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.forecast-panels h3 {
+  font-size: 14px;
+  margin: 8px 0;
+}
+.forecast-panels p,
+.forecast-panels li,
+.forecast-panels summary,
+.forecast-panels label {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.forecast-zones {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+}
+.forecast-zones > li,
+.forecast-alert,
+.forecast-observation {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.forecast-zone-value {
+  display: block;
+  margin-top: 4px;
+  font-weight: 600;
+}
+.forecast-id {
+  overflow-wrap: anywhere;
+  color: var(--muted);
+  font-size: 10px;
+}
+.forecast-panels input {
+  max-width: 100%;
+  border: 1px solid var(--line);
+  padding: 5px;
+  font: inherit;
+}
+.forecast-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.forecast-actions button {
+  font: inherit;
+  font-size: 12px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 5px 8px;
+}
+.forecast-actions button:disabled {
+  opacity: 0.5;
+}
+@media (max-width: 900px) {
+  .forecast-panels {
+    max-height: none;
+  }
+}

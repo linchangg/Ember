@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react'
 import { Link } from 'react-router-dom'
 import { createConfiguredSource } from '../data/store.ts'
 import {
@@ -8,27 +8,55 @@ import {
   useDataStatus,
   useManifest,
   useMapSelection,
+  usePanelSnapshot,
   useSimNow,
   useView,
 } from '../data/hooks.ts'
 import ForecastMap from './ForecastMap.tsx'
+import IncidentPanels from './IncidentPanels.tsx'
+import { panelModel } from './panelModel.ts'
+import { useBranchComparison } from '../data/comparison.ts'
+import type { DataSource } from '../data/source.ts'
 import type { RasterMode } from './forecastRaster.ts'
 import './forecast.css'
 const LEADS = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360]
-export default function FileDashboard() {
-  const [configured] = useState(() => {
-    try {
-      return {
-        source: createConfiguredSource(import.meta.env, window.location.href),
-        error: null,
-      }
-    } catch (error) {
-      return {
-        source: null,
-        error: error instanceof Error ? error.message : String(error),
-      }
+const noopSubscribe = () => () => {}
+function configureSource() {
+  try {
+    return {
+      source: createConfiguredSource(import.meta.env, window.location.href),
+      error: null,
     }
-  })
+  } catch (error) {
+    return {
+      source: null,
+      error: error instanceof Error ? error.message : String(error),
+    }
+  }
+}
+export default function FileDashboard() {
+  const [configured, setConfigured] = useState(configureSource)
+  const retired = useSyncExternalStore(
+    configured.source?.subscribe ?? noopSubscribe,
+    () => configured.source?.getSnapshot().status === 'disposed',
+    () => false
+  )
+  useEffect(() => {
+    if (!retired) return
+    let alive = true
+    queueMicrotask(() => {
+      if (alive) setConfigured(configureSource())
+    })
+    return () => {
+      alive = false
+    }
+  }, [retired])
+  if (retired)
+    return (
+      <div className="app" role="status">
+        Reconnecting file replay…
+      </div>
+    )
   if (!configured.source)
     return (
       <div className="app forecast-config-error" role="alert">
@@ -37,11 +65,14 @@ export default function FileDashboard() {
     )
   return (
     <DataSourceProvider source={configured.source}>
-      <ConnectedDashboard />
+      <ConnectedDashboard source={configured.source} />
     </DataSourceProvider>
   )
 }
-function ConnectedDashboard() {
+function ConnectedDashboard({ source }: { source: DataSource }) {
+  const panelSnapshot = usePanelSnapshot()
+  const panels = panelModel(panelSnapshot)
+  const comparison = useBranchComparison(source, panelSnapshot)
   const manifest = useManifest(),
     clock = useClock(),
     simTime = useSimNow(),
@@ -122,6 +153,9 @@ function ConnectedDashboard() {
               viewTime={view.viewTime}
               mode={mode}
               available={available}
+              comparison={
+                comparison.status === 'ready' ? comparison.data : null
+              }
             />
           ) : (
             <div className="terrain-wrap">
@@ -130,6 +164,27 @@ function ConnectedDashboard() {
           )}
           <div className="time-slider forecast-controls">
             <div className="forecast-controls__row">
+              <label>
+                Branch{' '}
+                <select
+                  aria-label="Replay branch"
+                  value={clock?.active_branch_id ?? 'main'}
+                  disabled={!clock}
+                  onChange={(event) => {
+                    const branch = event.target.value
+                    run(async () => {
+                      await actions.pause()
+                      await actions.switchBranch(branch)
+                    })
+                  }}
+                >
+                  {panelSnapshot.branches.map((b) => (
+                    <option key={b.branch_id} value={b.branch_id}>
+                      {b.branch_id} · {b.reason}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <label>
                 Display{' '}
                 <select
@@ -222,8 +277,10 @@ function ConnectedDashboard() {
             </div>
             <div className="forecast-times" aria-live="polite">
               <span>
-                Issued:{' '}
-                {cycle ? format.format(cycle.knowledge_sim_ms) : 'not issued'}
+                {status.status === 'loading'
+                  ? 'Last committed issue'
+                  : 'Issued'}
+                : {cycle ? format.format(cycle.knowledge_sim_ms) : 'not issued'}
               </span>
               <span>View: {manifest ? format.format(view.viewTime) : '—'}</span>
             </div>
@@ -261,23 +318,17 @@ function ConnectedDashboard() {
             {actionError && <p role="alert">{actionError}</p>}
           </div>
         </main>
-        <aside className="sidebar">
-          <div className="sidebar__label">Map connection</div>
-          <h2 className="sidebar__rec-title">Rust forecast layers</h2>
-          <p className="sidebar__rec-body">
-            This view displays engine forecast files. Zone risks,
-            recommendations and alert controls await Phase D.
-          </p>
-          <p className="sidebar__rec-body">
-            Experimental model. Scientific calibration, historical skill and
-            performance acceptance remain open.
-          </p>
-          <p className="sidebar__rec-body">
-            {manifest?.is_fixture
-              ? 'All scenario inputs shown here are synthetic.'
-              : 'Source provenance is declared in the scenario manifest.'}
-          </p>
-        </aside>
+        <IncidentPanels
+          model={panels}
+          comparison={comparison}
+          decide={(id, state, reason) =>
+            run(() =>
+              state === 'approved'
+                ? actions.approve(id)
+                : actions.decline(id, reason)
+            )
+          }
+        />
       </div>
     </div>
   )

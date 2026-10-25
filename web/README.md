@@ -24,7 +24,7 @@ Run `npm run typecheck` and `npm test` (Node 22.18+ or Node 24). Tests use the c
 fixture by default; `EMBERLINE_FIXTURE_DIR` plus `EMBERLINE_SCENARIO_ID` select a
 separately generated Rust fixture. See [Phase B details](../docs/DASHBOARD_PHASE_B.md).
 Phase C connects `/dashboard` to the validated forecast raster and published vectors.
-Risk, recommendation, observation and alert panels await Phase D confirmation.
+Phase D connects published zone risk, statistics, provenance, observation/activity history, local alert review and matched parent/child assimilation comparison. See [Phase D](../docs/DASHBOARD_PHASE_D.md) for its paired native fixture and commands. Phase E remains confirmation-gated.
 The file-backed map is flat and georeferenced; it does not use the mock terrain.
 
 From the repository root, with a generated Phase A fixture available:

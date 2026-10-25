@@ -12,7 +12,26 @@ export function createConfiguredSource(
     )
   if (!env.VITE_ASSET_BASE || !env.VITE_SCENARIO_ID)
     throw new Error('File mode needs VITE_ASSET_BASE and VITE_SCENARIO_ID')
+  let branches
+  if (env.VITE_BRANCHES_JSON) {
+    branches = JSON.parse(env.VITE_BRANCHES_JSON)
+    if (
+      !Array.isArray(branches) ||
+      !branches.length ||
+      branches.some(
+        (b) =>
+          !b ||
+          typeof b !== 'object' ||
+          typeof b.reason !== 'string' ||
+          !Number.isSafeInteger(b.created_wall_ms)
+      )
+    )
+      throw new Error(
+        'VITE_BRANCHES_JSON must contain complete branch descriptors'
+      )
+  }
   return new FileSource({
+    branches,
     assetBase: env.VITE_ASSET_BASE,
     scenario: env.VITE_SCENARIO_ID,
     pageUrl,
@@ -58,5 +77,40 @@ export function createSnapshotSelector<T>(
       previous = snapshot
     }
     return value
+  }
+}
+
+/** Minute-granularity selector cache for panels; outside React render ownership. */
+export function createPanelSelector() {
+  let previous: Snapshot | undefined
+  const fields = [
+    'status',
+    'error',
+    'manifest',
+    'cycle',
+    'mapAssets',
+    'zoneRisk',
+    'observations',
+    'events',
+    'alerts',
+    'briefings',
+    'reports',
+    'sensors',
+    'branches',
+    'zones',
+  ] as const
+  return (s: Snapshot) => {
+    if (
+      previous &&
+      fields.every((key) => previous![key] === s[key]) &&
+      previous.clock?.active_branch_id === s.clock?.active_branch_id &&
+      previous.clock?.epoch === s.clock?.epoch &&
+      Math.floor(previous.view.viewTime / 60000) ===
+        Math.floor(s.view.viewTime / 60000) &&
+      Math.floor(previous.simTime / 60000) === Math.floor(s.simTime / 60000)
+    )
+      return previous
+    previous = s
+    return s
   }
 }

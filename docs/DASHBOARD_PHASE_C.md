@@ -1,3 +1,5 @@
+Subsequent update: the owner approved Phase D; see [DASHBOARD_PHASE_D.md](DASHBOARD_PHASE_D.md). The remainder records the original Phase C handoff.
+
 # Dashboard connection — Phase C
 
 Owner confirmed this phase with “yes.” Implementation is on `feat/dashboard-phase-c`,

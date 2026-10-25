@@ -3,7 +3,11 @@ import maplibregl from '../lib/maplibre.js'
 import type { GeoJSONSource, ImageSource, Map as LibreMap } from 'maplibre-gl'
 import type { FeatureCollection } from 'geojson'
 import type { Cycle } from '../contracts.ts'
-import type { MapAssets, ScenarioManifest } from '../data/source.ts'
+import type {
+  BranchComparison,
+  MapAssets,
+  ScenarioManifest,
+} from '../data/source.ts'
 import type { RasterMode } from './forecastRaster.ts'
 import type { Coordinates } from './reprojection.ts'
 import { vectorBounds } from './mapAdapter.ts'
@@ -13,6 +17,7 @@ const LAYERS = [
   'burned-fill',
   'published-front',
   'q50-isochrones',
+  'parent-q50',
 ]
 interface Frame {
   key: string
@@ -31,6 +36,7 @@ export default function ForecastMap({
   viewTime,
   mode,
   available,
+  comparison,
 }: {
   manifest: ScenarioManifest
   cycle: Cycle | null
@@ -38,6 +44,7 @@ export default function ForecastMap({
   viewTime: number
   mode: RasterMode
   available: boolean
+  comparison?: BranchComparison | null
 }) {
   const host = useRef<HTMLDivElement>(null),
     map = useRef<LibreMap | null>(null),
@@ -101,6 +108,7 @@ export default function ForecastMap({
           sources: {
             'published-perimeter': { type: 'geojson', data: EMPTY },
             'published-isochrones': { type: 'geojson', data: EMPTY },
+            'parent-isochrones': { type: 'geojson', data: EMPTY },
             'grid-domain': {
               type: 'geojson',
               data: {
@@ -146,6 +154,16 @@ export default function ForecastMap({
               source: 'published-perimeter',
               filter: ['==', ['id'], 'front'],
               paint: { 'line-color': '#9a3412', 'line-width': 2 },
+            },
+            {
+              id: 'parent-q50',
+              type: 'line',
+              source: 'parent-isochrones',
+              paint: {
+                'line-color': '#2563eb',
+                'line-width': 2,
+                'line-dasharray': [4, 3],
+              },
             },
             {
               id: 'q50-isochrones',
@@ -279,6 +297,16 @@ export default function ForecastMap({
     ;(current.getSource('published-isochrones') as GeoJSONSource).setData(
       assets.isochrones as unknown as FeatureCollection
     )
+    ;(current.getSource('parent-isochrones') as GeoJSONSource).setData(
+      comparison?.cycle.knowledge_sim_ms === cycle.knowledge_sim_ms
+        ? (comparison.mapAssets.isochrones as unknown as FeatureCollection)
+        : EMPTY
+    )
+    current.setFilter('parent-q50', [
+      'all',
+      ['==', ['get', 'q'], 0.5],
+      ['<=', ['get', 'lead_min'], leadBin * 2],
+    ])
     current.setFilter('q50-isochrones', [
       'all',
       ['==', ['get', 'q'], 0.5],
@@ -299,7 +327,7 @@ export default function ForecastMap({
       alive = false
       current.off('idle', complete)
     }
-  }, [ready, available, cycle, assets, frame, key, leadBin])
+  }, [ready, available, cycle, assets, frame, key, leadBin, comparison])
   const failure = mapError ?? (frame?.key === key ? frame.error : null)
   const busy =
     available && !failure && (!ready || frame?.key !== key || rendered !== key)

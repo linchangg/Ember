@@ -8,6 +8,7 @@ import type {
 } from '../contracts.ts'
 import type {
   Actions,
+  BranchComparison,
   Collections,
   DataSource,
   IndexEntry,
@@ -182,7 +183,9 @@ export class FileSource implements DataSource {
   }
   getSnapshot = () => this.state
   subscribe = (listener: () => void) => {
-    if (this.disposed) throw new Error('Source is disposed')
+    // React may briefly resubscribe while a retired source is being replaced.
+    // Expose its terminal snapshot without resurrecting it or throwing in commit.
+    if (this.disposed) return () => {}
     this.listeners.add(listener)
     return () => {
       this.listeners.delete(listener)
@@ -431,7 +434,11 @@ export class FileSource implements DataSource {
         )
       )
       result.events.push(...b.events.filter((r) => r.sim_ms <= limit))
-      for (const row of b.alerts.filter((r) => r.triggered_sim_ms <= limit)) {
+      // A post-fork parent bundle may carry a later state for an earlier alert.
+      // Its trigger time alone cannot date that transition; inherit the last pre-fork state.
+      for (const row of (within ? b.alerts : []).filter(
+        (r) => r.triggered_sim_ms <= limit
+      )) {
         const at = result.alerts.findIndex((a) => a.alert_id === row.alert_id)
         if (at < 0) result.alerts.push(row)
         else if (
@@ -607,6 +614,40 @@ export class FileSource implements DataSource {
       throw error
     }
   }
+  /** Read-only exact-issue comparison. Never changes the parent or selected snapshot. */
+  compareBranch = async (
+    branch: string,
+    issue: number,
+    view: number,
+    signal: AbortSignal
+  ): Promise<BranchComparison | null> => {
+    this.requireIntent()
+    signal.throwIfAborted()
+    this.lineage(branch)
+    integer(issue)
+    integer(view)
+    if (issue > this.state.simTime || view < issue)
+      throw new Error('Comparison exceeds available knowledge')
+    const epoch = this.state.clock!.epoch
+    const entries = await this.entries(branch, signal)
+    const entry = entries.findLast(
+      (e) => e.branch_id === branch && e.knowledge_sim_ms === issue
+    )
+    if (!entry) return null
+    const bundle = validateBundle(
+      await this.json(entry.bundle, signal),
+      entry,
+      this.manifest!,
+      this.base
+    )
+    const cycle = bundle.cycle
+    if (!cycle || view > issue + cycle.horizon_min * 60000) return null
+    const mapAssets = await this.grids.load(cycle, this.manifest!, signal)
+    signal.throwIfAborted()
+    if (this.disposed || epoch !== this.state.clock?.epoch)
+      throw new Error('Comparison superseded by replay change')
+    return { cycle, mapAssets, zoneRisk: bundle.zone_risk }
+  }
   tick = async () => {
     if (
       this.disposed ||
@@ -628,6 +669,10 @@ export class FileSource implements DataSource {
   ) {
     this.requireIntent()
     const alert = this.state.alerts.find((a) => a.alert_id === id)
+    if (alert && alert.branch_id !== this.state.clock?.active_branch_id)
+      throw new Error(
+        'Switch to the alert branch before reviewing its proposal'
+      )
     if (!alert || alert.state !== 'proposed')
       throw new Error('Only a visible proposal can be decided')
     if (text !== undefined && (!text.trim() || text.length > 300))

@@ -127,7 +127,18 @@ export interface Actions {
   setEvacMin(zone: string, minutes: number): Promise<void>
   injectTapReport(lon: number, lat: number, kind: string): Promise<void>
 }
+export interface BranchComparison {
+  cycle: Cycle
+  mapAssets: MapAssets
+  zoneRisk: ZoneRisk[]
+}
 export interface DataSource {
+  compareBranch?(
+    branch: string,
+    issue: number,
+    view: number,
+    signal: AbortSignal
+  ): Promise<BranchComparison | null>
   readonly actions: Actions
   getSnapshot(): Snapshot
   subscribe(listener: () => void): () => void
