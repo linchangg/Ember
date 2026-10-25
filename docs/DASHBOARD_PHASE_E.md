@@ -168,8 +168,12 @@ Local evidence is in `docs/evidence/dashboard-phase-e.json`. The tests include:
   invented forecast rows are used. Hub tracing is off so PIN input is not archived.
   File-mode browser acceptance remains in the existing workflows.
 
-Exact live-browser CI status must be read from its run, not inferred from Node-client
-or manual Chrome evidence. UI p95 <=1 second on a named demo machine, historical data
+Final code `b5a01fb` passed [dashboard/hub checks](https://github.com/linchangg/Legendary-Fire-Project/actions/runs/40174753913),
+[native integration on Linux and macOS](https://github.com/linchangg/Legendary-Fire-Project/actions/runs/40174753907),
+and [actual published-hub restart/two-browser acceptance](https://github.com/linchangg/Legendary-Fire-Project/actions/runs/40174753904).
+Local results: 287 engine tests passed, 19 configured skips; 15 dedicated published-hub
+checks passed; 49 native-fixture dashboard tests passed; canonical 48 passed/1 expected
+skip. Types, lint and production build passed (existing large map-chunk warning). UI p95 <=1 second on a named demo machine, historical data
 skill and target-size physics performance are still separate, unestablished gates.
 
 ## Follow-up tasks
