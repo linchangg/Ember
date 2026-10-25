@@ -1,6 +1,6 @@
 # Legendary Fire Project · Emberline
 
-Wildfire command dashboard for Cal Hacks: satellite fire observations + physics-based ML spread forecasts, surfaced for fire-control operators.
+Wildfire command dashboard for Cal Hacks, with satellite-data tooling and an experimental Rust fire-spread backend. The current globe and dashboard use labeled prototype overlays; they are not yet connected to the Rust forecasts.
 
 ## Web UI
 
@@ -39,7 +39,30 @@ Design reference (exported mockup) is in [`design/command-dashboard-mockup/`](./
 
 See [Engine Build Plan](ENGINE_BUILD_PLAN.md) for the proposed Rust physics engine, equations, input/output contracts, implementation milestones, and runnable reference fixtures. It is a research proposal alongside the current Emberline demo specifications.
 
-## Rust surface physics research engine
+## Rust HazardModel and research tools
 
-The separately runnable Rust engine lives in [`physics/surface_v1/`](physics/surface_v1/README.md).
-Its [model audit and verification report](physics/surface_v1/docs/MODEL_AUDIT.md) explains the tested physics, independent Behave comparisons, and remaining integration gates. It does not activate a new backend in Emberline's Python demo.
+The Rust engine lives in [`physics/surface_v1/`](physics/surface_v1/README.md).
+The operational Python adapter is [`engine/emberline/hazard/`](engine/emberline/hazard/),
+including ensemble inference, delayed observations, reanchoring and checkpoints.
+The separate [`physics/surface_v1/adapter/`](physics/surface_v1/adapter/README.md)
+preserves the research CLI conversions and smoke tests; it does not select a backend.
+
+See the [build and integration guide](docs/RUST_HAZARD_BACKEND.md),
+[measured acceptance gaps](docs/evidence/rust-hazard/README.md), and
+[ordered next tasks](docs/RUST_HAZARD_NEXT_TASKS.md). The owner-approved solver
+decision preserves the shared HazardModel/wire contracts. Historical accuracy,
+parameter recovery and the 0.5-second latency target remain unfinished.
+
+From the repository root, with Python 3.12, uv and the pinned Rust toolchain:
+
+```sh
+uv sync --project engine --locked
+cargo build --manifest-path physics/surface_v1/Cargo.toml -p fire-bridge --release --locked
+uv run --project engine python -m emberline.hazard.demo --out /tmp/emberline-rust-demo --members 16
+node tools/check_hazard_frontend.mjs /tmp/emberline-rust-demo
+python3 -m http.server 8787 --bind 127.0.0.1 --directory /tmp/emberline-rust-demo
+```
+
+Open `http://127.0.0.1:8787/demo.html` for the complete offline Rust fixture. This
+verification viewer is separate from the existing dashboard design. Choose a new
+output directory on subsequent runs.

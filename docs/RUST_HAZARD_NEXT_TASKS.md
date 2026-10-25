@@ -164,20 +164,17 @@ mean nearest-boundary distance plus east-head displacement over seeds 7/8/9.
 
 ### Reconcile the parallel research adapter
 
-The last fetch also found `research/surface-v1-adapter` at `8e4055b`, based on the
-same `8cea5fc` main. It adds 38 research tests and an explicit CLI compatibility map;
-it does not implement HazardModel, weighted inference, SB40/urban mapping, or live
-assimilation. Keep its research role distinct from the production-facing factory.
-Its single-member 64×64/one-hour smoke timing is not comparable to the 128-member
-340×340/six-hour benchmark in this change.
+The integration branch now includes `research/surface-v1-adapter` at `8e4055b`
+and main at `9e00a67`. Both adapters coexist: `engine/emberline/hazard/` implements
+HazardModel and weighted assimilation; `physics/surface_v1/adapter/` retains its
+independent unweighted CLI research interface. All 148 engine tests and 38 research
+tests pass together. Neither interface was silently substituted for the other.
 
-Before combining that branch, compare and port useful malformed-output, origin,
-time-precision, censoring and checkpoint-reference cases. Our operational policy
-rejects incomplete native ensembles, retains no-arrival mass, explicitly seeds
-modeled ignition history and selects the owner-approved surface backend. Reconcile
-the research document's former “awaiting decision” entries against this guide;
-do not overwrite the newly implemented public API or change CLI research semantics
-silently. Run both test sets if the research utilities are imported.
+Keep both suites in CI. Port additional malformed-output, origin, time-precision,
+censoring and checkpoint-reference cases when relevant, preserving each interface's
+semantics. The research 64×64/one-hour smoke timing is not comparable to the
+128-member 340×340/six-hour operational benchmark. Its historical verification
+report describes its original baseline, not missing current HazardModel support.
 
 ## 9. Learned correction models only after the above (research, P2)
 

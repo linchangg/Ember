@@ -1,7 +1,7 @@
 """Synthetic compatibility path through conversion, Rust, and quantiles.
 
-This is not a HazardModel acceptance test. The application protocol has not
-landed, and these runs are an uncalibrated research fixture.
+This is not a HazardModel acceptance test. These runs exercise the separate
+research CLI adapter and remain an uncalibrated research fixture.
 """
 
 from __future__ import annotations

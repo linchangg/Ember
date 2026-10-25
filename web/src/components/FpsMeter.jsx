@@ -4,9 +4,11 @@ import { useEffect, useRef, useState } from 'react'
 export default function FpsMeter() {
   const [fps, setFps] = useState('—')
   const frames = useRef(0)
-  const last = useRef(performance.now())
+  const last = useRef(0)
 
   useEffect(() => {
+    last.current = performance.now()
+    frames.current = 0
     let id
     let alive = true
     const tick = (now) => {

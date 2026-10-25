@@ -1,5 +1,12 @@
 # surface_v1 adapter specification
 
+Integration note: the inventory below records the research branch's baseline at
+`8cea5fc`, before the operational adapter landed. `engine/emberline/hazard/` now
+implements the owner-approved Rust HazardModel, weighted inference, SB40/urban
+mapping and delayed observations. See `docs/RUST_HAZARD_BACKEND.md` at the repository
+root for those decisions. This research utility intentionally retains its separate
+unweighted CLI API and conservative conversion policies; it is not a second backend.
+
 Research compatibility map between the documented Emberline grid and the Rust `surface_v1` bundle. This file does not activate a backend and does not change frozen contracts.
 
 ## Inventory

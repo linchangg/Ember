@@ -1,5 +1,11 @@
 # Adapter verification
 
+Historical research-branch report (baseline `8cea5fc`). On 2026-10-24 the research
+adapter was combined with the separate Rust-backed HazardModel implementation.
+`engine/emberline/hazard/` now exists; the statements below about its absence
+describe this report’s original baseline. See `docs/MAIN_INTEGRATION_REVIEW.md`
+at the repository root for the combined verification and remaining gates.
+
 Checked on macOS arm64, Rust 1.99.1, Python 3.12.11, numpy 2.5.4. Commands were run from `physics/surface_v1` unless noted. `CARGO_TARGET_DIR` was unset so build artifacts stayed in `physics/surface_v1/target`.
 
 ## Rust
