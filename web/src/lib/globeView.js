@@ -48,13 +48,38 @@ const getJson = (rel) => fetch(assetUrl(base(), rel)).then((r) => (r.ok ? r.json
 
 /** Static files the snapshot does not carry: assets, area X, timeline. Missing files are fine. */
 export async function loadExtras(manifest) {
-  const [assets, areaX, timeline, footprint] = await Promise.all([
+  const [assets, areaX, timeline, footprint, official] = await Promise.all([
     getJson(manifest.static.assets_url).catch(() => null),
     getJson(manifest.static.area_x_url).catch(() => null),
     getJson(manifest.static.timeline_url).catch(() => []),
     forecastFootprint(manifest).catch(() => null),
+    // first official warning/order per zone (public/data/official_<scenario>.json), if this scenario has one
+    getJson(`data/official_${manifest.scenario_id}.json`).catch(() => null),
   ])
-  return { assets, areaX, timeline, footprint }
+  return { assets, areaX, timeline, footprint, official }
+}
+
+/**
+ * Emberline's first warning-or-order alert for each zone against the county's first official alert for it.
+ * lead_min > 0 means Emberline's alert came first. Only alerts the replay has reached so far are counted.
+ */
+export function compareWithOfficial(alerts, official) {
+  const byZone = new Map((official?.orders ?? []).map((o) => [o.zone_id, o]))
+  const first = new Map()
+  for (const a of alerts) {
+    if (a.level !== 'warning' && a.level !== 'order_recommended') continue
+    for (const z of a.zone_ids) {
+      const cur = first.get(z)
+      if (!cur || a.triggered_sim_ms < cur.engine_t) first.set(z, { engine_t: a.triggered_sim_ms, alert_id: a.alert_id, level: a.level })
+    }
+  }
+  const out = new Map()
+  for (const [z, e] of first) {
+    const o = byZone.get(z)
+    if (!o) continue
+    out.set(z, { zone_id: z, engine_t: e.engine_t, engine_level: e.level, alert_id: e.alert_id, official_t: o.t_sim_ms, official_level: o.level, lead_min: Math.round((o.t_sim_ms - e.engine_t) / 60000) })
+  }
+  return out
 }
 
 /**
@@ -123,6 +148,9 @@ export function createGlobeView(snap, extras) {
     manifest: m,
     zones: { features: snap.zones },
     footprint: extras?.footprint ?? null,
+    official: extras?.official ?? null,
+    /** per zone: Emberline's alert vs the county's, for alerts the replay has reached */
+    vsOfficial: compareWithOfficial(snap.alerts, extras?.official),
     assets: extras?.assets ?? null,
     areaX: extras?.areaX ?? null,
     timeline: extras?.timeline ?? [],

@@ -11,6 +11,18 @@ const STATUS_LABEL = { order: 'Order', warning: 'Warning', watch: 'Watch', clear
 const TREND = { up: '↑ rising', flat: '→ steady', down: '↓ falling' }
 const LEVEL_LABEL = { advisory: 'Advisory', warning: 'Warning', order_recommended: 'Order recommended' }
 
+/** Emberline's alert against the county's first official alert for the same zone. */
+function LeadBadge({ info }) {
+  if (!info) return null
+  const ahead = info.lead_min > 0
+  const level = info.official_level === 'order' ? 'order' : 'warning'
+  return (
+    <span className={`gn__leadbadge ${ahead ? 'ahead' : 'behind'}`}>
+      {ahead ? `▲ ${info.lead_min} min ahead of the official ${level}` : `the official ${level} came ${-info.lead_min} min earlier`} · {fmtHM(info.official_t)} PT
+    </span>
+  )
+}
+
 /** Centroid of a zone's first ring, for flying the map there. */
 function zoneCenter(feature) {
   const g = feature.geometry
@@ -49,6 +61,7 @@ export function ZonesTab({ scenario, selZone, onSelect }) {
           <span>{TREND[r.trend]}</span>
         </span>
         {r.drivers.length ? <span className="gn__zone-drivers">{r.drivers.join(' · ')}</span> : null}
+        <LeadBadge info={scenario.vsOfficial.get(r.zone_id)} />
       </button>
     )
   }
@@ -69,11 +82,12 @@ export function ZonesTab({ scenario, selZone, onSelect }) {
   )
 }
 
-export function AlertsTab({ scenario, actions, act }) {
+export function AlertsTab({ scenario, actions, act, focusZone }) {
   const [open, setOpen] = useState({})
   const names = new Map(scenario.zones.features.map((f) => [f.properties.zone_id, f.properties.name]))
   const briefings = new Map(scenario.briefings.map((b) => [b.briefing_id, b]))
-  const alerts = [...scenario.alerts].sort((a, b) => b.triggered_sim_ms - a.triggered_sim_ms)
+  // the zone picked on the map or in the tour comes first and is highlighted
+  const alerts = [...scenario.alerts].sort((a, b) => Number(b.zone_ids.includes(focusZone)) - Number(a.zone_ids.includes(focusZone)) || b.triggered_sim_ms - a.triggered_sim_ms)
   if (!alerts.length) return <p className="gn__empty">No alerts yet. Alerts appear when a zone crosses an evacuation rule.</p>
   return (
     <div className="gn__alerts">
@@ -81,12 +95,16 @@ export function AlertsTab({ scenario, actions, act }) {
         const b = a.briefing_id ? briefings.get(a.briefing_id) : null
         const proposed = a.state === 'proposed'
         return (
-          <div key={a.alert_id} className={`gn__alert ${a.level}`}>
+          <div key={a.alert_id} className={`gn__alert ${a.level} ${a.zone_ids.includes(focusZone) ? 'focus' : ''}`}>
             <div className="gn__alert-head">
               <b>{LEVEL_LABEL[a.level] ?? a.level}</b>
               <i className={`gn__state ${a.state}`}>{a.state}</i>
             </div>
             <div className="gn__alert-zones">{a.zone_ids.map((z) => names.get(z) ?? z).join(', ')}</div>
+            {a.zone_ids.map((z) => {
+              const info = scenario.vsOfficial.get(z)
+              return info?.alert_id === a.alert_id ? <LeadBadge key={z} info={info} /> : null
+            })}
             <div className="gn__alert-meta">
               Triggered {fmtDay(a.triggered_sim_ms)} PT{a.act_by_sim_ms != null ? ` · act by ${fmtHM(a.act_by_sim_ms)}` : ''}
               <br />Rule {a.rule_id}: {a.rule_text}
