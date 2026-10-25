@@ -704,3 +704,12 @@ a:hover {
 .gn__probe b { font-size: 11px; }
 .gn__probe-sub { font-size: 8.5px; }
 .gn__err { font-size: 10px; }
+
+/* guided tour */
+.gn__tourbtn { z-index: 5; position: absolute; left: 50%; bottom: 76px; transform: translateX(-50%); padding: 11px 22px; background: #07101fe6; color: #ffe2c2; border: 1.5px solid #ff9626; border-radius: 28px; font: 600 11px Michroma, 'Eurostile', sans-serif; letter-spacing: 0.08em; cursor: pointer; box-shadow: 0 0 22px #ff962655; animation: gn-tourpulse 2.4s ease-in-out infinite; }
+.gn__tourbtn:hover { background: #121f3a; }
+@keyframes gn-tourpulse { 0%, 100% { box-shadow: 0 0 14px #ff962644; } 50% { box-shadow: 0 0 32px #ff9626aa; } }
+.gn__tour { z-index: 7; position: absolute; left: 22px; top: 54px; width: 360px; padding: 12px 14px; background: #060d1cee; border: 1px solid #ff962699; border-radius: 10px; font-family: Michroma, 'Eurostile', sans-serif; color: #dbe8fb; display: flex; flex-direction: column; gap: 6px; }
+.gn__tour b { font-size: 11px; letter-spacing: 0.08em; color: #ffd7a1; text-transform: uppercase; }
+.gn__tour span { font-size: 9.5px; line-height: 1.6; }
+.gn__tourstop { z-index: 7; position: absolute; left: 190px; top: 14px; padding: 5px 12px; background: #1a0f12cc; color: #ffb3a8; border: 1px solid #e5483c88; border-radius: 14px; font: 9px Michroma, sans-serif; cursor: pointer; }

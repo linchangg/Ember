@@ -5,7 +5,7 @@ import './index.css'
 
 // Note: StrictMode intentionally omitted — Cesium/MapLibre dislike double-mount in dev.
 createRoot(document.getElementById('root')).render(
-  <BrowserRouter>
+  <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
     <App />
   </BrowserRouter>,
 )

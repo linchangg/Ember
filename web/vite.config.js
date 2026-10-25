@@ -39,6 +39,8 @@ function scenarioFiles() {
 }
 
 export default defineConfig({
+  // GitHub Pages serves the site from /<repo>/, so the Pages workflow sets VITE_BASE
+  base: process.env.VITE_BASE ?? '/',
   plugins: [react(), cesium(), scenarioFiles()],
   server: {
     host: '0.0.0.0',

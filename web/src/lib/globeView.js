@@ -5,7 +5,7 @@
 import { assetRoot, assetUrl } from '../data/assetUrl.ts'
 
 const QUANTILES = [0.1, 0.3, 0.5, 0.7, 0.9]
-const base = () => assetRoot(import.meta.env.VITE_ASSET_BASE ?? '/', window.location.href)
+const base = () => assetRoot(import.meta.env.VITE_ASSET_BASE ?? import.meta.env.BASE_URL, window.location.href)
 
 const geoCache = new WeakMap()
 function gridGeo(manifest) {
