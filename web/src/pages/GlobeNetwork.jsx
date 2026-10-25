@@ -442,6 +442,9 @@ export default function GlobeNetwork() {
     }
     resize()
     window.addEventListener('resize', resize)
+    // the wrapper can be 0x0 when the page loads in a background tab or hidden pane; refit whenever it gets a size
+    const sizeObserver = new ResizeObserver(resize)
+    sizeObserver.observe(wrapRef.current)
 
     const heatSprite = (core, mid) => {
       const c = document.createElement('canvas')
@@ -508,6 +511,7 @@ export default function GlobeNetwork() {
 
     function frame(ms) {
       raf = requestAnimationFrame(frame)
+      if (!W || !H) return
       const t = ms / 1000
       // safety net: a non-finite view value would blank the whole map, so fall back to the default view
       if (!Number.isFinite(view.zoom + view.lon + view.lat + view.cxo)) Object.assign(view, { zoom: 1, lon: -98, lat: 28, cxo: 0, target: null })
@@ -1407,6 +1411,7 @@ export default function GlobeNetwork() {
       queue.length = 0
       cancelAnimationFrame(raf)
       window.removeEventListener('resize', resize)
+      sizeObserver.disconnect()
       cv.removeEventListener('pointerleave', onLeave)
       cv.removeEventListener('pointerdown', onDown)
       cv.removeEventListener('pointermove', onMove)
