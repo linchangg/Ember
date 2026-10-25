@@ -1,0 +1,132 @@
+{
+  "protocol": "surface_v1_benchmark_v1",
+  "profile": "smoke",
+  "completed": true,
+  "blocked": false,
+  "member_128_gate_passed": false,
+  "timeout_limitation": "A parent-process timeout terminates the child and does not establish solver-level resumable cancellation. No checkpoint is published for that stop.",
+  "commit": "8cea5fc4edf5d8d9d1f7bbf628633fce342c0785",
+  "model": "surface_v1",
+  "solver": "level_set_lf_euler_v1",
+  "rustc": "rustc 1.99.1 (58cf8f9c3 2026-10-13)",
+  "python": "3.12.11",
+  "os": "macOS-15.7.9-arm64-arm-64bit",
+  "architecture": "arm64",
+  "cpu_count": 10,
+  "physical_memory_bytes": 17179869184,
+  "available_memory_bytes": 139902976,
+  "available_memory_method": "macos_vm_stat_pages_free_plus_speculative",
+  "t_ref_ms": 1736294400000,
+  "grid": {
+    "height": 64,
+    "width": 64,
+    "cell_size_m": 90.0,
+    "crs": "EPSG:32611",
+    "origin": "eaton_upper_left_outer_edge",
+    "window_note": "smoke is a 64x64 window of the 90 m contract grid, not the full 340x340 domain"
+  },
+  "fuel": "FM1",
+  "fuel_id": 1,
+  "weather_frame_count": 1,
+  "horizon_s": 3600.0,
+  "members_requested": 1,
+  "seed": null,
+  "workers": 1,
+  "release_build": true,
+  "build_time_s": 4.764639624976553,
+  "build_command": "cargo build --release -p fire-cli --locked",
+  "build_note": "incremental when target/ already contains the release binary; not a clean rebuild",
+  "warmup": [
+    {
+      "status": "complete",
+      "input_prep_s": 0.00451670796610415,
+      "solver_s": 0.8274274999275804,
+      "aggregation_s": 0.002673208946362138,
+      "aggregation_note": "research unconditional quantiles for the single member; not an application weighted CDF",
+      "output_s": 0.0015697079943493009,
+      "wall_s": 0.836187124834396,
+      "peak_memory_bytes": 3588096,
+      "memory_method": "usr_bin_time_max_rss",
+      "output_bytes": 81389,
+      "members_requested": 1,
+      "members_completed": 1,
+      "numerical_failures": 0,
+      "timed_out": false,
+      "quality_flags": [
+        "terrain_gradient_incomplete"
+      ],
+      "phase": "warmup"
+    }
+  ],
+  "runs": [
+    {
+      "status": "complete",
+      "input_prep_s": 0.002891874988563359,
+      "solver_s": 0.015823583933524787,
+      "aggregation_s": 0.0006107919616624713,
+      "aggregation_note": "research unconditional quantiles for the single member; not an application weighted CDF",
+      "output_s": 0.00016950001008808613,
+      "wall_s": 0.019495750893838704,
+      "peak_memory_bytes": 3424256,
+      "memory_method": "usr_bin_time_max_rss",
+      "output_bytes": 81389,
+      "members_requested": 1,
+      "members_completed": 1,
+      "numerical_failures": 0,
+      "timed_out": false,
+      "quality_flags": [
+        "terrain_gradient_incomplete"
+      ],
+      "phase": "repeat"
+    },
+    {
+      "status": "complete",
+      "input_prep_s": 0.0021335419733077288,
+      "solver_s": 0.015435332898050547,
+      "aggregation_s": 0.00085891701746732,
+      "aggregation_note": "research unconditional quantiles for the single member; not an application weighted CDF",
+      "output_s": 0.0002859579399228096,
+      "wall_s": 0.018713749828748405,
+      "peak_memory_bytes": 3194880,
+      "memory_method": "usr_bin_time_max_rss",
+      "output_bytes": 81389,
+      "members_requested": 1,
+      "members_completed": 1,
+      "numerical_failures": 0,
+      "timed_out": false,
+      "quality_flags": [
+        "terrain_gradient_incomplete"
+      ],
+      "phase": "repeat"
+    },
+    {
+      "status": "complete",
+      "input_prep_s": 0.002052875002846122,
+      "solver_s": 0.024864208069629967,
+      "aggregation_s": 0.0005802910309284925,
+      "aggregation_note": "research unconditional quantiles for the single member; not an application weighted CDF",
+      "output_s": 0.00015229196287691593,
+      "wall_s": 0.027649666066281497,
+      "peak_memory_bytes": 3817472,
+      "memory_method": "usr_bin_time_max_rss",
+      "output_bytes": 81389,
+      "members_requested": 1,
+      "members_completed": 1,
+      "numerical_failures": 0,
+      "timed_out": false,
+      "quality_flags": [
+        "terrain_gradient_incomplete"
+      ],
+      "phase": "repeat"
+    }
+  ],
+  "summary": {
+    "wall_s_median": 0.019495750893838704,
+    "wall_s_min": 0.018713749828748405,
+    "wall_s_max": 0.027649666066281497,
+    "repeats_completed": 3
+  },
+  "members_completed": 1,
+  "numerical_failures": 0,
+  "timeouts": 0
+}

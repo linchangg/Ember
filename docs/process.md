@@ -9,6 +9,9 @@ Format: `Sat 13:05 · Cody · C0 contracts + fixture merged (PR #3) · Cursor ag
 - Sat Oct 24 · Abby · Engine build plan and reproducible reference aids added for review; Rust proposal does not replace the canonical Python demo contracts · Codex
 
 - Sat Oct 24 · Abby · Verified surface_v1 research import prepared on integration/surface-v1-verified from main; added independent Behave oracle, numerical/workflow regressions, correction/checkpoint/ensemble/evaluation fixes and isolated CI; Python HazardModel replacement remains gated · Codex
+
+- Sat Oct 24 · Abby · surface_v1 research adapter: grid/time/arrival conversions, subprocess bridge, synthetic compatibility test, and smoke benchmark; Rust backend not activated and HazardModel contracts unchanged · Cursor
+
 - Sat 13:13 · Cody · C0 contracts + analytic fixture (PR #4 merged into a stale base; landed on main with wave 1) · Cursor agent
 - Sat 15:05 · Cody · G1-a GOES gate: GO (Eaton), t_sat_goes 02:11 PST · Claude
 - Sat 15:20 · Cody · G1-b SpacetimeDB spike PASS (local) · Claude
