@@ -34,3 +34,5 @@ Format: `Sat 13:05 · Cody · C0 contracts + fixture merged (PR #3) · Cursor ag
 - Sat 23:30 · Cody · Eaton statics: 3DEP DEM/slope/aspect + LANDFIRE LF2024 FBFM40/CC (LFPS exportImage, no email) on the 90 m grid; load_landscape passes Abby's validation; real Rust dev run 40-90 s/cycle at N=16; Windows fingerprint sort fix in bridge.py · Claude workflow
 
 - Sat Oct 24 · Abby · E1 benchmark runner records cold/warm workload samples, timeouts, and physical extent; reduced-grid smoke run had no timeouts and low-sample p95; satellite warm median 11.2 s exceeds the 10 s budget so that configuration does not qualify; eligible_for_profile_selection is execution-only and 500 ms was not met · Cursor
+
+- Sat Oct 24 · Abby · E2 selects a development profile from stored samples; the schema-1 smoke report has no latency_budgets block and its 11.2 s satellite warm median rejects the 10 s budget; execution eligibility was not used; no forecast-skill claim · Cursor
