@@ -712,4 +712,24 @@ a:hover {
 .gn__tour { z-index: 7; position: absolute; left: 22px; top: 54px; width: 360px; padding: 12px 14px; background: #060d1cee; border: 1px solid #ff962699; border-radius: 10px; font-family: Michroma, 'Eurostile', sans-serif; color: #dbe8fb; display: flex; flex-direction: column; gap: 6px; }
 .gn__tour b { font-size: 11px; letter-spacing: 0.08em; color: #ffd7a1; text-transform: uppercase; }
 .gn__tour span { font-size: 9.5px; line-height: 1.6; }
+.gn__alert.focus { box-shadow: 0 0 0 1.5px #4ade80, 0 0 18px #4ade8044; }
+.gn__leadbadge { display: inline-block; margin: 4px 0; padding: 3px 8px; border-radius: 10px; font-size: 8.5px; letter-spacing: 0.04em; }
+.gn__leadbadge.ahead { background: #11361f; color: #8ff0b0; border: 1px solid #4ade8099; }
+.gn__leadbadge.behind { background: #2a2417; color: #e8c98a; border: 1px solid #e8c98a66; }
+.gn__slider.has-mark { margin-bottom: 26px; }
+.gn__mark { position: absolute; top: -5px; width: 3px; height: 14px; transform: translateX(-1.5px); border-radius: 2px; pointer-events: none; }
+.gn__mark.eng { background: #ff9626; box-shadow: 0 0 8px #ff9626; }
+.gn__mark.off { background: #ffffff; box-shadow: 0 0 8px #fff; }
+.gn__leadbar { position: absolute; top: 3px; height: 3px; background: #4ade80; opacity: 0.85; pointer-events: none; }
+.gn__marklbl { position: absolute; top: 14px; font: 8px Michroma, sans-serif; white-space: nowrap; pointer-events: none; transform: translateX(-50%); }
+.gn__marklbl.eng { color: #ffb86a; }
+.gn__marklbl.off { color: #fff; }
+.gn__marklbl.first { transform: translateX(-100%); padding-right: 4px; }
+.gn__marklbl.second { transform: translateX(0); padding-left: 4px; }
+.gn__barlbl { position: absolute; top: -17px; transform: translateX(-50%); font: 700 8.5px Michroma, sans-serif; color: #8ff0b0; white-space: nowrap; pointer-events: none; }
+.gn__zonelbl { position: absolute; right: 0; top: 24px; font: 8px Michroma, sans-serif; color: #8fb0e0; pointer-events: none; }
 .gn__tourstop { z-index: 7; position: absolute; left: 190px; top: 14px; padding: 5px 12px; background: #1a0f12cc; color: #ffb3a8; border: 1px solid #e5483c88; border-radius: 14px; font: 9px Michroma, sans-serif; cursor: pointer; }
+
+/* new-alert count: a small circle on the corner of the Alerts tab */
+.gn__tabs button { position: relative; }
+.gn__count { position: absolute; top: -7px; right: -5px; min-width: 17px; height: 17px; padding: 0 4px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border-radius: 9px; background: #ff5a3c; color: #fff; font: 700 9px Michroma, sans-serif; font-style: normal; box-shadow: 0 0 10px #ff5a3c88; }

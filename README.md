@@ -1,10 +1,10 @@
-# Legendary Fire Project · Emberline
+# Legendary Fire Project · Ember
 
 Wildfire command dashboard for Cal Hacks, with satellite-data tooling and an experimental Rust fire-spread backend. The current globe and dashboard use labeled prototype overlays; they are not yet connected to the Rust forecasts.
 
 ## Web UI
 
-The Emberline command dashboard lives in [`web/`](./web).
+The Ember command dashboard lives in [`web/`](./web).
 
 ```bash
 cd web
@@ -37,12 +37,12 @@ Design reference (exported mockup) is in [`design/command-dashboard-mockup/`](./
 
 ## Engine build plan
 
-See [Engine Build Plan](ENGINE_BUILD_PLAN.md) for the proposed Rust physics engine, equations, input/output contracts, implementation milestones, and runnable reference fixtures. It is a research proposal alongside the current Emberline demo specifications.
+See [Engine Build Plan](ENGINE_BUILD_PLAN.md) for the proposed Rust physics engine, equations, input/output contracts, implementation milestones, and runnable reference fixtures. It is a research proposal alongside the current Ember demo specifications.
 
 ## Rust HazardModel and research tools
 
 The Rust engine lives in [`physics/surface_v1/`](physics/surface_v1/README.md).
-The operational Python adapter is [`engine/emberline/hazard/`](engine/emberline/hazard/),
+The operational Python adapter is [`engine/ember/hazard/`](engine/ember/hazard/),
 including ensemble inference, delayed observations, reanchoring and checkpoints.
 The separate [`physics/surface_v1/adapter/`](physics/surface_v1/adapter/README.md)
 preserves the research CLI conversions and smoke tests; it does not select a backend.
@@ -58,9 +58,9 @@ From the repository root, with Python 3.12, uv and the pinned Rust toolchain:
 ```sh
 uv sync --project engine --locked
 cargo build --manifest-path physics/surface_v1/Cargo.toml -p fire-bridge --release --locked
-uv run --project engine python -m emberline.hazard.demo --out /tmp/emberline-rust-demo --members 16
-node tools/check_hazard_frontend.mjs /tmp/emberline-rust-demo
-python3 -m http.server 8787 --bind 127.0.0.1 --directory /tmp/emberline-rust-demo
+uv run --project engine python -m ember.hazard.demo --out /tmp/ember-rust-demo --members 16
+node tools/check_hazard_frontend.mjs /tmp/ember-rust-demo
+python3 -m http.server 8787 --bind 127.0.0.1 --directory /tmp/ember-rust-demo
 ```
 
 Open `http://127.0.0.1:8787/demo.html` for the complete offline Rust fixture. This

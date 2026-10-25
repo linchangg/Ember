@@ -6,7 +6,7 @@ import "./phone.css";
 
 const HUB = import.meta.env.VITE_STDB_URI || "http://127.0.0.1:3017";
 const DB = import.meta.env.VITE_STDB_DB || "phase-e-demo";
-const storageKey = "emberline-report-session-v1";
+const storageKey = "ember-report-session-v1";
 async function api(path, body, session) {
   const multipart = body instanceof FormData;
   const response = await fetch(path, {
@@ -187,7 +187,7 @@ export default function PhoneReport() {
   return (
     <main className="phone-report">
       <header>
-        <Link to="/">Emberline</Link>
+        <Link to="/">Ember</Link>
         <span>January 2025</span>
       </header>
       <h1>Report what you see</h1>

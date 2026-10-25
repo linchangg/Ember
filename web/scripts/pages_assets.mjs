@@ -21,6 +21,7 @@ if ((process.env.VITE_BASE ?? '/') !== '/' && nested !== dist && existsSync(nest
 }
 const size = (dir) => readdirSync(dir, { recursive: true }).reduce((n, f) => (statSync(join(dir, f)).isFile() ? n + statSync(join(dir, f)).size : n), 0)
 
+// Restore only byte-identical content-addressed bundles; preserve index hashes.
 for (const [id, src] of Object.entries(SOURCES)) {
   const s = join(root, src.static)
   const c = join(root, src.cache)

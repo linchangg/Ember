@@ -3,8 +3,8 @@ from pathlib import Path
 import json
 import numpy as np
 import pytest
-from emberline.hazard.api import Grid, ModelConfig
-from emberline.hazard.historical_runner import ForecastArchive
+from ember.hazard.api import Grid, ModelConfig
+from ember.hazard.historical_runner import ForecastArchive
 
 
 def host():

@@ -3,7 +3,7 @@
 This is an implemented offline, frozen-artifact scorer. It does not fetch real data,
 run the real-data orchestrator, fit parameters or certify forecast skill.
 A synthetic example exercises the scoring/audit code only. The implemented methods
-are in `engine/emberline/hazard/historical.py`; the manifest JSON schema is
+are in `engine/ember/hazard/historical.py`; the manifest JSON schema is
 `docs/schemas/historical-v1.schema.json`.
 
 For the current Eaton acquisition results, the public-source downloader and the
@@ -15,9 +15,9 @@ No usable independent overnight perimeter sequence has yet been acquired.
 From the repository root with the locked engine environment installed:
 
 ```sh
-engine/.venv/bin/python -m emberline.hazard.historical \
-  --make-example /tmp/emberline-validation-example \
-  --out /tmp/emberline-validation-example-report.json
+engine/.venv/bin/python -m ember.hazard.historical \
+  --make-example /tmp/ember-validation-example \
+  --out /tmp/ember-validation-example-report.json
 engine/.venv/bin/python -m pytest engine/tests/test_historical.py engine/tests/test_hazard_calibration.py engine/tests/test_fixture_server.py -q
 ```
 
@@ -72,7 +72,7 @@ not invoke Rust and must never be presented as historical validation.
    control or content-addressed storage. Run:
 
    ```sh
-   engine/.venv/bin/python -m emberline.hazard.historical \
+   engine/.venv/bin/python -m ember.hazard.historical \
      --manifest /path/to/frozen-experiment/experiment.json \
      --out /path/to/reports/historical-report.json
    ```
@@ -86,7 +86,7 @@ not invoke Rust and must never be presented as historical validation.
 ```python
 from pathlib import Path
 import numpy as np
-from emberline.hazard.historical import Grid, grid_digest, write_prediction, digest
+from ember.hazard.historical import Grid, grid_digest, write_prediction, digest
 
 grid = Grid(nx=340, ny=340, cell_m=90, x0=YOUR_X0, y0=YOUR_Y0)
 # forecast = model.step(issue_min, newly_available_observations)

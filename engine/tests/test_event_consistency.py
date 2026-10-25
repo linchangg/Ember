@@ -1,7 +1,7 @@
 from types import SimpleNamespace
 import numpy as np
 import pytest
-from emberline.hazard.event_consistency import consistency, evaluate
+from ember.hazard.event_consistency import consistency, evaluate
 
 
 def test_member_weights_and_infinite_arrivals_retained():

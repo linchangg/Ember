@@ -10,11 +10,11 @@ from pathlib import Path
 
 import numpy as np
 
-from emberline.data.config import scenario_dir
-from emberline.hazard.bridge import BackendOptions
-from emberline.runtime.loop import NcForcing, load_scenario_dir
-from emberline.runtime.model_host import ignition, landscape, model_config, model_grid, rust_backend
-from emberline.runtime.sources import ReplaySource
+from ember.data.config import scenario_dir
+from ember.hazard.bridge import BackendOptions
+from ember.runtime.loop import NcForcing, load_scenario_dir
+from ember.runtime.model_host import ignition, landscape, model_config, model_grid, rust_backend
+from ember.runtime.sources import ReplaySource
 
 
 def main():

@@ -150,7 +150,7 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
       <header className="header">
         <div className="header__left">
           <Link to="/" className="header__brand">
-            Emberline
+            Ember
           </Link>
           <span className="header__incident">
             {manifest?.title ?? 'Loading scenario'}

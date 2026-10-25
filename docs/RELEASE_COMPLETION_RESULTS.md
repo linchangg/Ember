@@ -1,7 +1,7 @@
 # Release implementation review results
 
 2026-10-25. Plan: `RELEASE_COMPLETION_PLAN.md`. Branch: `release/all-phases`.
-Integrated main through `96ea89b`, including the current globe, guided tour, Pages
+Integrated main through `c4cd811`, including the current globe, guided tour, Pages
 hosting and presentation changes. No frozen table/type/reducer signature changed.
 The existing `rewind` reducer now performs its specified ancestor-seek behavior.
 
@@ -47,11 +47,11 @@ test established assimilation; the two pieces of evidence are not conflated.
 | Benchmark harness, including retained timeout evidence | 7 passed |
 | Pages restoration/private-state packaging regressions | 4 passed |
 | Release inventory audit regressions | 9 passed |
-| Dashboard unit checks | 48 passed, 1 configured skip |
+| Dashboard unit checks | 49 passed, 1 configured skip |
 | Report/callback/voice-stub/audio checks | 19 passed |
 | TypeScript checks, lint, production build, hub type check | Passed locally |
-| Fresh complete 16-member Rust fixture + report branch | Passed: 36 forecasts + 3 pre-ignition issues, 13 child forecasts; decoder passed; 49 native dashboard tests passed |
-| Remote CI on engine/report implementation | ca655b8: all 10 checks passed; 92352dc: all 8 checks passed; subsequent packaging update gets its own CI |
+| Fresh complete 16-member Rust fixture + report branch | Passed: 36 forecasts + 3 pre-ignition issues, 13 child forecasts; decoder passed; 50 native dashboard tests passed |
+| Remote CI on engine/report implementation | ca655b8: all 10 checks passed; 92352dc: all 8 checks passed; fa66d4b and bc4db47: all five checks each passed; final rename integration gets its own CI |
 
 Configured hub tests are skipped in the ordinary suite; they are run separately
 against a disposable published database. Provider tests use stubs. No actual call,
@@ -96,3 +96,5 @@ are included in its description; this is not a calibrated production release.
 The local preview initially verified the committed 80-issue subset, then was updated
 to the complete published archive after its audit. The asset host reports 157/157.
 The release's perimeters remain model outputs, not independent truth.
+
+Latest-main integration preserves the Ember package rename and new official-alert/dashboard panels. Pages retains strict hash verification instead of rewriting mismatched index references. Post-rename engine suite: 360 passed, 20 configured skips (270.96 s); separate native report/hub: 1 passed; published hub contracts: 15 passed; service/audio: 19 passed; packaging: 4 passed; dashboard: 49 passed/1 skip; types/lint/Pages build passed. The full fixture was generated before the namespace rename; post-rename native report integration checks exercise the current backend.

@@ -1,6 +1,6 @@
 # Surface physics research engine
 
-This is an additive Rust research workspace imported from `cursor/surface-v1-physics-engine` (`99b7f45`) onto Emberline's existing history. It implements extended Rothermel local surface behavior and a terrain-projected elliptical level-set solver. It is separately runnable; it does not replace the Python `HazardModel`, MTT ensemble, contracts, fixture pipeline, data collectors, or UI.
+This is an additive Rust research workspace imported from `cursor/surface-v1-physics-engine` (`99b7f45`) onto Ember's existing history. It implements extended Rothermel local surface behavior and a terrain-projected elliptical level-set solver. It is separately runnable; it does not replace the Python `HazardModel`, MTT ensemble, contracts, fixture pipeline, data collectors, or UI.
 
 Read [MODEL_AUDIT.md](docs/MODEL_AUDIT.md) for model coverage, evidence, defects fixed, and remaining gates. The root `SPEC.md`, `AGENTS.md`, `spec/00_contracts.md`, and `spec/02_physics.md` continue to govern the demo. The root `ENGINE_BUILD_PLAN.md` specifies this research engine; `docs/BUILD_PLAN.md` here is the original spike's short provenance note.
 
@@ -30,7 +30,7 @@ cargo run --release -p fire-cli -- checkpoint --input /tmp/surface-example-input
 cargo run --release -p fire-cli -- resume --input /tmp/surface-example-input/manifest.json --checkpoint /tmp/surface-example-checkpoint --until-s 3600 --out /tmp/surface-example-resumed
 ```
 
-Input arrays are little-endian row-major, row zero south, with a lower-left metric origin; time is f64 seconds since `start_utc`. Moisture is a fraction and wind is a midflame velocity **toward** east/north in m/s. These conventions differ from Emberline's north-first 90 m arrays and float32 minutes. Geographic lon/lat grids are rejected. Normalized UTC timestamps currently require whole-second `YYYY-MM-DDTHH:MM:SSZ`; normalize offsets/fractions upstream. Weather must have been available at the forecast origin, including forecast weather valid later.
+Input arrays are little-endian row-major, row zero south, with a lower-left metric origin; time is f64 seconds since `start_utc`. Moisture is a fraction and wind is a midflame velocity **toward** east/north in m/s. These conventions differ from Ember's north-first 90 m arrays and float32 minutes. Geographic lon/lat grids are rejected. Normalized UTC timestamps currently require whole-second `YYYY-MM-DDTHH:MM:SSZ`; normalize offsets/fractions upstream. Weather must have been available at the forecast origin, including forecast weather valid later.
 
 A run publishes `run.json`, `diagnostics.json`, arrival times/status, and integer-second `horizon_000300/` directories with phi/burned/front arrays. Run metadata schema is 2 and includes its grid. Checkpoints use schema 2, verify input and state hashes, and reject old spike checkpoints. Resume exports snapshots captured after restoration; it does not recreate earlier snapshots absent from the checkpoint. Partial runs report their actual completion time and captured horizons.
 

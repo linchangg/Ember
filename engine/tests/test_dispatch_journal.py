@@ -2,9 +2,9 @@ from concurrent.futures import ThreadPoolExecutor
 from types import SimpleNamespace
 import asyncio
 import pytest
-from emberline.notify.dispatch import DispatchJournal
-from emberline.notify import cartesia
-from emberline.sync.poller import Poller
+from ember.notify.dispatch import DispatchJournal
+from ember.notify import cartesia
+from ember.sync.poller import Poller
 
 
 def test_reservation_survives_restart_and_never_stores_recipient(tmp_path):

@@ -1,4 +1,4 @@
-// Hand-written from spec/00_contracts.md §3.3. Python in engine/emberline/contracts.py is the source of truth.
+// Hand-written from spec/00_contracts.md §3.3. Python in engine/ember/contracts.py is the source of truth.
 
 declare namespace GeoJSON {
   interface Polygon {

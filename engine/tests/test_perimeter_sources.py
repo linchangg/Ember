@@ -4,7 +4,7 @@ from urllib.parse import parse_qs, urlsplit
 
 import pytest
 
-from emberline.hazard.perimeter_sources import snapshot
+from ember.hazard.perimeter_sources import snapshot
 
 
 def responder(url):

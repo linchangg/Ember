@@ -46,7 +46,7 @@ cd data/scenarios/eaton/forcing && sha256sum -c forcing.sha256
 Sanity checks, then a 3-cycle timing run:
 
 ```bash
-uv run --project engine python -m emberline.hazard.compatibility
+uv run --project engine python -m ember.hazard.compatibility
 uv run --project engine pytest engine/tests -q
 nproc; free -g
 ```
@@ -55,7 +55,7 @@ nproc; free -g
 
 ```bash
 W=$(nproc); MEM=$(( $(free -g | awk '/Mem:/{print $2}') * 3 / 4 ))
-uv run --project engine python -m emberline.scripts.precompute --scenario eaton \
+uv run --project engine python -m ember.scripts.precompute --scenario eaton \
   --branch main --filter pf --profile target --workers $W --memory-gb $MEM --timeout-s 900 \
   --no-briefings 2>&1 | tee main.log
 ```

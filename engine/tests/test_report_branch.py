@@ -2,8 +2,8 @@ import asyncio
 from types import SimpleNamespace
 import numpy as np
 import pytest
-from emberline.contracts import Report
-from emberline.runtime.branch import BranchSource, BranchManager, report_observation
+from ember.contracts import Report
+from ember.runtime.branch import BranchSource, BranchManager, report_observation
 from test_engine import (
     write_scenario,
     synth_source,
@@ -12,15 +12,15 @@ from test_engine import (
     MIN,
     SCN,
 )
-from emberline.runtime.loop import load_scenario_dir, Loop
-from emberline.runtime.clock import FastClock
-from emberline.runtime.model_host import make_host
-from emberline.sync.cache_sink import CacheSink
+from ember.runtime.loop import load_scenario_dir, Loop
+from ember.runtime.clock import FastClock
+from ember.runtime.model_host import make_host
+from ember.sync.cache_sink import CacheSink
 from hazard_standin import FakeHazardModel, flat_landscape
 
 
 def report(ctx, **kw):
-    from emberline.data.grid import xy_to_lonlat
+    from ember.data.grid import xy_to_lonlat
 
     g = ctx.grid
     lon, lat = xy_to_lonlat(g["x0"] + 20 * g["cell_m"], g["y0"] - 20 * g["cell_m"], g)
@@ -128,9 +128,9 @@ def test_real_loop_fork_preserves_parent_and_injects_only_child(tmp_path):
 
 
 def test_native_report_branch_and_parent_checkpoint(tmp_path):
-    from emberline.hazard.bridge import BackendOptions
-    from emberline.runtime.model_host import rust_backend
-    from emberline.scripts.precompute import precompute
+    from ember.hazard.bridge import BackendOptions
+    from ember.runtime.model_host import rust_backend
+    from ember.scripts.precompute import precompute
 
     try:
         BackendOptions().executable()
@@ -227,7 +227,7 @@ def test_lost_branch_ack_reuses_reserved_branch(tmp_path):
 
 
 def test_precompute_cycle_limit_preserves_scenario_and_observer_context(tmp_path):
-    from emberline.scripts.precompute import precompute
+    from ember.scripts.precompute import precompute
 
     ctx = load_scenario_dir(write_scenario(tmp_path / "scenario", n_phys=3))
     end = ctx.end_ms
@@ -259,8 +259,8 @@ def test_precompute_cycle_limit_preserves_scenario_and_observer_context(tmp_path
 
 
 def test_retryable_report_command_is_not_marked_failed():
-    from emberline.sync.poller import Poller
-    from emberline.sync.sink import HubSnapshot, PublicationUnavailable
+    from ember.sync.poller import Poller
+    from ember.sync.sink import HubSnapshot, PublicationUnavailable
 
     marked = []
 

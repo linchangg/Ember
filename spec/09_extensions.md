@@ -9,7 +9,7 @@
    - **Tier 2** (prove it generalizes): only once M3 is green **and** the backup video of the core demo is recorded. That's an M4 item; record it right after M3 if you want Tier 2 time.
    - **Tier 3** (moonshots): only by someone otherwise idle, on a separate git branch, never touching the main demo path.
 2. **Extension code freeze: Sun 04:00.** Anything that hasn't passed its acceptance test by then stays flagged off. M5 rehearsals at 06:00 run with only what passed.
-3. **Feature flags.** Engine: `EMBERLINE_FEATURES=routes,agent,whatif,live,…`. Web: `VITE_FEATURES`. Default is everything off. A flag that's off leaves the core behaviour byte-identical.
+3. **Feature flags.** Engine: `EMBER_FEATURES=routes,agent,whatif,live,…`. Web: `VITE_FEATURES`. Default is everything off. A flag that's off leaves the core behaviour byte-identical.
 4. **Never touch the reported run.**
    - No extension may change the frozen config, priors, sensors or physics behind v1 (`08` §2).
    - Physics experiments are reported as **v2, alongside v1**, and disclosed.
@@ -34,7 +34,7 @@
 | E6 | Satellite fidelity polish | 1 | GOES-16 as a second (display) sensor, 1-min meso flashes, VIIRS orbit tracks, pixel-footprint flash | SpaceXAI, Most Creative | 2 | Linda | Low |
 | E7 | Multi-fire evaluation (no retuning) | 2 | Evaluation card gets a row per fire: Eaton, Palisades, plus one more | Microsoft (measurable usefulness), Overall | 1.5 per fire | Abby + agent | Low |
 | E8 | Live mode "California now" + "Track this fire" | 2 | A LIVE tab shows today's GOES-18 hot pixels; "Track" starts a live forecast on one | Microsoft (path to production), Anthropic ("usable Monday") | A 1.5 / B 4.5 | Cody | Medium-high (B) |
-| E9 | Apify "Official Evacuation Zones & Orders" Actor | 2 | Zones load from the Actor; the live tab shows the official order status beside Emberline's act-by | Apify + Best Actor | 3 | Cody (agent) | Low |
+| E9 | Apify "Official Evacuation Zones & Orders" Actor | 2 | Zones load from the Actor; the live tab shows the official order status beside Ember's act-by | Apify + Best Actor | 3 | Cody (agent) | Low |
 | E10 | Off-grid mesh channel (Meshtastic LoRa) | 3 | Phone in airplane mode; the report travels over the mesh and lands on the dashboard; the alert appears on a field node's screen | Best Hardware Hack, People-First, Hacker's Choice | 4–6 | Whoever is free + hardware desk | High (hardware) |
 | E11 | Common-operating-picture layer: aerial IR + simulated units | 3 | Operator draws an "IR flight" perimeter → the forecast updates. Simulated units show coverage gaps for zones under order | Technically Complex, Hacker's Choice | 4 | Linda + Cody | Medium |
 | E12 | After the fire: post-fire debris-flow plug-in | 3 | Same `HazardModel` seam, next hazard: per-basin debris-flow likelihood for a design storm over the burn area | Planet-First, Technically Complex | 5 | Abby | High (science) |
@@ -141,7 +141,7 @@
 
 ## 5. E4: Two-way voice with residents, Grok realtime (Tier 1, 2.5 h)
 
-**Beat.** The judge taps "Talk to Emberline". The voice asks one clarifying question, confirms what it heard, files the report, and reads back the act-by time.
+**Beat.** The judge taps "Talk to Ember". The voice asks one clarifying question, confirms what it heard, files the report, and reads back the act-by time.
 
 **Flow**
 - `web/api/grok-session` mints an ephemeral token. The phone opens `wss://api.x.ai/v1/realtime` with subprotocol `xai-client-secret.<token>`. Re-verify the model name (`grok-voice-3.0` per research 04) and the subprotocol at the SpaceXSI booth or in the docs.
@@ -233,9 +233,9 @@ Same design as `research/04_sponsors.md` §6.
 - **Input:** a bbox or county list.
 - **Output:** normalized `{zone_id, name, polygon, status: order|warning|none, updated_at, source_url}`.
 - **Sources:** public county evacuation-zone ArcGIS layers and the CA Evacuation Aggregation Layer. Check each source's terms; use public data only.
-- **Uses in Emberline:**
+- **Uses in Ember:**
   - (a) `01` §6 can load zones from the Actor's dataset.
-  - (b) E8-A shows "Official: order/warning/none" beside Emberline's act-by for live zones.
+  - (b) E8-A shows "Official: order/warning/none" beside Ember's act-by for live zones.
 - Publish the Actor; ask at the 11:00 workshop whether Best Actor requires the Store.
 - **Acceptance:** an Actor run returns ≥ 20 LA County zones with polygons, and the README links the Actor.
 
@@ -246,7 +246,7 @@ Same design as `research/04_sponsors.md` §6.
 **Beat**
 1. The judge-resident's phone goes into airplane mode, with Bluetooth on.
 2. The judge sends "FIRE" from the Meshtastic app. It travels over LoRa and lands on the dashboard as a report; the forecast branches.
-3. Approving an alert pushes "EMBERLINE DEMO: FARNSWORTH act by 23:40" to a field node's screen.
+3. Approving an alert pushes "EMBER DEMO: FARNSWORTH act by 23:40" to a field node's screen.
 
 **Hardware (check the hardware desk first; Seeed Studio is a partner; the exact boards available are unverified)**
 - **2 Meshtastic-capable LoRa boards**, e.g. a Seeed SenseCAP T1000-E, a Wio Tracker, or an ESP32-S3 + SX1262 kit, with US915 antennas.

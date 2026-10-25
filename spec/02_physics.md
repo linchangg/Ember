@@ -1,6 +1,6 @@
 # 02: Physics: spread ensemble and filter (owner: Abby)
 
-**Goal.** Implement `HazardModel` (`00_contracts` §6) in `engine/emberline/hazard/`. Inputs:
+**Goal.** Implement `HazardModel` (`00_contracts` §6) in `engine/ember/hazard/`. Inputs:
 - a landscape
 - hourly winds
 - an ignition
@@ -34,11 +34,11 @@ hazard/ensemble.py     # priors, sampling, Liu-West jitter
 hazard/likelihoods.py  # kind -> likelihood registry
 hazard/filter.py       # pf / reinit / none
 hazard/cdf.py          # weighted CDF -> quantiles, p_burned_now, region_arrivals
-hazard/model.py        # EmberlineHazardModel
+hazard/model.py        # EmberHazardModel
 tests/test_hazard_*.py
 ```
 
-**Loaders.** `emberline.data.load_landscape(scn) -> Landscape` (Cody, `01` §6; you can write it if you get there first) and `ForcingProvider.weather_as_of()` (`03` §3).
+**Loaders.** `ember.data.load_landscape(scn) -> Landscape` (Cody, `01` §6; you can write it if you get there first) and `ForcingProvider.weather_as_of()` (`03` §3).
 
 ## 1. FakeHazardModel (by Sat 08:00)
 

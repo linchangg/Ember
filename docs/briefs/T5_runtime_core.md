@@ -10,14 +10,14 @@
 ## Read
 - `spec/03_engine.md`: §1 (module list), §2 (clock), §4 (cache key, hit/miss), §5 "Per cycle / Also written", §6 (summarizer)
 - `spec/00_contracts.md`: §1, §3.1 (`Cycle`, `CycleAssets`, `ClockState`), §3.2 (the clock formula), §4 (files: `index.json`, §4.2 `arrival_q.bin`, §4.3 perimeter/isochrones/danger), §6 (`ForecastArrays` fields; **read only, don't import**)
-- `engine/emberline/scripts/make_fixture.py`: `encode_arrival`, `boundary_rings`, `vectorize_mask` and the code that writes the fixture's assets. Your summarizer must produce the **same formats**.
+- `engine/ember/scripts/make_fixture.py`: `encode_arrival`, `boundary_rings`, `vectorize_mask` and the code that writes the fixture's assets. Your summarizer must produce the **same formats**.
 
 ## You own
-- `engine/emberline/runtime/__init__.py` (empty, 0 bytes)
-- `engine/emberline/runtime/clock.py`, `engine/emberline/runtime/cache.py`, `engine/emberline/runtime/summarize.py`
+- `engine/ember/runtime/__init__.py` (empty, 0 bytes)
+- `engine/ember/runtime/clock.py`, `engine/ember/runtime/cache.py`, `engine/ember/runtime/summarize.py`
 - `engine/tests/test_clock.py`, `engine/tests/test_cache.py`, `engine/tests/test_summarize.py`
 
-**Don't import `emberline.hazard`** (Abby's package, which may not exist yet). The summarizer takes any object with the `ForecastArrays` attribute names (duck typing). Tests use `types.SimpleNamespace`.
+**Don't import `ember.hazard`** (Abby's package, which may not exist yet). The summarizer takes any object with the `ForecastArrays` attribute names (duck typing). Tests use `types.SimpleNamespace`.
 
 ## Steps
 
@@ -114,7 +114,7 @@
    - `write_index` lists only the dirs that have `bundle.json`, sorted.
    - Briefing save/load round-trips.
 7. **`engine/tests/test_summarize.py`.** Use a synthetic 340×340 grid at 90 m (Eaton numbers) with an analytic ellipse: `t_q[q] = max(0, dist_m/ros_q − T)`, NaN beyond 360, and `p_burned_now = 1` where `dist < r0`.
-   - `encode_arrival` agrees with `emberline.scripts.make_fixture.encode_arrival` on a random array that includes 0, negatives, NaN, inf, 0.1, 360 and 361. Importing the fixture function **in a test** is fine.
+   - `encode_arrival` agrees with `ember.scripts.make_fixture.encode_arrival` on a random array that includes 0, negatives, NaN, inf, 0.1, 360 and 361. Importing the fixture function **in a test** is fine.
    - The `arrival_q.bin` length is 5·340·340, and it decodes back to within 2 min of `t_q`.
    - `perimeter.geojson` has exactly the ids `burned` and `front` with the right geometry types; the `burned` area in ha is within 5% of `burned_ha`.
    - `isochrones` leads are increasing, and each feature's `q == 0.5`.
@@ -130,5 +130,5 @@
 
 ## Don't
 - Write the loop, model host, publisher or sinks (wave-2 T10).
-- Import `emberline.hazard`.
+- Import `ember.hazard`.
 - Ship UTM coordinates in any GeoJSON. Everything you write is lon/lat.

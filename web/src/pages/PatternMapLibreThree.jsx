@@ -18,7 +18,7 @@ function createFireLayer(map) {
   let anim = 0
 
   return {
-    id: 'emberline-three-fire',
+    id: 'ember-three-fire',
     type: 'custom',
     renderingMode: '3d',
 
@@ -276,7 +276,7 @@ export default function PatternMapLibreThree() {
         } catch {
           /* ignore */
         }
-        if (!map.getLayer('emberline-three-fire')) {
+        if (!map.getLayer('ember-three-fire')) {
           try {
             map.addLayer(createFireLayer(map))
             setStatus('AWS Terrarium DEM · Esri imagery · Three.js fire layer active')

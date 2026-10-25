@@ -24,13 +24,13 @@ historical scorer are separate authorized scientific framework work.
 
 ## Local output and restart
 
-Generated assets: `/private/tmp/emberline-dashboard-phase-a/`.
+Generated assets: `/private/tmp/ember-dashboard-phase-a/`.
 The server started for this session at `http://127.0.0.1:8790/`; it lasts only while
 that local process and machine remain available. Restart from the repository root:
 
 ```sh
-engine/.venv/bin/python -m emberline.hazard.fixture_server \
-  --root /private/tmp/emberline-dashboard-phase-a --port 8790 \
+engine/.venv/bin/python -m ember.hazard.fixture_server \
+  --root /private/tmp/ember-dashboard-phase-a --port 8790 \
   --allow-origin http://localhost:5173 --allow-origin http://127.0.0.1:5173
 ```
 

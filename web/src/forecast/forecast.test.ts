@@ -19,9 +19,9 @@ const golden = JSON.parse(
   )
 )
 const root =
-  process.env.EMBERLINE_FIXTURE_DIR ??
+  process.env.EMBER_FIXTURE_DIR ??
   fileURLToPath(new URL('../../../fixtures/', import.meta.url))
-const scenario = process.env.EMBERLINE_SCENARIO_ID ?? 'fixture'
+const scenario = process.env.EMBER_SCENARIO_ID ?? 'fixture'
 const manifest = JSON.parse(
   await readFile(path.join(root, `static/${scenario}/manifest.json`), 'utf8')
 )

@@ -1,5 +1,5 @@
 
-> emberline-web@0.1.0 test
+> ember-web@0.1.0 test
 > node --test src/lib/globeData.test.js src/data/*.test.ts
 
 ✔ asset paths cannot traverse, change origin or bypass the asset prefix (1.001333ms)

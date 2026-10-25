@@ -48,13 +48,54 @@ const getJson = (rel) => fetch(assetUrl(base(), rel)).then((r) => (r.ok ? r.json
 
 /** Static files the snapshot does not carry: assets, area X, timeline. Missing files are fine. */
 export async function loadExtras(manifest) {
-  const [assets, areaX, timeline, footprint] = await Promise.all([
+  const [assets, areaX, timeline, footprint, official] = await Promise.all([
     getJson(manifest.static.assets_url).catch(() => null),
     getJson(manifest.static.area_x_url).catch(() => null),
     getJson(manifest.static.timeline_url).catch(() => []),
     forecastFootprint(manifest).catch(() => null),
+    // first official warning/order per zone (public/data/official_<scenario>.json), if this scenario has one
+    getJson(`data/official_${manifest.scenario_id}.json`).catch(() => null),
   ])
-  return { assets, areaX, timeline, footprint }
+  return { assets, areaX, timeline, footprint, official }
+}
+
+/**
+ * Ember's alerts against the county's, zone by zone. Like with like: where both Ember and the county issued an order,
+ * the lead is first order against first order; otherwise first warning-or-order against first warning-or-order.
+ * lead_min > 0 means Ember came first. Only alerts the replay has reached so far are counted, and Ember times
+ * are the 5-minute cycle that proposed the alert.
+ */
+export function compareWithOfficial(alerts, official) {
+  const byZone = new Map((official?.orders ?? []).map((o) => [o.zone_id, o]))
+  const any = new Map()
+  const order = new Map()
+  for (const a of alerts) {
+    if (a.level !== 'warning' && a.level !== 'order_recommended') continue
+    for (const z of a.zone_ids) {
+      if (!any.has(z) || a.triggered_sim_ms < any.get(z).triggered_sim_ms) any.set(z, a)
+      if (a.level === 'order_recommended' && (!order.has(z) || a.triggered_sim_ms < order.get(z).triggered_sim_ms)) order.set(z, a)
+    }
+  }
+  const out = new Map()
+  for (const [z, anyAlert] of any) {
+    const o = byZone.get(z)
+    if (!o) continue
+    const orderAlert = order.get(z)
+    const likeForLike = orderAlert && o.order_t_sim_ms != null
+    const engine = likeForLike ? orderAlert : anyAlert
+    const officialT = likeForLike ? o.order_t_sim_ms : o.t_sim_ms
+    out.set(z, {
+      zone_id: z,
+      basis: likeForLike ? 'order' : 'warning',
+      engine_t: engine.triggered_sim_ms,
+      engine_level: engine.level,
+      alert_id: engine.alert_id,
+      official_t: officialT,
+      official_level: likeForLike ? 'order' : o.level,
+      lead_min: Math.round((officialT - engine.triggered_sim_ms) / 60000),
+    })
+  }
+  return out
 }
 
 /**
@@ -123,6 +164,9 @@ export function createGlobeView(snap, extras) {
     manifest: m,
     zones: { features: snap.zones },
     footprint: extras?.footprint ?? null,
+    official: extras?.official ?? null,
+    /** per zone: Ember's alert vs the county's, for alerts the replay has reached */
+    vsOfficial: compareWithOfficial(snap.alerts, extras?.official),
     assets: extras?.assets ?? null,
     areaX: extras?.areaX ?? null,
     timeline: extras?.timeline ?? [],

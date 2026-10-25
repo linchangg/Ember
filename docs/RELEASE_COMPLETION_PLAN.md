@@ -18,6 +18,10 @@ acceptance and measured latency retain their original gates.
 - Keep private hub credentials, transcripts, dispatch journals and raw caches out
   of Git. Use the locked Python environment outside iCloud for dependable tests.
 
+- Integrate main `c4cd811`, including the Ember package rename; adapt new modules,
+  tests and CI without changing public contracts. Resolve overlapping Pages fixes
+  with hash verification and private-state exclusions.
+
 ## 2. Review and repair the implementation
 
 - Audit report sessions, service credentials, provider opt-in, upload bounds,

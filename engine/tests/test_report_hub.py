@@ -10,17 +10,17 @@ from hazard_standin import flat_landscape
 from test_engine import FlatForcing, synth_source, write_scenario
 from test_report_branch import report
 
-from emberline.runtime.clock import FastClock
-from emberline.runtime.loop import Loop, load_scenario_dir
-from emberline.runtime.model_host import make_host, rust_backend
-from emberline.run import load_payload
-from emberline.sync.poller import Poller
-from emberline.sync.stdb_http import StdbHttp
-from emberline.sync.stdb_sink import StdbSink
+from ember.runtime.clock import FastClock
+from ember.runtime.loop import Loop, load_scenario_dir
+from ember.runtime.model_host import make_host, rust_backend
+from ember.run import load_payload
+from ember.sync.poller import Poller
+from ember.sync.stdb_http import StdbHttp
+from ember.sync.stdb_sink import StdbSink
 
 
 pytestmark = pytest.mark.skipif(
-    not os.environ.get("EMBERLINE_REPORT_HUB_TESTS"), reason="dedicated report hub"
+    not os.environ.get("EMBER_REPORT_HUB_TESTS"), reason="dedicated report hub"
 )
 
 
@@ -69,7 +69,7 @@ def test_native_report_command_publishes_child_and_preserves_parent(tmp_path):
                 "rust-levelset-pf-1",
                 stop_at_end=True,
             )
-            from emberline.hazard.historical_runner import ForecastArchive
+            from ember.hazard.historical_runner import ForecastArchive
 
             archive = ForecastArchive(tmp_path / "members", {ctx.k0_ms})
             loop.physics_observer = archive

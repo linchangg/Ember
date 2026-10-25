@@ -12,7 +12,7 @@ only hub/database/asset coordinates; engine and service tokens stay server-side.
    `STDB_SCENARIO_ID` and a random `REPORT_SESSION_SECRET` of at least 32 characters.
    Keep `VOICE_REPORT_ENABLED=false`. The local adapter does not load `.env` implicitly.
    `DEV_SERVICE_PORT` defaults to 8797. Run `node tools/dev_services.mjs`.
-3. Start Vite with `EMBERLINE_DEV_SERVICE_PROXY=http://127.0.0.1:8797`,
+3. Start Vite with `EMBER_DEV_SERVICE_PROXY=http://127.0.0.1:8797`,
    `VITE_STDB_URI=http://127.0.0.1:3017`, and `VITE_STDB_DB` matching that database.
    Use the same scenario/assets as the dashboard. Visit `/p?j=JOIN_CODE`, where the
    join code comes from that scenario's `spawn_points.json` keys.
@@ -65,6 +65,6 @@ uv run --project engine pytest engine/tests/test_report_branch.py engine/tests/t
 ```
 
 The `dashboard-hub.yml` workflow publishes a separate fresh `release-report-ci`
-database and runs `test_report_hub.py` with `EMBERLINE_REPORT_HUB_TESTS=1`. It checks
+database and runs `test_report_hub.py` with `EMBER_REPORT_HUB_TESTS=1`. It checks
 native raw-member export, a real report command, accepted/assimilated child evidence
 and unchanged parent cycles. It sends no external notification.

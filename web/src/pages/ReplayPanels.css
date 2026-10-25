@@ -30,25 +30,3 @@ div.gn { overflow: clip; }
 .rp-brief ul { margin: 0 0 0 14px; padding: 0; color: #a9c6ee; }
 .rp-brief li { margin: 2px 0; }
 
-.rp-lead { font-size: 9.5px; }
-.rp-lead-hero { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; margin-bottom: 10px; background: #0a1428; border: 1px solid #3b82f633; border-left: 4px solid #4ade80; border-radius: 6px; }
-.rp-lead-hero b { font-size: 14px; color: #b9f5cf; letter-spacing: 0.04em; }
-.rp-lead-hero span { line-height: 1.5; color: #dbe8fb; }
-.rp-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
-.rp-table th { text-align: left; font-weight: 400; font-size: 8px; color: #6f89b8; text-transform: uppercase; letter-spacing: 0.08em; padding: 0 4px 4px 0; }
-.rp-table td { padding: 4px 4px 4px 0; border-top: 1px solid #3b82f61f; font-size: 9px; vertical-align: top; white-space: nowrap; }
-.rp-table td:first-child { white-space: normal; color: #dbe8fb; }
-.rp-table td:last-child { text-align: right; padding-right: 0; }
-.rp-table td.ours { color: #ffd7a1; }
-.rp-table .gain { color: #4ade80; }
-.rp-table .loss { color: #ff8a70; }
-.rp-w { font-style: normal; margin-left: 5px; padding: 0 4px; border: 1px solid #e8d36a88; border-radius: 3px; color: #e8d36a; font-size: 7.5px; }
-.rp-contrast { margin: 4px 0 6px; padding: 8px 10px; background: #0a1428; border-left: 3px solid #6f89b8; border-radius: 4px; color: #a9c6ee; line-height: 1.5; }
-.rp-all { margin-top: 6px; }
-.rp-runs { display: flex; gap: 4px; margin-bottom: 6px; }
-.rp-runs button { flex: 1; padding: 5px 4px; background: #0a1428; color: #8fb0e0; border: 1px solid #3b82f633; border-radius: 6px; font-size: 8.5px; cursor: pointer; }
-.rp-runs button.on { background: #1b3768; color: #e6eefc; border-color: #5b8def; }
-.rp-group { margin: 10px 0 4px; font-size: 8.5px; color: #8fb0e0; text-transform: uppercase; letter-spacing: 0.08em; }
-.rp-small, .rp-src { color: #6f89b8; font-size: 8px; line-height: 1.55; margin: 6px 0; }
-.rp-src { margin-top: 12px; }
-.rp-src a { color: #8fb0e0; }

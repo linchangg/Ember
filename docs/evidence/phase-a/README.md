@@ -19,7 +19,7 @@ Base: main `c5e2599`; branch `feat/historical-validation-phase-a`.
 The small analytical inputs are committed in `docs/examples/historical/`. Reproduce:
 
 ```sh
-engine/.venv/bin/python -m emberline.hazard.historical \
+engine/.venv/bin/python -m ember.hazard.historical \
   --manifest docs/examples/historical/experiment.json --out /tmp/example-report.json
 ```
 

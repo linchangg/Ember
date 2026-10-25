@@ -1,5 +1,5 @@
 from email.message import Message
-from emberline.hazard.fixture_server import FixtureHandler
+from ember.hazard.fixture_server import FixtureHandler
 
 
 def handler(root, path, origin=None):

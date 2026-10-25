@@ -10,7 +10,7 @@ The ordered follow-up work for Abby, Cody and Linda is in
 Python/MTT implementation choice for this backend; it does not claim that forecast
 skill, latency, the full runtime or Linda's dashboard integration is complete.
 
-How the three of us and our coding agents (Cursor) get from the spec to the demo. This repo now holds the canonical spec. The `Emberline` folder on Cody's laptop is an older copy; don't edit it.
+How the three of us and our coding agents (Cursor) get from the spec to the demo. This repo now holds the canonical spec. The `Ember` folder on Cody's laptop is an older copy; don't edit it.
 
 ## Where we are (Sat 12:40)
 
@@ -23,7 +23,7 @@ How the three of us and our coding agents (Cursor) get from the spec to the demo
 
 - [ ] Cody commits this setup from his machine on a branch and opens a PR; Linda merges.
 - [ ] Add Cody and Abby as collaborators on `linchangg/Legendary-Fire-Project`.
-- [ ] Everyone opens the repo in Cursor. Agents pick up `AGENTS.md` and `.cursor/rules/emberline.mdc`.
+- [ ] Everyone opens the repo in Cursor. Agents pick up `AGENTS.md` and `.cursor/rules/ember.mdc`.
 - [ ] Locally: copy `.env.example` to `engine/.env` (git-ignored). Vercel env vars per `spec/05` §7.
 - [ ] Before the repo goes public for Devpost: decide whether `research/04_sponsors.md` (prize strategy) stays in.
 
@@ -94,11 +94,11 @@ Linda sequences her own work from `spec/06`, `spec/07` and `spec/05` §2–4 (`w
 ```
 Read AGENTS.md, SPEC.md and all of spec/00_contracts.md.
 Task C0: contracts and the analytic fixture.
-- Create engine/ per 00 §9: Python 3.12, uv, package "emberline". Implement every type in 00 §3 as
-  Pydantic v2 models in engine/emberline/contracts.py, with SCHEMA_VERSION = 2.
+- Create engine/ per 00 §9: Python 3.12, uv, package "ember". Implement every type in 00 §3 as
+  Pydantic v2 models in engine/ember/contracts.py, with SCHEMA_VERSION = 2.
 - Create web/src/contracts.ts with the TypeScript types from 00 §3, same field names. web/ is still
   JavaScript; don't convert or touch any other web/ file.
-- Implement engine/emberline/scripts/make_fixture.py exactly per 00 §10 (numpy, shapely, Pillow only)
+- Implement engine/ember/scripts/make_fixture.py exactly per 00 §10 (numpy, shapely, Pillow only)
   and write fixtures/{static,cache}/fixture/.
 - Add engine/tests/test_fixture.py per 00 §10.
 Done when: `uv run pytest` passes, the fixture is under 10 MB, and the proposed alerts appear at
@@ -108,7 +108,7 @@ cycles 20 and 30. Paste the test output and end with the 5-line summary from AGE
 **C1: TypeScript conversion**
 
 ```
-Read AGENTS.md and .cursor/rules/emberline.mdc.
+Read AGENTS.md and .cursor/rules/ember.mdc.
 Task C1: convert web/ from JavaScript to TypeScript (strict). This is a mechanical port.
 - Rename web/src *.jsx → *.tsx and *.js → *.ts; vite.config.js → vite.config.ts; update the script src in
   index.html. Add typescript and a strict tsconfig (Vite react-ts defaults with "strict": true).
@@ -126,9 +126,9 @@ output and end with the 5-line summary from AGENTS.md.
 
 ```
 Read AGENTS.md, SPEC.md, spec/00_contracts.md §1–2 and spec/01_data_pipeline.md §1–2.
-Task C2: implement the shared area_x_satellite_hit() in engine/emberline/data/area_x.py and
-engine/emberline/scripts/check_goes.py exactly as 01 §2 describes, including parallax correction and
-the decision rule. Use engine/emberline/data/grid.py if it exists; otherwise write it per 01 §1 first.
+Task C2: implement the shared area_x_satellite_hit() in engine/ember/data/area_x.py and
+engine/ember/scripts/check_goes.py exactly as 01 §2 describes, including parallax correction and
+the decision rule. Use engine/ember/data/grid.py if it exists; otherwise write it per 01 §1 first.
 For the parallax elevation, use the DEM from task A1 if it exists; otherwise fetch the 3DEP DEM for
 the bbox with py3dep. Run it for Eaton.
 Done when: the script runs end to end against s3://noaa-goes18, writes check_goes_report.html, and
@@ -140,7 +140,7 @@ prints the go/no-go with t_sat_goes; 01 §12 test 1 passes. Paste the output and
 
 ```
 Read AGENTS.md, spec/00_contracts.md §6 and spec/02_physics.md §0–1.
-Task A0: FakeHazardModel in engine/emberline/hazard/, implementing the HazardModel protocol from 00 §6.
+Task A0: FakeHazardModel in engine/ember/hazard/, implementing the HazardModel protocol from 00 §6.
 16 fixed members, analytic ellipse, uniform weights, ess = 16, filter_mode = "fake",
 region_arrivals and save_state/load_state as 02 §1 says.
 Done when: a test steps it on the fixture grid for 3 cycles and save/load round-trips exactly.

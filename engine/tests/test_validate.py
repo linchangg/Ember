@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from emberline.ai.validate import allowed_tokens, extract_tokens, p_words, validate
+from ember.ai.validate import allowed_tokens, extract_tokens, p_words, validate
 
 # Saved from the fixture's cycle-20 alert (FIX-Z2 warning; p_60 0.02, p_120 0.30, act by 21:07).
 INP = json.loads((Path(__file__).parent / "data" / "briefing_inputs" / "c20.json").read_text(encoding="utf-8"))
@@ -23,7 +23,7 @@ GOOD = {
         "Act by 21:07 PST. About 420 residents. Forecast 19:55, satellite data through 19:55."
     ),
     "voice_script": (
-        "This is Emberline. A warning is recommended for Fixture Z2. "
+        "This is Ember. A warning is recommended for Fixture Z2. "
         "Fire is possible to reach the zone within 2 hours. Act by 9:07 PM. About 420 residents. "
         "Forecast issued at 7:55 PM. You make the call."
     ),
@@ -52,7 +52,7 @@ CASES = [
     ("wrong p word", mutate("text", "fire possible", "fire likely"), "pword likely"),
     ("will reach", mutate("voice_script", "Fire is possible to reach", "Fire will reach"), "banned: will reach"),
     ("evacuate now at warning", with_bullets([*GOOD["bullets"], "Evacuate now."]), "banned: evacuate now"),
-    ("missing voice prefix", mutate("voice_script", "This is Emberline. ", ""), "prefix voice"),
+    ("missing voice prefix", mutate("voice_script", "This is Ember. ", ""), "prefix voice"),
     ("text over 300", mutate("text", "About 420", "Residents should " + "stay alert and " * 12 + "about 420"), "len text"),
     ("voice over 110 words", mutate("voice_script", "You make", "Stay alert. " * 45 + "You make"), "words voice"),
     ("5 bullets", with_bullets(GOOD["bullets"] + ["Stay alert.", "Watch the map."]), "bullets 5"),
@@ -122,8 +122,8 @@ def test_p_words_table() -> None:
 
 
 def test_p_words_is_the_alerts_table() -> None:
-    from emberline.ai import validate as v
-    from emberline.risk import alerts
+    from ember.ai import validate as v
+    from ember.risk import alerts
 
     assert v.p_words is alerts.p_words and v.P_WORDS is alerts.P_WORDS
 

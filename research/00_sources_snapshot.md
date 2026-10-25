@@ -1,4 +1,4 @@
-# Emberline: Cal Hacks 13.0 source snapshot
+# Ember: Cal Hacks 13.0 source snapshot
 Captured Sat Oct 24, ~4:15 AM PT from hive.hackberkeley.org (prizes "updated Oct 23 9:55 PM", resources "updated Oct 23 8:29 PM"), Devpost, and linked sponsor docs. Hive pages need a browser; this file exists so research agents don't need one.
 
 ## Team
@@ -14,7 +14,7 @@ Captured Sat Oct 24, ~4:15 AM PT from hive.hackberkeley.org (prizes "updated Oct
 - Relevant workshops Sat: Bright Data 10 AM (Gate 3), Microsoft "System Design for Deployed Agents" 10 AM (Theater), Apify 11 AM (Gate 3), Anthropic "Multi-agent teams with Claude" 1 PM (Theater), Annapurna Labs 3 PM (Theater), Fetch.ai 3 PM, SpacetimeDB 4 PM (Theater), Convex 4 PM (Gate 3).
 - Hive FAQ says teams 1-4; Devpost says 2-4. Judging FAQ: impact, functionality, technical complexity, creativity. Devpost rubric: Application, Intentionality, Functionality, Creativity, Technical Complexity.
 
-## Prizes most relevant to Emberline (criteria as published on Hive)
+## Prizes most relevant to Ember (criteria as published on Hive)
 - Cal Hacks: First/Second/Third Overall; Most Technically Complex; Most Creative; Best People-First; Best Planet-First; Hardware; Hacker's Choice.
 - SpaceXAI "Make it Legendary" (Cursor mechanical keyboard): "Real space data goes in and a legendary project comes out. ... must be built with Cursor. The more you use Cursor, the more you're likely to win. You must also use the Grok Imagine or Voice API in your project. Bonus points if you use Grok Bot for project planning and team collaboration." CONFLICT: the SpaceXSI starter-pack PDF and MLH page do NOT mention the Grok Imagine/Voice requirement. Treat Hive as binding; confirm at SpaceXSI booth. X Premium codes (Cursor, Grok Bot, Grok) at the booth; Grok Bot download https://x.ai/bot.
 - MLH "Build Your Hackathon A-Team with SpaceXSI" (raffle): use Cursor as core coding agent + Grok Bot automation; describe both in project description; opt in to the raffle.

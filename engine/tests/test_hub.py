@@ -1,6 +1,6 @@
 """Hub integration tests, spec/04 §6. Local `spacetime start` only.
 
-EMBERLINE_HUB_TESTS=1 uv run pytest -q tests/test_hub.py
+EMBER_HUB_TESTS=1 uv run pytest -q tests/test_hub.py
 Needs STDB_TOKEN, STDB_SERVICE_TOKEN and OPERATOR_PIN (engine/.env is read if present).
 """
 
@@ -16,10 +16,10 @@ from typing import Any
 
 import pytest
 
-from emberline.contracts import ActivityEvent, CycleBundle
-from emberline.sync.stdb_http import ReducerRejected, StdbHttp
+from ember.contracts import ActivityEvent, CycleBundle
+from ember.sync.stdb_http import ReducerRejected, StdbHttp
 
-pytestmark = pytest.mark.skipif(not os.environ.get("EMBERLINE_HUB_TESTS"), reason="hub")
+pytestmark = pytest.mark.skipif(not os.environ.get("EMBER_HUB_TESTS"), reason="hub")
 
 ENGINE = Path(__file__).resolve().parents[1]
 FIXTURES = ENGINE.parent / "fixtures"
@@ -39,7 +39,7 @@ def _load_env() -> None:
 
 _load_env()
 URI = os.environ.get("STDB_URI", "http://localhost:3000")
-DB = os.environ.get("STDB_DB", "emberline")
+DB = os.environ.get("STDB_DB", "ember")
 PIN = os.environ.get("OPERATOR_PIN", "")
 MANIFEST = json.loads((STATIC / "manifest.json").read_text(encoding="utf-8"))
 IGN = MANIFEST["t_ignition_sim_ms"]

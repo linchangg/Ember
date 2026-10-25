@@ -5,7 +5,7 @@ import { createReadStream, existsSync, statSync } from 'node:fs'
 import { extname, join, normalize } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-// Serves Emberline's scenario files at the URLs the contracts define (spec/00 section 4), in file mode:
+// Serves Ember's scenario files at the URLs the contracts define (spec/00 section 4), in file mode:
 //   /static/{scn}/{file} -> fixtures/static/{scn}/{file}  or  data/scenarios/{scn}/web/{file}
 //   /cache/{scn}/{branch}/{k}/{file} -> fixtures/cache/{scn}/main/...  or  cache/{scn}/{branch}/...
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
@@ -20,7 +20,7 @@ function scenarioFiles() {
     return [join(ROOT, 'fixtures/cache', scn, 'main', ...tail), join(ROOT, 'cache', scn, branch, ...tail)]
   }
   return {
-    name: 'emberline-scenario-files',
+    name: 'ember-scenario-files',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const url = decodeURIComponent((req.url ?? '').split('?')[0])
@@ -47,7 +47,7 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     allowedHosts: true,
-    proxy: process.env.EMBERLINE_DEV_SERVICE_PROXY ? { '/api': { target: process.env.EMBERLINE_DEV_SERVICE_PROXY, changeOrigin: true } } : undefined,
+    proxy: process.env.EMBER_DEV_SERVICE_PROXY ? { '/api': { target: process.env.EMBER_DEV_SERVICE_PROXY, changeOrigin: true } } : undefined,
   },
   optimizeDeps: {
     exclude: ['maplibre-gl'],

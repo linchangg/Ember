@@ -4,10 +4,10 @@ import { existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 const root = path.resolve(
-  process.env.EMBERLINE_FIXTURE_DIR ??
+  process.env.EMBER_FIXTURE_DIR ??
     fileURLToPath(new URL('../../fixtures/', import.meta.url))
 )
-const scenario = process.env.EMBERLINE_SCENARIO_ID ?? 'fixture'
+const scenario = process.env.EMBER_SCENARIO_ID ?? 'fixture'
 const index = JSON.parse(
   await readFile(path.join(root, `cache/${scenario}/main/index.json`), 'utf8')
 )

@@ -8,7 +8,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from emberline.ai.briefing import draft, fixture_input, input_hash, load_env, make_client
+from ember.ai.briefing import draft, fixture_input, input_hash, load_env, make_client
 
 INPUTS = Path(__file__).parent / "data" / "briefing_inputs"
 ZONE_KEYS = {
@@ -17,7 +17,7 @@ ZONE_KEYS = {
 }  # fmt: skip
 
 def _live_ready() -> bool:
-    if not os.environ.get("EMBERLINE_LIVE_TESTS"):
+    if not os.environ.get("EMBER_LIVE_TESTS"):
         return False
     load_env()
     return bool(os.environ.get("OPENROUTER_API_KEY") or os.environ.get("ANTHROPIC_API_KEY"))
@@ -47,7 +47,7 @@ def good_output(inp: dict) -> dict:
         "headline": f"Warning for {z['zone_id']}: act by {z['act_by_pst']} PST",
         "bullets": [f"About {z['population']} residents; {z['egress_roads']} egress roads."],
         "text": f"Warning for {z['zone_id']}. Act by {z['act_by_pst']} PST. Forecast {inp['issued_pst']}.",
-        "voice_script": "This is Emberline. A warning is recommended. You make the call.",
+        "voice_script": "This is Ember. A warning is recommended. You make the call.",
     }
 
 
@@ -101,11 +101,11 @@ def test_draft_client_error_never_raises() -> None:
 
 def test_model_from_env_is_sent_and_recorded(monkeypatch: pytest.MonkeyPatch) -> None:
     inp, alert, cycle = fixture_input(20)
-    monkeypatch.setenv("EMBERLINE_BRIEFING_MODEL", "anthropic/claude-sonnet-5.5")
+    monkeypatch.setenv("EMBER_BRIEFING_MODEL", "anthropic/claude-sonnet-5.5")
     client = fake_client(good_output(inp))
     brf = asyncio.run(draft(inp, alert, cycle, client=client))
     assert client.calls[0]["model"] == brf.model == "anthropic/claude-sonnet-5.5"
-    monkeypatch.delenv("EMBERLINE_BRIEFING_MODEL")
+    monkeypatch.delenv("EMBER_BRIEFING_MODEL")
     assert asyncio.run(draft(inp, alert, cycle, client=fake_client(good_output(inp)))).model == "claude-sonnet-5-5"
 
 

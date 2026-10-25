@@ -6,13 +6,13 @@ import re
 import pandas as pd
 import pytest
 
-from emberline.data.config import load_scenario, scenario_dir, utc_ms
-from emberline.data.manifest import COLUMNS, check_manifest
-from emberline.runtime.sources import ReplaySource
+from ember.data.config import load_scenario, scenario_dir, utc_ms
+from ember.data.manifest import COLUMNS, check_manifest
+from ember.runtime.sources import ReplaySource
 
 SCN = scenario_dir("eaton")
 needs_manifest = pytest.mark.skipif(not (SCN / "replay_manifest.parquet").exists(),
-                                    reason="run python -m emberline.data.manifest")
+                                    reason="run python -m ember.data.manifest")
 START, END = utc_ms("2025-01-08T02:00:00Z"), utc_ms("2025-01-08T15:00:00Z")
 
 

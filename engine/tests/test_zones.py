@@ -9,16 +9,16 @@ import pytest
 import rasterio
 from shapely.geometry import Point, box, shape
 
-from emberline.data import exposure, grid
-from emberline.data.config import load_scenario, scenario_dir
-from emberline.data.vectors import PROPS, WEST_ALTADENA
+from ember.data import exposure, grid
+from ember.data.config import load_scenario, scenario_dir
+from ember.data.vectors import PROPS, WEST_ALTADENA
 
 SCN = scenario_dir("eaton")
 G = load_scenario("eaton")["grid"]
 ASSET_TYPES = {"hospital", "nursing_home", "school", "fire_station", "substation", "water_plant"}
 
 if not (SCN / "vectors" / "zones.geojson").exists():
-    pytest.skip("run `python -m emberline.data.vectors --scenario eaton` first", allow_module_level=True)
+    pytest.skip("run `python -m ember.data.vectors --scenario eaton` first", allow_module_level=True)
 
 
 def load(rel: str):

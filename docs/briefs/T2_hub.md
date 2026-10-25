@@ -19,12 +19,12 @@ Check them with `spacetime --version` and `curl -s http://localhost:3000/v1/ping
 - **SpacetimeDB 2.x TypeScript docs: https://spacetimedb.com/docs.** Read the TypeScript **module** quickstart/reference (tables, reducers, `ctx.sender`, `ctx.timestamp`, indexes, `t.option`) and the TypeScript **client** reference (`DbConnection.builder()`, subscriptions, calling reducers), plus the HTTP API page (`/v1/identity`, `/v1/database/{db}/call/{reducer}`, `/v1/database/{db}/sql`).
   - **Don't use Rust or C# examples, and don't use pre-2.0 TypeScript syntax.**
   - When the docs and your memory disagree, the docs win. When the docs are unclear, read the type definitions in `stdb/node_modules/spacetimedb/` after installing.
-- `engine/emberline/contracts.py`, for field names.
+- `engine/ember/contracts.py`, for field names.
 
 ## You own
 - `stdb/**`: the TypeScript module (`package.json`, `tsconfig.json`, `src/index.ts`, plus `spike/` scripts)
-- `engine/emberline/sync/__init__.py` (empty), `engine/emberline/sync/stdb_http.py`
-- `engine/emberline/scripts/hub_spike.py`
+- `engine/ember/sync/__init__.py` (empty), `engine/ember/sync/stdb_http.py`
+- `engine/ember/scripts/hub_spike.py`
 - `engine/tests/test_hub.py`
 - `web/src/module_bindings/**`: generated code only, in **phase 2 only**. Never hand-edit it.
 
@@ -43,8 +43,8 @@ Check them with `spacetime --version` and `curl -s http://localhost:3000/v1/ping
      - sets `playing = true`;
      - inserts a `command` with `kind: "clock_play"`, `args_json: "{}"`, `status: "pending"`, `created_wall_ms` = the context timestamp in ms, and `command_id = cmd_{µs}_{counter}`.
    - **`publish_bundle(bundle_json)`:** checks `ctx.sender == engine identity`, `JSON.parse`s the string, and upserts the `cycle` row when `bundle.cycle` is not null.
-3. **Publish** with `spacetime publish emberline --server local` (run from `stdb/`, or pass `--module-path stdb`).
-4. **Python client `engine/emberline/sync/stdb_http.py`** (`uv add httpx`):
+3. **Publish** with `spacetime publish ember --server local` (run from `stdb/`, or pass `--module-path stdb`).
+4. **Python client `engine/ember/sync/stdb_http.py`** (`uv add httpx`):
    ```python
    class StdbHttp:
        def __init__(self, uri: str, db: str, token: str | None): ...   # httpx.AsyncClient(timeout=10)
@@ -54,14 +54,14 @@ Check them with `spacetime --version` and `curl -s http://localhost:3000/v1/ping
    ```
    - **Retry:** network errors and HTTP 5xx, up to 3 times with backoff (0.5, 1, 2 s). **Don't** retry 4xx (a reducer rejection); raise `ReducerRejected(reducer, status, body)`.
    - **Read the SQL response shape** from the docs or a real response, and write the column-name mapping against what you actually see. Print one raw response while developing.
-5. **`engine/emberline/scripts/hub_spike.py`** (`uv run python -m emberline.scripts.hub_spike`):
+5. **`engine/ember/scripts/hub_spike.py`** (`uv run python -m ember.scripts.hub_spike`):
    1. If `STDB_TOKEN` isn't already set in `engine/.env`:
       - create an engine identity and a service identity;
       - append `STDB_TOKEN=...` and `STDB_SERVICE_TOKEN=...` to `engine/.env` (git-ignored);
       - print both identities, but print **only the last 4 characters of each token**.
 
       Otherwise reuse the existing token.
-   2. Print the exact `spacetime call emberline set_identities ...` CLI line for Cody to run, **or** call it over HTTP if the docs allow an anonymous caller to run that reducer.
+   2. Print the exact `spacetime call ember set_identities ...` CLI line for Cody to run, **or** call it over HTTP if the docs allow an anonymous caller to run that reducer.
    3. Call `publish_bundle` with the fixture's cycle-20 bundle (`fixtures/cache/fixture/main/<20th cycle k>/bundle.json`; find it through `index.json`).
    4. Run `SELECT * FROM cycle` and print the row.
    5. Run `SELECT * FROM command WHERE status = 'pending'` and print what it parses to.
@@ -127,13 +127,13 @@ Work in this order. Commit after each numbered step, and run the relevant tests 
 
    The `StateSink` class itself is wave-2 T10. Don't write it.
 8. **`engine/tests/test_hub.py`:** the 9 tests in `04` §6.
-   - Skip the module unless `EMBERLINE_HUB_TESTS=1`.
+   - Skip the module unless `EMBER_HUB_TESTS=1`.
    - Use local `STDB_URI`, `STDB_TOKEN` and `OPERATOR_PIN` from env.
    - Each test starts with `reset_scenario` + `load_scenario` (the fixture scenario: build the `load_scenario` payload from `fixtures/static/fixture/*.json`/`.geojson`).
    - For identity rejection (test 8), call with a fresh identity from `new_identity()`.
    - Test 9: publish all fixture bundles, then measure `len(json)` of the phone subscription tables (`clock`, `cycle_head`, one `person`, `alert`) via SQL as a proxy, and assert < 100 KB.
 9. **Generate the web bindings:** `spacetime generate --lang typescript --out-dir web/src/module_bindings --module-path stdb`. Commit them. Don't write `SpacetimeSource.ts`; that's Linda's data layer.
-10. Republish locally, run `EMBERLINE_HUB_TESTS=1 uv run pytest -q tests/test_hub.py`, then the full `uv run pytest -q`. Mark the PR ready for review.
+10. Republish locally, run `EMBER_HUB_TESTS=1 uv run pytest -q tests/test_hub.py`, then the full `uv run pytest -q`. Mark the PR ready for review.
 
 ## Done when
 - The phase-1 report is posted and Cody said go.

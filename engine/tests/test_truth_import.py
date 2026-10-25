@@ -2,8 +2,8 @@ import json
 import numpy as np
 import pytest
 from shapely.geometry import Polygon, box, mapping
-from emberline.hazard.historical import Grid
-from emberline.hazard.truth_import import import_truth
+from ember.hazard.historical import Grid
+from ember.hazard.truth_import import import_truth
 
 
 @pytest.fixture

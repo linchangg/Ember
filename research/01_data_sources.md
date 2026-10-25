@@ -1,6 +1,6 @@
 # 01 · Data sources, ingestion recipes, replay layer
 
-Scope: every external feed Emberline needs, how to get each one, how late it really arrives, and a replay and cache design that runs fully offline. Tags used below: **(verified)** means confirmed from a primary source or from package source code I inspected. **(unverified)** means from memory, secondary sources, or not testable from this shell; check these on a laptop. No file was downloaded, because NOAA, AWS and NASA hosts are blocked from this shell.
+Scope: every external feed Ember needs, how to get each one, how late it really arrives, and a replay and cache design that runs fully offline. Tags used below: **(verified)** means confirmed from a primary source or from package source code I inspected. **(unverified)** means from memory, secondary sources, or not testable from this shell; check these on a laptop. No file was downloaded, because NOAA, AWS and NASA hosts are blocked from this shell.
 
 ## 0. TL;DR
 

@@ -1,6 +1,6 @@
 """area_x hit definition (01 §2, 03 §9). Offline."""
 
-from emberline.data.area_x import area_x_satellite_hit, pixel_is_hit, t_sat_goes
+from ember.data.area_x import area_x_satellite_hit, pixel_is_hit, t_sat_goes
 
 CFG = {"area_x": {"lon_min": -118.165, "lon_max": -118.1316, "lat_min": 34.190, "lat_max": 34.235}}
 

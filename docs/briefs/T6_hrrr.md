@@ -2,15 +2,15 @@
 
 **Goal.** Download the archived HRRR surface forecasts for the Eaton night. Rotate the winds to earth-relative, regrid them onto the 90 m model grid, and write one small NetCDF per model run (init), each stamped with when it became available. The engine later uses only the newest init that was available at each sim time.
 
-**Follow `docs/briefs/README.md` §2 for all general rules.** Branch: `c-t6-hrrr`. **Start after T0 is merged** (you import `emberline.data.grid` and `emberline.data.config`). Time box: if Herbie/cfgrib fights you for more than **45 min**, switch to the Open-Meteo fallback (step 7). That's in the spec, not a failure.
+**Follow `docs/briefs/README.md` §2 for all general rules.** Branch: `c-t6-hrrr`. **Start after T0 is merged** (you import `ember.data.grid` and `ember.data.config`). Time box: if Herbie/cfgrib fights you for more than **45 min**, switch to the Open-Meteo fallback (step 7). That's in the spec, not a failure.
 
 ## Read
 - `spec/01_data_pipeline.md` §0 (layout: `forcing/`), §1 (grid, bilinear for winds), §5 (**all of it**: your spec), §12 test 5
 - `research/01_data_sources.md` §4 "Wind" (Herbie notes; the snippets are unverified)
-- `engine/emberline/data/grid.py` (from T0): `template()`, `bbox_lonlat()`, `cell_centers()`
+- `engine/ember/data/grid.py` (from T0): `template()`, `bbox_lonlat()`, `cell_centers()`
 
 ## You own
-- `engine/emberline/data/hrrr.py`
+- `engine/ember/data/hrrr.py`
 - `engine/tests/test_hrrr.py`
 
 Outputs go in `data/scenarios/eaton/forcing/hrrr_{YYYYMMDDHH}.nc` (about 0.5 MB each, ~22 files). **Ask Cody before committing them**; the default is not to commit (they can be rebuilt). Raw GRIB goes under `data/scenarios/eaton/raw/hrrr/` (git-ignored).
@@ -52,7 +52,7 @@ One NetCDF per init, written with xarray:
    4. `temp_c` = mean of `t2m − 273.15` over the crop; `rh` = mean of `r2/100`.
 5. **Write** `forcing/hrrr_{YYYYMMDDHH}.nc` in the format above. Add a CLI:
    ```bash
-   uv run python -m emberline.data.hrrr --scenario eaton [--force] [--only 2025010806]
+   uv run python -m ember.data.hrrr --scenario eaton [--force] [--only 2025010806]
    ```
    It prints, per init, the `available_ms` of fxx 0 and 9 (PST), the domain-mean wind speed and direction at fxx 0, and the file size.
 6. **Sign check (`01` §12 test 5).** For the init that is available by 06Z Jan 8 (the newest init with `available_ms_by_fxx[0] ≤ 06Z`), take the band valid at 06Z. The domain-mean wind must blow **from the NE quadrant (0°–90°)**. Santa Ana flow: an SW result means the rotation sign is wrong. **Print the result in the PR.**
@@ -64,7 +64,7 @@ One NetCDF per init, written with xarray:
      - `wind_from_deg(u=-1, v=-1) == 45` (wind blowing toward the SW comes from the NE).
      - `available_ms` uses LastModified when it's within 3 h, and the fallback otherwise.
      - Write a tiny fake output file with the format above, then reopen it and check the dims, dtypes and attributes. This pins the contract for T7.
-   - **Network** (skip unless `EMBERLINE_NETWORK_TESTS`): build one init (`2025010806`), and the sign check from step 6 passes.
+   - **Network** (skip unless `EMBER_NETWORK_TESTS`): build one init (`2025010806`), and the sign check from step 6 passes.
 9. Run the full build for all 22 inits (in the background; it may take a while). Paste the CLI summary and the sign-check line into the PR.
 
 ## Done when

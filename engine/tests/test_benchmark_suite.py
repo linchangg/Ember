@@ -1,5 +1,5 @@
 import pytest
-from emberline.hazard.benchmark_suite import summarize, tree_rss
+from ember.hazard.benchmark_suite import summarize, tree_rss
 
 
 def test_percentiles_report_all_samples():
@@ -24,7 +24,7 @@ def test_simultaneous_tree_sum_excludes_unrelated_processes():
 
 def test_late_timeout_retains_partial_results_and_fails_target(monkeypatch):
     from types import SimpleNamespace
-    from emberline.hazard import benchmark_suite as suite
+    from ember.hazard import benchmark_suite as suite
 
     class Model:
         backend_identity = {"physics_sha256": "synthetic-test"}

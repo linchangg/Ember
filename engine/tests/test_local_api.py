@@ -10,8 +10,8 @@ from typing import Any
 import pytest
 from fastapi.testclient import TestClient
 
-from emberline.api.local import REPO, LocalState, create_app
-from emberline.sync.stdb_http import ReducerRejected
+from ember.api.local import REPO, LocalState, create_app
+from ember.sync.stdb_http import ReducerRejected
 
 FIX_MAIN = REPO / "fixtures" / "cache" / "fixture" / "main"
 NUMBER = "+15555550100"

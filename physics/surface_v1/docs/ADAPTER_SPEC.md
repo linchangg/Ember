@@ -1,19 +1,19 @@
 # surface_v1 adapter specification
 
 Integration note: the inventory below records the research branch's baseline at
-`8cea5fc`, before the operational adapter landed. `engine/emberline/hazard/` now
+`8cea5fc`, before the operational adapter landed. `engine/ember/hazard/` now
 implements the owner-approved Rust HazardModel, weighted inference, SB40/urban
 mapping and delayed observations. See `docs/RUST_HAZARD_BACKEND.md` at the repository
 root for those decisions. This research utility intentionally retains its separate
 unweighted CLI API and conservative conversion policies; it is not a second backend.
 
-Research compatibility map between the documented Emberline grid and the Rust `surface_v1` bundle. This file does not activate a backend and does not change frozen contracts.
+Research compatibility map between the documented Ember grid and the Rust `surface_v1` bundle. This file does not activate a backend and does not change frozen contracts.
 
 ## Inventory
 
 Inspected again at `8cea5fc4edf5d8d9d1f7bbf628633fce342c0785`, which is current `main`. PR #7 is in that history (`976441ac554ffda2b3b7040174cbcb4e8bd6a134`). `integration/surface-v1-verified` (`8d6002be9bb1d2dab9284b5709eb6410332fc36a`) is an ancestor. Later main commits do not change `physics/surface_v1`.
 
-1. **Application interface available today.** `engine/emberline/contracts.py` has the landed wire models and `QUANTILES = (0.1, 0.3, 0.5, 0.7, 0.9)`. `engine/emberline/data/grid.py` has the landed metric grid: upper-left outer edge, row 0 north, `Affine(cell_m, 0, x0, 0, -cell_m, y0)`, and cell centers `x0 + cell/2 + cell·col`, `y0 - cell/2 - cell·row`. `engine/emberline/hazard/` does not exist. No `Grid`, `Landscape`, `Weather`, `ForecastArrays`, or `HazardModel` class is in the tree. Physics behavior in `spec/00_contracts.md` §6 and `spec/02_physics.md` is still specified text. This adapter does not invent that protocol. It does use the landed grid formulas.
+1. **Application interface available today.** `engine/ember/contracts.py` has the landed wire models and `QUANTILES = (0.1, 0.3, 0.5, 0.7, 0.9)`. `engine/ember/data/grid.py` has the landed metric grid: upper-left outer edge, row 0 north, `Affine(cell_m, 0, x0, 0, -cell_m, y0)`, and cell centers `x0 + cell/2 + cell·col`, `y0 - cell/2 - cell·row`. `engine/ember/hazard/` does not exist. No `Grid`, `Landscape`, `Weather`, `ForecastArrays`, or `HazardModel` class is in the tree. Physics behavior in `spec/00_contracts.md` §6 and `spec/02_physics.md` is still specified text. This adapter does not invent that protocol. It does use the landed grid formulas.
 
 2. **Rust entry points and outputs available today.** `physics/surface_v1` `fire-cli`: `validate`, `simulate`, `checkpoint`, `resume`, `correct`, `ensemble`, `evaluate`, `make-fixture`, `inspect-behavior`. A simulate directory publishes `run.json` (schema 2), `diagnostics.json`, `manifest.sha256`, `arrival_time_s.f64le`, `arrival_status.u8`, and integer-second `horizon_*` arrays. Arrays are little-endian, row-major, row 0 south. Ensemble output is `ensemble.json` plus scenario-frequency and conditional q10/q50/q90 arrays. It does not publish per-member arrivals. Checkpoints are schema 2 and keep the parent `start_utc`.
 

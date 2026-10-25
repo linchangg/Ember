@@ -1,8 +1,8 @@
 import json
 import shutil
 import pytest
-from emberline.api.assets import inventory
-from emberline.run import FIXTURES
+from ember.api.assets import inventory
+from ember.run import FIXTURES
 
 
 def test_partial_inventory_is_explicit(tmp_path):

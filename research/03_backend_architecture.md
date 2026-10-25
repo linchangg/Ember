@@ -1,4 +1,4 @@
-# 03 — Emberline backend / data-system architecture
+# 03 — Ember backend / data-system architecture
 
 Research agent 3 of 6. Researched Sat Oct 24 2026, about 4:30–5:00 AM PT. Every claim about a vendor was checked against that vendor's docs or package, unless it is marked (unverified). Payload sizes come from a local experiment (`scratchpad/sdkprobe/payload_test.py`) that used a synthetic 64-member ensemble.
 
@@ -117,7 +117,7 @@ Scores run 1–5, higher is better.
 - Every record carries `scenario_id` and `branch_id` (default `"main"`).
 - Every source-derived record carries `provenance: "real" | "simulated" | "derived"`, which lets the UI label it honestly.
 
-### 3.1 Pydantic (engine source of truth: `engine/emberline/core/models.py`)
+### 3.1 Pydantic (engine source of truth: `engine/ember/core/models.py`)
 
 ```python
 Ms = int; Prov = Literal["real", "simulated", "derived"]
@@ -340,7 +340,7 @@ async def cycle_loop():
         last_ms = k_ms
 ```
 
-**Precompute.** `python -m emberline.precompute --scenario eaton` runs this loop on a `FastClock` with a `CacheSink`. It writes a bundle JSON, PNGs, and an ensemble checkpoint (`npz`: float16 arrival grids, member parameters, weights; about 10–20 MB per cycle) for every cycle. Because the same code computes and replays, the replay is honest.
+**Precompute.** `python -m ember.precompute --scenario eaton` runs this loop on a `FastClock` with a `CacheSink`. It writes a bundle JSON, PNGs, and an ensemble checkpoint (`npz`: float16 arrival grids, member parameters, weights; about 10–20 MB per cycle) for every cycle. Because the same code computes and replays, the replay is honest.
 
 **Determinism.** Each cycle uses `np.random.default_rng([seed, branch_hash, cycle_index])`. Cycle *k* is reproducible without replaying the RNG history, and identical inputs produce identical bundles. That is what makes cache hits legitimate.
 
@@ -454,7 +454,7 @@ Model IDs below are as listed on platform.claude.com on Oct 24 2026.
 - **Convex cloud dev deployment** is the shared hub for all three laptops during integration. Each developer can also run an anonymous local backend (`npx convex dev`, port 3210) so iteration does not burn quota.
 - **Vercel** hosts the static build: `/` dashboard, `/p` phone page (behind the QR code), and `/cam` camera console. Phones depend only on Vercel and Convex, and work over cellular.
 - **Heavy compute.** Run the mainline precompute on the strongest laptop. If one 6-hour precompute of 72 cycles takes more than about 30 minutes, run it on a Vultr VM (an MLH prize). Live branch cycles run on the demo laptop.
-- **Offline profile** (`EMBERLINE_PROFILE=offline`):
+- **Offline profile** (`EMBER_PROFILE=offline`):
   - The local Convex backend is seeded from `cache/` by `scripts/seed_offline.py`.
   - Rasters come from `web/public/cache`.
   - Briefings are cached; vision falls back to a cached detection.
@@ -469,18 +469,18 @@ Model IDs below are as listed on platform.claude.com on Oct 24 2026.
 ## 9. Repo layout and parallel work
 
 ```
-emberline/
+ember/
   README.md  .env.example  justfile          # dev, precompute, seed-offline, demo
   engine/                                    # uv/pyproject; Cody + Abby
-    emberline/core/{models,clock,events,config,ids}.py
-    emberline/adapters/{base,goes,viirs,camera,inbox,forcing}.py
-    emberline/physics/{protocol,fake_ellipse,rothermel,ensemble,filter,likelihoods}.py   # Abby
-    emberline/loop/{cycle,cache,branch}.py
-    emberline/forecast/{summarize,rasterize,contours}.py
-    emberline/risk/{exposure,risk}.py   emberline/alerts/{rules,dedupe}.py
-    emberline/llm/{briefing,vision,agent,validate}.py  prompts/
-    emberline/notify/{base,inapp,twilio_voice,sms,tts}.py
-    emberline/sync/{sink,convex_sink,cache_sink}.py   emberline/api/app.py
+    ember/core/{models,clock,events,config,ids}.py
+    ember/adapters/{base,goes,viirs,camera,inbox,forcing}.py
+    ember/physics/{protocol,fake_ellipse,rothermel,ensemble,filter,likelihoods}.py   # Abby
+    ember/loop/{cycle,cache,branch}.py
+    ember/forecast/{summarize,rasterize,contours}.py
+    ember/risk/{exposure,risk}.py   ember/alerts/{rules,dedupe}.py
+    ember/llm/{briefing,vision,agent,validate}.py  prompts/
+    ember/notify/{base,inapp,twilio_voice,sms,tts}.py
+    ember/sync/{sink,convex_sink,cache_sink}.py   ember/api/app.py
     scripts/{precompute,seed_offline,export_schema}.py   tests/ (golden-bundle tests)
   web/                                       # Vite+React+deck.gl; Linda
     convex/{schema,clock,snapshots,risk,alerts,people,reports,frames,events,engine,http}.ts

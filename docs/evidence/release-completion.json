@@ -1,7 +1,7 @@
 {
   "date": "2026-10-25",
   "branch": "release/all-phases",
-  "integrated_main": "96ea89b",
+  "integrated_main": "c4cd811",
   "scientific_acceptance": "not_established",
   "outbound_delivery": "not_attempted",
   "deployment": "not_attempted",
@@ -35,7 +35,7 @@
       "passed": 9
     },
     "dashboard_units": {
-      "passed": 48,
+      "passed": 49,
       "skipped": 1
     },
     "service_audio": {
@@ -98,7 +98,21 @@
       "errors": 0,
       "members": 16,
       "immutable_bundle_copies_restored": 471
-    }
+    },
+    "post_ember_rename_engine": {
+      "passed": 360,
+      "skipped": 20,
+      "seconds": 270.96
+    },
+    "post_ember_rename_native_report_hub": {
+      "passed": 1,
+      "seconds": 31.6
+    },
+    "post_ember_rename_contracts": {
+      "passed": 15,
+      "seconds": 9.22
+    },
+    "post_ember_rename_web_services_packaging_types_lint_build": "passed"
   },
   "open_gates": [
     "target_and_matched_reinit_replay",

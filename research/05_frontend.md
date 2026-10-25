@@ -90,7 +90,7 @@ Scope: light research for Linda's React/TS frontend. **The most important part i
 ## 5. Realtime and state
 - **Adapter:** wrap the backend behind one adapter, `DataSource` (`subscribe(table, filter)`, `call(action, args)`), with three implementations: SpacetimeDB, Convex and **OfflineReplay**. OfflineReplay reads `events.ndjson` and assets from `/public/cache` and replays them against a local clock.
 - **SpacetimeDB** (`spacetimedb@2.13.0`; React hooks verified in package types):
-  - Build the connection with `DbConnection.builder().withUri(...).withDatabaseName('emberline').withToken(saved).onConnect(...)`, defined at module scope, and pass it to `<SpacetimeDBProvider connectionBuilder={…}>`.
+  - Build the connection with `DbConnection.builder().withUri(...).withDatabaseName('ember').withToken(saved).onConnect(...)`, defined at module scope, and pass it to `<SpacetimeDBProvider connectionBuilder={…}>`.
   - `const [rows, ready] = useTable(tables.zone_risk.where(r => r.run_id.eq(id)))` and `const approve = useReducer(reducers.approveAlert)` (calls queue until connected).
   - Bindings come from `spacetime generate --lang typescript`.
   - Keep rasters out of rows; store URLs. Prune `activity_event` on the server to the last ~300 rows, since ORDER/LIMIT in subscriptions is unverified.
@@ -113,7 +113,7 @@ Scope: light research for Linda's React/TS frontend. **The most important part i
   - "You are here (demo location)";
   - a big status with the act-by countdown;
   - a **Report fire here** button, which sends a ground report with `accuracy_m` as the radius;
-  - an **SMS fallback** link: `sms:<num>?&body=EMBERLINE FIRE 34.1897,-118.1311 r50` (cross-platform `?&body=` form unverified). The backend parses the inbound message.
+  - an **SMS fallback** link: `sms:<num>?&body=EMBER FIRE 34.1897,-118.1311 r50` (cross-platform `?&body=` form unverified). The backend parses the inbound message.
 - **Routing: precompute, don't call public routers live.**
   - The OSRM demo server is best-effort ("Excessive use is not allowed") and has no polygon avoidance. GraphHopper needs a key. Valhalla supports `exclude_polygons` ("Roads intersecting these rings will be avoided"), but public server reliability is unknown.
   - **Plan:** offline, compute 2–3 alternatives from each of 8–12 spawn points to 2–3 assembly points and store them as GeoJSON.

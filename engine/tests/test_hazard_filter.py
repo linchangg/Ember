@@ -1,12 +1,12 @@
 import numpy as np
-from emberline.hazard.filter import (
+from ember.hazard.filter import (
     normalize,
     ess,
     temper,
     systematic_resample,
     liu_west,
 )
-from emberline.hazard.likelihoods import (
+from ember.hazard.likelihoods import (
     GroundReportLikelihood,
     SatelliteLikelihood,
     residence_minutes,

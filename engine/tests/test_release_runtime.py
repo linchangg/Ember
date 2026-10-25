@@ -4,11 +4,11 @@ import shutil
 from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
-from emberline.api.local import LocalState, create_app
-from emberline.run import build_loop, FIXTURES
-from emberline.runtime.clock import FastClock
-from emberline.runtime.loop import BundleReplayLoop
-from emberline.sync.cache_sink import CacheSink
+from ember.api.local import LocalState, create_app
+from ember.run import build_loop, FIXTURES
+from ember.runtime.clock import FastClock
+from ember.runtime.loop import BundleReplayLoop
+from ember.sync.cache_sink import CacheSink
 
 
 @pytest.fixture
@@ -84,8 +84,8 @@ def test_private_runtime_state_not_served(tmp_path, private):
 
 def test_bundle_replay_publishes_explicit_report_rejection(root):
     import asyncio
-    from emberline.contracts import Report
-    from emberline.runtime.branch import BranchManager
+    from ember.contracts import Report
+    from ember.runtime.branch import BranchManager
     from types import SimpleNamespace
 
     loop = make(root)

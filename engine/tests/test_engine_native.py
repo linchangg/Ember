@@ -5,7 +5,7 @@ precompute -> Loop -> ModelHost -> hazard.factory.create_hazard_model(backend="r
 synthetic GOES pixels) with two SYNTHETIC HRRR files read through NcForcing/weather_from_hrrr.
 
 Needs a built fire-bridge: CI builds it (.github/workflows/hazard-backend.yml). Otherwise the
-module is skipped; the lookup is Abby's own BackendOptions.executable() (EMBERLINE_RUST_BRIDGE
+module is skipped; the lookup is Abby's own BackendOptions.executable() (EMBER_RUST_BRIDGE
 or physics/surface_v1/target/release/fire-bridge[.exe]).
 """
 
@@ -20,13 +20,13 @@ from hazard_standin import flat_landscape
 from test_engine import (MIN, SCN, DoctoredSource, _arrival, _key, check_delayed_report, physics_ks, synth_source,
                          write_hrrr, write_scenario)
 
-from emberline.contracts import CycleBundle
-from emberline.hazard.api import MODEL_VERSION
-from emberline.hazard.bridge import BackendOptions
-from emberline.runtime import cache
-from emberline.runtime.loop import NcForcing, load_scenario_dir
-from emberline.runtime.model_host import model_grid, rust_backend
-from emberline.scripts.precompute import precompute
+from ember.contracts import CycleBundle
+from ember.hazard.api import MODEL_VERSION
+from ember.hazard.bridge import BackendOptions
+from ember.runtime import cache
+from ember.runtime.loop import NcForcing, load_scenario_dir
+from ember.runtime.model_host import model_grid, rust_backend
+from ember.scripts.precompute import precompute
 
 
 def _bridge_missing() -> str | None:

@@ -28,7 +28,7 @@ the final perimeter silently to make it fit.
 From the repository root, with Python 3.12:
 
 ```sh
-PYTHONPATH=engine python -m emberline.hazard.perimeter_sources \
+PYTHONPATH=engine python -m ember.hazard.perimeter_sources \
   --out /tmp/eaton-perimeter-candidates-20261025
 ```
 
@@ -56,7 +56,7 @@ outside tracked model inputs. Requerying a mutable service may produce new hashe
    unburned cells.
 
    ```sh
-   PYTHONPATH=engine python -m emberline.hazard.event_consistency \
+   PYTHONPATH=engine python -m ember.hazard.event_consistency \
      --scenario eaton --checkpoint /path/to/frozen-issue.npz \
      --out /tmp/eaton-positive-consistency.json
    ```
@@ -88,7 +88,7 @@ The strongest next acquisition is original, timestamped FireGuard GIS geometry
 and its product/coverage description for Jan 7 18:18 PST through Jan 8 07:00 PST.
 The county report identifies the California National Guard program via LA County.
 No request has been sent. Seek the original observations and lineage, not a
-reconstruction fitted to Emberline forecasts.
+reconstruction fitted to Ember forecasts.
 
 Before import, a reviewer must establish all of the following:
 

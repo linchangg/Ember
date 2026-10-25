@@ -62,15 +62,15 @@ The above exception was the direct cause of the following exception:
 Traceback (most recent call last):
   File "<frozen runpy>", line 198, in _run_module_as_main
   File "<frozen runpy>", line 88, in _run_code
-  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\emberline\data\hrrr.py", line 262, in <module>
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\ember\data\hrrr.py", line 262, in <module>
     build(a.scenario, a.only, a.force)
-  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\emberline\data\hrrr.py", line 242, in build
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\ember\data\hrrr.py", line 242, in build
     ds = regrid(fetch_init(init, raw_dir, bounds, force), g, init)
                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\emberline\data\hrrr.py", line 132, in fetch_init
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\ember\data\hrrr.py", line 132, in fetch_init
     per_fxx = [fetch_one(init, f, raw_dir, bounds) for f in FXX]
                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\emberline\data\hrrr.py", line 111, in fetch_one
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\ember\data\hrrr.py", line 111, in fetch_one
     got = H.xarray(SEARCH)
           ^^^^^^^^^^^^^^^^
   File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\.venv\Lib\site-packages\herbie\core.py", line 1314, in xarray
