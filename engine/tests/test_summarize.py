@@ -130,3 +130,19 @@ def test_all_nan_empty(tmp_path):
     assert danger["lead60_p30"] == {"type": "MultiPolygon", "coordinates": []}
     assert json.loads((tmp_path / "isochrones.geojson").read_text())["features"] == []
     assert s.mask_to_multipolygon(np.zeros((340, 340), bool), G, 30) is None
+
+
+def test_asset_receipt_detects_interruption_corruption_and_refuses_replacement(tmp_path):
+    arrays = ellipse()
+    s.write_assets(arrays, tmp_path, "cache/test/main/1/assets/key", G)
+    s.verify_assets(tmp_path, 5 * 340 * 340)
+    binary = tmp_path / "arrival_q.bin"
+    raw = binary.read_bytes()
+    binary.write_bytes(raw[:-1])
+    with pytest.raises(ValueError, match="integrity"):
+        s.verify_assets(tmp_path, 5 * 340 * 340)
+    with pytest.raises(ValueError, match="immutable"):
+        s.write_assets(arrays, tmp_path, "cache/test/main/1/assets/key", G)
+    (tmp_path / "receipt.json").unlink()
+    with pytest.raises(FileNotFoundError):
+        s.verify_assets(tmp_path, 5 * 340 * 340)

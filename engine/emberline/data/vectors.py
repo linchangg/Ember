@@ -86,7 +86,10 @@ def zone_name(zone_id: str, known_as: str | None) -> str:
     if isinstance(known_as, str) and known_as:
         return known_as
     prefix, _, rest = zone_id.partition("-")
-    return f"{CITY.get(prefix, prefix)} {rest.title()}" if rest else zone_id
+    city = CITY.get(prefix, prefix)
+    if not rest or rest.title() == city:  # KIN-KINNELOA is "Kinneloa", not "Kinneloa Kinneloa"
+        return city if rest else zone_id
+    return f"{city} {rest.title()}"
 
 
 def aoi_utm(g: dict):

@@ -1,0 +1,82 @@
+{
+  "date": "2026-10-25",
+  "phase": "E",
+  "approval": "yes after Phase D completion",
+  "branch": "feat/dashboard-phase-e",
+  "code_commit": "b5a01fb",
+  "all_engine_tests": {
+    "passed": 287,
+    "skipped": 19,
+    "warnings": 1
+  },
+  "published_hub_contract_runtime_tests": {
+    "passed": 15,
+    "failed": 0,
+    "database": "dedicated disposable local database"
+  },
+  "web_canonical": {
+    "passed": 48,
+    "skipped": 1
+  },
+  "web_native_fixture": {
+    "passed": 49,
+    "skipped": 0
+  },
+  "typecheck": "passed",
+  "lint": "passed --deny-warnings",
+  "production_build": "passed; existing large chunk warning",
+  "actual_hub_clients": {
+    "actual_published_hub": true,
+    "clients": 2,
+    "cycle": "cyc_rust-fixture_main_1736313300000",
+    "shared_approval": true,
+    "shared_engine_branch_and_exact_parent_review": true,
+    "duplicate_review_rejected": true,
+    "reconnect_preserves_approval": true,
+    "duplicate_events": 0,
+    "automatic_server_restart": false,
+    "notification_worker_started": false
+  },
+  "actual_server_restart": {
+    "actual_published_hub": true,
+    "clients": 2,
+    "cycle": "cyc_rust-fixture_main_1736313300000",
+    "shared_approval": true,
+    "duplicate_review_rejected": true,
+    "reconnect_preserves_approval": true,
+    "duplicate_events": 0,
+    "automatic_server_restart": true,
+    "notification_worker_started": false
+  },
+  "manual_chrome": [
+    "actual hub snapshot",
+    "engine-owned report branch",
+    "local +120-minute view without PIN",
+    "exact-issue parent/child overlay and published risk"
+  ],
+  "ci": {
+    "first_code_commit": "ae54a36",
+    "first_dashboard_run": 40173094371,
+    "first_native_run": 40173094342,
+    "first_live_hub_two_browser_run": 40173094443,
+    "first_results": "all passed",
+    "final_code_results": {
+      "dashboard": "passed",
+      "live_hub_two_browser_restart": "passed",
+      "native_macos": "passed",
+      "native_linux": "passed"
+    },
+    "final_dashboard_run": 40174753913,
+    "final_native_run": 40174753907,
+    "final_live_hub_two_browser_run": 40174753904,
+    "final_native_browser": "4 paired-native cases passed on Linux",
+    "final_live_browser": "1 case using two independent browser contexts passed"
+  },
+  "one_database_per_scenario": true,
+  "distributed_worker_lease": false,
+  "notification_worker_started": false,
+  "report_voice_api_implemented": false,
+  "historical_skill_established": false,
+  "target_size_performance_established": false,
+  "main_changed": false
+}

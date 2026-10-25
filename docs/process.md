@@ -1,5 +1,7 @@
 # Process log
 
+2026-10-24 — Owner confirmed dashboard Phase C. Added opt-in file-backed forecast map, quantile/lead/replay controls, worker-based UTM reprojection, published vectors and independent PROJ/mask tests; 34 web tests passed on canonical and generated Rust fixtures, strict typecheck/lint/build and HTTP checks passed. Browser map/q50 checks succeeded, but final visual checks/screenshot remain incomplete after browser-control timeouts. Integrated updated main 2a62206 on this branch and fixed its unused-canvas lint warning; remote main unchanged. Stop before Phase D. See docs/DASHBOARD_PHASE_C.md.
+
 One line per merged agent task or team decision (`AGENTS.md` asks for this). This log is also our evidence of how we used Cursor and Grok Bot (SpaceXAI track, MLH A-Team).
 
 Format: `Sat 13:05 · Cody · C0 contracts + fixture merged (PR #3) · Cursor agent`
@@ -20,6 +22,8 @@ Format: `Sat 13:05 · Cody · C0 contracts + fixture merged (PR #3) · Cursor ag
 - Sat Oct 24 · Abby · Project owner approved Rust as the HazardModel backend; added versioned Python/Rust adapter, observation assimilation, checkpoint/contract tests and full synthetic fixture verification against current main; decision and remaining scientific/performance gates in docs/RUST_HAZARD_BACKEND.md and docs/RUST_HAZARD_NEXT_TASKS.md · Codex
 
 2026-10-24 — Reviewed main 9e00a67 and Cursor/research branches; combined research adapter 8e4055b with Rust HazardModel, fixed globe empty-feed/lifecycle errors, split lazy comparison bundles, refreshed hub dev dependency and added web/hub CI. Combined local evidence: 148 engine + 38 research + 50 Rust release tests; 39-cycle synthetic fixture with checkpoint parity. See docs/MAIN_INTEGRATION_REVIEW.md; live UI/runtime assembly, scientific and performance gates remain open.
+
+2026-10-24 — Owner requested original-source calibration review, historical-validation framework and phase-gated dashboard work. Added an opt-in heat/location likelihood candidate, frozen-artifact scoring/audits with tests, scientific guides, and completed Phase A fixture/HTTP hosting checks. Model defaults and dashboard wiring remain unchanged. Stop before Phase B until direct owner confirmation; see docs/DASHBOARD_PHASE_A.md.
 - Sat 18:30 · Cody · Wave 2 F0: fixture judges R2 on integer-ms act-by; alerts unchanged (18/20/30/32), cross-check exact · Claude workflow
 - Sat 18:30 · Cody · Wave 2 T4L: briefings via OpenRouter, prompt v2; live c18/c20/c30 validated ($0.05) · Claude workflow
 - Sat 18:30 · Cody · Wave 2 T8: GOES-18 pixel table (21,026 rows), scan events, replay manifest · Claude workflow
@@ -30,8 +34,6 @@ Format: `Sat 13:05 · Cody · C0 contracts + fixture merged (PR #3) · Cursor ag
 - Sat Oct 24 · Abby · Prepared deep learning research framework for review: compared candidate architectures, selected bounded U-Net spread corrections through the Rust solver, specified Python training/ONNX-to-Rust inference, contract compatibility, human-impact evaluation and latency gates; documentation only, no learned model activated · Codex
 
 - Sat Oct 24 · Abby · E0 local experiment contracts, atomic run directories, and prediction snapshots; 8 focused tests passed and wire schema stayed 2; no forecast-skill or performance claim · Cursor
-
-- Sat 23:30 · Cody · Eaton statics: 3DEP DEM/slope/aspect + LANDFIRE LF2024 FBFM40/CC (LFPS exportImage, no email) on the 90 m grid; load_landscape passes Abby's validation; real Rust dev run 40-90 s/cycle at N=16; Windows fingerprint sort fix in bridge.py · Claude workflow
 
 - Sat Oct 24 · Abby · E1 benchmark runner records cold/warm workload samples, timeouts, and physical extent; reduced-grid smoke run had no timeouts and low-sample p95; satellite warm median 11.2 s exceeds the 10 s budget so that configuration does not qualify; eligible_for_profile_selection is execution-only and 500 ms was not met · Cursor
 
@@ -44,3 +46,35 @@ Format: `Sat 13:05 · Cody · C0 contracts + fixture merged (PR #3) · Cursor ag
 - Sun Oct 25 · Abby · E4 restores one checkpoint for the control, the no-report twin, and the treatment; the legacy 300 m report gate stays labeled as a different experiment; 9 control tests passed, including a 2-member seed-11 parity check; the seeds 7/8/9 matrix was not run and movement is not a success criterion · Cursor
 
 - Sun Oct 25 · Abby · E6 packages the 16-member 36-cycle synthetic demo as a cached replay; the copied package matched 220 checksums and the forecast decoder; a fresh-object restart matched on this machine; CI for 92872c0 succeeded on Ubuntu and macOS; the 32-member run, seeds 7/8/9 matrix, and historical validation stay unrun; not forecast skill · Cursor
+
+2026-10-24 — Owner explicitly confirmed dashboard Phase B. Combined current main 2181e1b with Phase A; added typed FileSource/state/hooks, causal replay selection, bounded asset validation/cache, cancellation, lineage and local-only actions. Verified canonical and generated Rust fixtures and HTTP source consumption. Existing UI/shared contracts unchanged. Stop before Phase C rendering until new direct owner confirmation; see docs/DASHBOARD_PHASE_B.md.
+
+2026-10-24 — Owner requested undo of Linda-based revision 044db5b. Reverted it in 4670fdc, restoring original A/B/C code and connection plan exactly to 70e255d; retained main 2a62206 baseline. Reverified 34 tests on both canonical and preserved Rust fixtures, typecheck/lint/build and 39-entry HTTP consumption. Chrome verified pre-ignition/latest, five quantile selections, 30/120/360-minute views, fit, missing-binary failure and recovery; screenshot saved in local handoff. D/E remain confirmation-gated; browser CI and full lifecycle/performance acceptance remain open.
+
+2026-10-24 — Owner approved Phase D under the restored original plan. Connected typed published risk/statistics/status, observation/event/provenance/report and local alert panels; added exact-issue read-only parent comparison and q50 overlay, branch configuration and a true paired Rust report fixture. Fixed asynchronous branch value capture, post-fork parent alert-state leakage, inherited-parent review, and disposed-source/HMR lifecycle. Local evidence: 42 paired-native web tests; 41 canonical web tests plus 1 inapplicable branch skip; 284 engine tests plus 19 configured skips; typecheck/lint/build, independent decoder and HTTP checks passed. Browser CI cases added (remote execution pending); manual Chrome panel/report/branch/local approval reviewed. Stop before Phase E. See docs/DASHBOARD_PHASE_D.md and docs/evidence/dashboard-phase-d.json.
+
+2026-10-24 — Phase D CI follow-up: serialize dashboard replay actions to prevent stale-cycle lead changes; correct browser traversal for a missing analytic fixture timestamp and await cycle commitment. Canonical/native unit tests, types/lint/build pass again; remote browser rerun required. Phase E remains gated.
+
+2026-10-24 — Phase D final validation: code f0cc6b1 passes GitHub dashboard/hub checks (40170496792), and Rust HazardModel integration on both Linux and macOS (40170496830), including all 4 paired-native browser cases on Linux. Documentation/evidence updated only after observing successful jobs. No main merge or Phase E work.
+
+2026-10-25 — Owner approved Phase E (“yes” after Phase D). Added pinned-SDK hub source, causal/head/asset staging, shared PIN-controlled actions and engine-owned branch following; retained file mode. Runtime adds immutable verified asset paths and immutable bundle index references, retained publication batches/backpressure and health backlog diagnostics. Local canonical/native web tests, engine suite with health assertion updated, 15 actual published hub/runtime checks, two SDK clients, real hub restart and matched parent/child branch review verified. Added real published-hub/two-browser CI; observe its result separately. One database per scenario; no schema migration, deployment, notifier or scientific skill claim. See docs/DASHBOARD_PHASE_E.md.
+
+2026-10-25 — Phase E final code b5a01fb is green in dashboard/hub CI 40174753913, Linux/macOS native integration 40174753907, and real published-hub restart/two-browser CI 40174753904. Local full engine suite 287 passed/19 skipped, dedicated hub suite 15 passed, native dashboard 49 passed, canonical 48 passed/1 expected skip; types/lint/build passed. Evidence and local preview screenshot saved. Main unchanged; real-data, latency, science and report/notification service gates remain open.
+
+- Sat 23:30 · Cody · Eaton statics: 3DEP DEM/slope/aspect + LANDFIRE LF2024 FBFM40/CC (LFPS exportImage, no email) on the 90 m grid; load_landscape passes Abby's validation; real Rust dev run 40-90 s/cycle at N=16; Windows fingerprint sort fix in bridge.py · Claude workflow
+- Sat Oct 24 · Linda · Globe is the home page: terrain contours, street-level basemap, labels; runs on Abby's FileSource with two sliders (actual time and forecast), five-class raster forecast, observations, previous-forecast comparison, click-for-arrival-time, zones and alerts panel, forecast metadata; Cody's fixture now 50 members · Claude
+- Sun 01:30 · Cody · VIIRS 375 m from NOAA EFIRE S3: 4 night passes, 649 px, available at file creation 41-93 min after the pass; only N21 10:41Z (available 03:25 PST) is clearly west of Lake · Claude agent
+- Sun 01:30 · Cody · Documented reports (23:49, 02:18 PST) as ground_report obs behind use_documented_reports; precompute --sensors and --reports per branch, folded into run_hash · Claude agent
+- Sun 01:45 · Cody · Inputs frozen for the demo precompute: branches main (satellites + reports), satellites-only (no reports, the honest lead-time number), openloop; 16 members on 3 RunPod CPU pods · Claude
+- Sun 02:30 · Cody · Official per-zone Eaton alert times (AAR App.10, checked against Citygate) in truth/zone_orders.json; lead_times.py compares each branch's first warn/order per zone (+ = earlier, reported even when negative) · Claude agent
+- Sun 02:30 · Cody · call_cards.py writes per-branch duty-officer call cards (calls.json) from cached alerts via the real Cartesia request builder, for file-mode replay · Claude agent
+- Sun 02:30 · Cody · Alerts whose act-by is already past say "act now" with the time the evacuation window closed; KIN-KINNELOA named "Kinneloa" · Claude
+
+2026-10-25 — Owner authorized PR review and merge. Integrated current main 2fbe729 with approved C–E on integrate/dashboard-main; retained main globe byte-for-byte and its new Eaton/statics/VIIRS/report/call-card work. Local tests: engine 310 passed/19 skipped, dashboard 48 passed/1 expected skip, types/lint/build passed. Target-size cold synthetic benchmark 94.649 s at N=128/340×340, target not met. HRRR forcing and independent time-resolved fire-perimeter truth absent from both checkouts; no scientific accuracy or delivery claim. See RELEASE_READINESS.md.
+
+2026-10-25: Integrated Cody’s Eaton source/cache commits through 655b775; verified 22 HRRR checksums, causal selection at all 157 issues, and two-member real-input Rust PF smoke (186 used observations). Independent perimeter skill and target latency remain open.
+Latest data-integrated engine suite: 311 passed, 18 skipped (44.66 s); one previously skipped real-data test now runs with committed forcing.
+
+2026-10-25: Reconciled dashboard plan, Phase E status, Rust next tasks and release readiness after PR #11/main 0308ba8. Marked A–E complete, recorded data/CI evidence and partial Eaton cache, and retained independent-truth, calibration, latency and service gates. Documentation only.
+
+2026-10-25: Added six-phase release implementation framework, evidence worksheet and read-only replay audit with nine regression gates/CI. Baseline inventory: 80/157 Eaton issues, 231 assets, no local validation errors; incomplete replay correctly fails acceptance. Future phases await direct approval.

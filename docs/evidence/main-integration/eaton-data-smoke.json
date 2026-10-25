@@ -1,0 +1,17 @@
+{
+  "scenario": "eaton",
+  "synthetic": false,
+  "members": 2,
+  "forcing_files_verified": 22,
+  "causal_cycles_checked": 157,
+  "knowledge_sim_ms": 1736302800000,
+  "observations_received": 373,
+  "observations_used": 186,
+  "forecast_duration_ms": 3462,
+  "ess": 1.9999249928154992,
+  "physics_sha256": "02205b4723462500fcc9bc50c6f9c5ac4ea934e96c3fbc10c7d62b222f2712d1",
+  "limits": [
+    "Two-member smoke check only",
+    "No independent perimeter truth or accuracy score"
+  ]
+}

@@ -15,7 +15,7 @@ seed: 7
 n_members: 128
 filter: pf                         # pf | reinit | none   (none = open-loop baseline)
 assimilate_sensors: [goes18_fdcc, viirs_n20, viirs_snpp, viirs_n21]   # goes16_fdcc only if enabled (P2)
-viirs_latency: urt                 # urt (t_obs+2 min, stated on screen) | nrt (t_obs+3 h)
+viirs_latency: product_created     # NOAA EFIRE file creation time (41-93 min after the pass); urt | nrt are assumptions
 use_documented_reports: false      # 01 §9; the honest number is computed with this false
 area_x:                            # honest-number region; verify on a map, then freeze (01 §6)
   lon_min: -118.165

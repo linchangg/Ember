@@ -72,11 +72,15 @@ def build_inputs(members, mode):
     return land, weather, cfg, ignition
 
 
-def run_demo(out: Path, *, members=16, cycles=36, mode="pf", workers=2):
+def run_demo(
+    out: Path, *, members=16, cycles=36, mode="pf", workers=2, report_branch=False
+):
     if out.exists():
         raise FileExistsError(f"Choose a new output directory: {out}")
     if not 1 <= cycles <= 36:
         raise ValueError("fixture demo cycles must be 1..36")
+    if report_branch and cycles < 24:
+        raise ValueError("report-branch fixture needs at least 24 forecast cycles")
     out.mkdir(parents=True)
     source = fixture.REPO / "fixtures"
     source_static = source / "static/fixture"
@@ -135,6 +139,12 @@ def run_demo(out: Path, *, members=16, cycles=36, mode="pf", workers=2):
     used = 0
     reanchored = 0
     resume_checked = False
+    child = None
+    child_entries = []
+    child_previous = {}
+    child_alerts = []
+    child_ha = None
+    fork_ms = None
     for entry in entries:
         original = CycleBundle.model_validate_json(
             (source / entry["bundle"]).read_text()
@@ -195,6 +205,15 @@ def run_demo(out: Path, *, members=16, cycles=36, mode="pf", workers=2):
                     source_ref="synthetic delayed report",
                 )
             )
+        child_records = list(records)
+        if report_branch and steps == 24:
+            # Pair a control and treatment from the identical authoritative checkpoint.
+            child = RustHazardModel(BackendOptions(workers=workers))
+            child.load_state(model.save_state())
+            fork_ms = issue - cfg.cycle_min * 60_000
+            child_previous = dict(previous)
+            child_ha = previous_ha
+            records = [r for r in records if r.kind != "ground_report"]
         forecast = model.step(now, records)
         if steps == min(12, cycles):
             # Loading a fresh object must preserve the next forecast, not just array serialization.
@@ -220,6 +239,34 @@ def run_demo(out: Path, *, members=16, cycles=36, mode="pf", workers=2):
             alert_history,
             previous_ha,
         )
+        if child is not None:
+            parent_arrival = forecast.t_q.copy()
+            parent_weights = forecast.weights.copy()
+            child_forecast = child.step(now, child_records)
+            _, child_ha = publish(
+                out,
+                child,
+                child_forecast,
+                SCENARIO,
+                issue,
+                child_records,
+                rename([s.model_dump(mode="json") for s in original.scan_events]),
+                rename([s.model_dump(mode="json") for s in original.sensors]),
+                zone_features,
+                index,
+                child_previous,
+                child_alerts,
+                child_ha,
+                branch="report-demo",
+            )
+            child_entries.append(
+                {
+                    "knowledge_sim_ms": issue,
+                    "bundle": f"cache/{SCENARIO}/report-demo/{issue}/bundle.json",
+                }
+            )
+            np.testing.assert_array_equal(forecast.t_q, parent_arrival)
+            np.testing.assert_array_equal(forecast.weights, parent_weights)
         relative = f"cache/{SCENARIO}/main/{issue}/bundle.json"
         generated.append({"knowledge_sim_ms": issue, "bundle": relative})
         used += sum(o["used"] for o in forecast.obs_used)
@@ -245,6 +292,34 @@ def run_demo(out: Path, *, members=16, cycles=36, mode="pf", workers=2):
         out / f"cache/{SCENARIO}/main/index.json",
         {"scenario_id": SCENARIO, "branch_id": "main", "cycles": generated},
     )
+    if report_branch:
+        if child is None:
+            raise ValueError("report-branch fixture needs at least 24 forecast cycles")
+        write_json(
+            out / f"cache/{SCENARIO}/report-demo/index.json",
+            {"scenario_id": SCENARIO, "branch_id": "report-demo", "cycles": child_entries},
+        )
+        write_json(
+            out / "branches.json",
+            [
+                {
+                    "scenario_id": SCENARIO,
+                    "branch_id": "main",
+                    "parent_id": None,
+                    "fork_sim_ms": None,
+                    "reason": "Synthetic control without delayed report",
+                    "created_wall_ms": 0,
+                },
+                {
+                    "scenario_id": SCENARIO,
+                    "branch_id": "report-demo",
+                    "parent_id": "main",
+                    "fork_sim_ms": fork_ms,
+                    "reason": "Synthetic delayed ground report; matched checkpoint treatment",
+                    "created_wall_ms": 0,
+                },
+            ],
+        )
     model.save_state()  # Check final state is serializable without storing a disposable checkpoint.
     summary = {
         "scenario_id": SCENARIO,
@@ -264,6 +339,9 @@ def run_demo(out: Path, *, members=16, cycles=36, mode="pf", workers=2):
         "backend": {
             k: v for k, v in model.native_diagnostics.items() if k != "arrival_path"
         },
+        "report_branch": report_branch,
+        "branch_forecast_cycles": len(child_entries),
+        "parent_arrays_unchanged_during_child_steps": bool(child_entries),
         "limits": [
             "Synthetic integration evidence, not historical forecast skill",
             "Linda dashboard hookup and Cody runtime integration remain separate",
@@ -297,6 +375,11 @@ def main():
     parser.add_argument("--cycles", type=int, default=36)
     parser.add_argument("--filter", choices=["pf", "reinit", "none"], default="pf")
     parser.add_argument("--workers", type=int, default=2)
+    parser.add_argument(
+        "--report-branch",
+        action="store_true",
+        help="Generate matched control/report-demo branches; requires >=24 cycles",
+    )
     args = parser.parse_args()
     run_demo(
         args.out,
@@ -304,6 +387,7 @@ def main():
         cycles=args.cycles,
         mode=args.filter,
         workers=args.workers,
+        report_branch=args.report_branch,
     )
 
 

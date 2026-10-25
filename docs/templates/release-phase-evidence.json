@@ -1,0 +1,22 @@
+{
+  "template_version": 1,
+  "phase": "R1",
+  "status": "not_run",
+  "owner": null,
+  "approval_reference": null,
+  "base_git_sha": null,
+  "result_git_sha": null,
+  "run_id": null,
+  "environment": {"os": null, "cpu": null, "python": null, "rust": null, "workers": null, "memory_budget_bytes": null},
+  "configuration": {"scenario": "eaton", "branch": null, "members": null, "filter": null, "seed": null, "model_version": null, "physics_sha256": null, "config_sha256": null},
+  "inputs": [],
+  "commands": [],
+  "gates": [{"name": "replace_with_phase_gate", "status": "not_run", "evidence": null}],
+  "artifacts": [],
+  "failures": [],
+  "blockers": [],
+  "rollback": null,
+  "scientific_acceptance": "not_established",
+  "outbound_delivery": "not_attempted",
+  "next_phase_approval_required": true
+}

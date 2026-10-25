@@ -1,0 +1,82 @@
+2025010719  avail f00 01-07 11:53 PST  f09 01-07 12:10 PST  f00 mean 11.0 m/s from  31.4°  1.36 MB
+2025010722  avail f00 01-07 14:53 PST  f09 01-07 15:09 PST  f00 mean  8.9 m/s from  33.0°  1.37 MB
+Traceback (most recent call last):
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\.venv\Lib\site-packages\urllib3\response.py", line 929, in _error_catcher
+    yield
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\.venv\Lib\site-packages\urllib3\response.py", line 1046, in _raw_read
+    data = self._fp_read(amt, read1=read1) if not fp_closed else b""
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\.venv\Lib\site-packages\urllib3\response.py", line 1029, in _fp_read
+    return self._fp.read(amt) if amt is not None else self._fp.read()
+           ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Codys\AppData\Local\Programs\Python\Python312\Lib\http\client.py", line 479, in read
+    s = self.fp.read(amt)
+        ^^^^^^^^^^^^^^^^^
+  File "C:\Users\Codys\AppData\Local\Programs\Python\Python312\Lib\socket.py", line 720, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Codys\AppData\Local\Programs\Python\Python312\Lib\ssl.py", line 1251, in recv_into
+    return self.read(nbytes, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Codys\AppData\Local\Programs\Python\Python312\Lib\ssl.py", line 1103, in read
+    return self._sslobj.read(len, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: The read operation timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\.venv\Lib\site-packages\requests\models.py", line 937, in generate
+    yield from self.raw.stream(chunk_size, decode_content=True)
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\.venv\Lib\site-packages\urllib3\response.py", line 1291, in stream
+    data = self.read(amt=amt, decode_content=decode_content)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\.venv\Lib\site-packages\urllib3\response.py", line 1134, in read
+    data = self._raw_read(amt)
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\.venv\Lib\site-packages\urllib3\response.py", line 1045, in _raw_read
+    with self._error_catcher():
+         ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Codys\AppData\Local\Programs\Python\Python312\Lib\contextlib.py", line 158, in __exit__
+    self.gen.throw(value)
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\.venv\Lib\site-packages\urllib3\response.py", line 934, in _error_catcher
+    raise ReadTimeoutError(self._pool, None, "Read timed out.") from e  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(host='noaa-hrrr-bdp-pds.s3.amazonaws.com', port=443): Read timed out.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\.venv\Lib\site-packages\herbie\core.py", line 1124, in subset
+    data = response.content
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\.venv\Lib\site-packages\requests\models.py", line 1042, in content
+    self._content = b"".join(self.iter_content(CONTENT_CHUNK_SIZE)) or b""
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\.venv\Lib\site-packages\requests\models.py", line 943, in generate
+    raise ConnectionError(e)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='noaa-hrrr-bdp-pds.s3.amazonaws.com', port=443): Read timed out.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\emberline\data\hrrr.py", line 262, in <module>
+    build(a.scenario, a.only, a.force)
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\emberline\data\hrrr.py", line 242, in build
+    ds = regrid(fetch_init(init, raw_dir, bounds, force), g, init)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\emberline\data\hrrr.py", line 132, in fetch_init
+    per_fxx = [fetch_one(init, f, raw_dir, bounds) for f in FXX]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\emberline\data\hrrr.py", line 111, in fetch_one
+    got = H.xarray(SEARCH)
+          ^^^^^^^^^^^^^^^^
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\.venv\Lib\site-packages\herbie\core.py", line 1314, in xarray
+    self.download(search=search, **download_kwargs)
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\.venv\Lib\site-packages\herbie\core.py", line 1243, in download
+    subset(search, outFile, verbose=verbose)
+  File "C:\Users\Codys\Projects\Legendary-Fire-Project\engine\.venv\Lib\site-packages\herbie\core.py", line 1139, in subset
+    raise RuntimeError(f"Processing failed: {e}") from e
+RuntimeError: Processing failed: HTTPSConnectionPool(host='noaa-hrrr-bdp-pds.s3.amazonaws.com', port=443): Read timed out.

@@ -1,9 +1,9 @@
 name: Rust HazardModel integration
 on:
   push:
-    paths: ['engine/**', 'physics/surface_v1/**', 'web/src/contracts.ts', 'spec/00_contracts.md', 'tools/check_hazard_frontend*.mjs', '.github/workflows/hazard-backend.yml']
+    paths: ['engine/**', 'physics/surface_v1/**', 'web/src/contracts.ts', 'web/src/data/**', 'web/src/forecast/**', 'web/package*.json', 'web/e2e/**', 'web/playwright.config.ts', 'spec/00_contracts.md', 'tools/check_hazard_frontend*.mjs', 'tools/check_dashboard_source.mts', 'tools/check_dashboard_panels.mts', '.github/workflows/hazard-backend.yml']
   pull_request:
-    paths: ['engine/**', 'physics/surface_v1/**', 'web/src/contracts.ts', 'spec/00_contracts.md', 'tools/check_hazard_frontend*.mjs', '.github/workflows/hazard-backend.yml']
+    paths: ['engine/**', 'physics/surface_v1/**', 'web/src/contracts.ts', 'web/src/data/**', 'web/src/forecast/**', 'web/package*.json', 'web/e2e/**', 'web/playwright.config.ts', 'spec/00_contracts.md', 'tools/check_hazard_frontend*.mjs', 'tools/check_dashboard_source.mts', 'tools/check_dashboard_panels.mts', '.github/workflows/hazard-backend.yml']
 permissions:
   contents: read
 jobs:
@@ -35,10 +35,25 @@ jobs:
         run: |
           node --test tools/check_hazard_frontend.test.mjs
           uv run --project engine python -m emberline.scripts.make_fixture
-          uv run --project engine python -m emberline.hazard.demo --out "$RUNNER_TEMP/rust-hazard-demo" --members 16
+          uv run --project engine python -m emberline.hazard.demo --out "$RUNNER_TEMP/rust-hazard-demo" --members 16 --report-branch
           node tools/check_hazard_frontend.mjs "$RUNNER_TEMP/rust-hazard-demo"
+          npm --prefix web ci --ignore-scripts
+          EMBERLINE_FIXTURE_DIR="$RUNNER_TEMP/rust-hazard-demo" EMBERLINE_SCENARIO_ID=rust-fixture npm --prefix web test
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            npm --prefix web exec -- playwright install --with-deps chromium
+            EMBERLINE_FIXTURE_DIR="$RUNNER_TEMP/rust-hazard-demo" EMBERLINE_SCENARIO_ID=rust-fixture npm --prefix web run test:browser
+          fi
+          uv run --project engine python -m emberline.hazard.fixture_server --root "$RUNNER_TEMP/rust-hazard-demo" --port 8790 > "$RUNNER_TEMP/fixture-host.log" 2>&1 &
+          FIXTURE_HOST_PID=$!
+          trap 'kill "$FIXTURE_HOST_PID" 2>/dev/null || true' EXIT
+          node tools/check_dashboard_source.mts http://127.0.0.1:8790/ rust-fixture
+          node tools/check_dashboard_panels.mts http://127.0.0.1:8790/ rust-fixture
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: rust-hazard-demo-${{ matrix.os }}
-          path: ${{ runner.temp }}/rust-hazard-demo/verification.json
+          path: |
+            ${{ runner.temp }}/rust-hazard-demo/verification.json
+            ${{ runner.temp }}/rust-hazard-demo/branches.json
+            web/playwright-report/
+            web/test-results/

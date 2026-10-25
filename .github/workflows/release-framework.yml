@@ -1,0 +1,25 @@
+name: Release framework checks
+on:
+  push:
+    paths: ['scripts/validation/release_audit.py', 'scripts/validation/test_release_audit.py', 'engine/emberline/contracts.py', 'fixtures/**', '.github/workflows/release-framework.yml']
+  pull_request:
+    paths: ['scripts/validation/release_audit.py', 'scripts/validation/test_release_audit.py', 'engine/emberline/contracts.py', 'fixtures/**', '.github/workflows/release-framework.yml']
+permissions:
+  contents: read
+jobs:
+  replay-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install locked engine dependencies
+        run: |
+          python -m pip install uv==0.13.5
+          uv sync --project engine --locked
+      - name: Reject incomplete and invalid release artifacts
+        env:
+          PYTHONPATH: engine
+        run: uv run --project engine python -m unittest discover -s scripts/validation -p 'test_release_audit.py' -v

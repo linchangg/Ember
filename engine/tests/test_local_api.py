@@ -161,11 +161,12 @@ def test_seek_preset(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_healthz_and_cors() -> None:
     c, state = client(FakeHub())
-    state.status.update(hub_ok=True, last_cycle_sim_ms=5, physics_ms=12.5, cache_coverage=0.5)
+    state.status.update(hub_ok=True, last_cycle_sim_ms=5, physics_ms=12.5, cache_coverage=0.5, backlog_cycles=3, publication_pending=2)
     h = c.get("/healthz", headers={"Origin": "http://localhost:5173"})
     assert h.json() == {
         "scenario_id": "fixture", "profile": "offline", "fixtures": True, "hub_ok": True,
         "cache_coverage": 0.5, "last_cycle_sim_ms": 5, "physics_ms": 12.5, "duty_officer_set": False,
+        "backlog_cycles": 3, "publication_pending": 2,
     }
     assert h.headers["access-control-allow-origin"] == "http://localhost:5173"
     evil = c.get("/healthz", headers={"Origin": "http://evil.example"})

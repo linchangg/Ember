@@ -8,6 +8,7 @@ the alerts it publishes, so cooldown and supersede work across a precompute run.
 from __future__ import annotations
 
 from pathlib import Path
+import hashlib
 
 from emberline.contracts import ActivityEvent, Briefing, CycleBundle, Report
 from emberline.runtime import cache
@@ -23,7 +24,11 @@ class CacheSink:
 
     def _write(self, b: CycleBundle) -> None:
         path = cache.cycle_dir(self.root, b.scenario_id, b.branch_id, b.knowledge_sim_ms) / "bundle.json"
-        cache._write_atomic(path, b.model_dump_json().encode("utf-8"))
+        raw = b.model_dump_json().encode("utf-8")
+        # Immutable version first; index references this exact payload after the pointer commits.
+        version = path.parent / "bundles" / (hashlib.sha256(raw).hexdigest() + ".json")
+        cache._write_atomic(version, raw)
+        cache._write_atomic(path, raw)
         apply_alerts(self.alerts, b.alerts)
         self.written.append(b.bundle_id)
 

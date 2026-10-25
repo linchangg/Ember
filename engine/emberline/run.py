@@ -88,7 +88,8 @@ def build_loop(a: argparse.Namespace, sink: StdbSink, clock: SimClock) -> tuple[
     make, identity = rust_backend()
     host = make_host(ctx, make, land, NcForcing(scn_dir / "forcing", model_grid(ctx)), cache.DEFAULT_ROOT,
                      members_profile=a.members_profile, identity=identity)
-    loop = Loop(ctx, sink, clock, ReplaySource(scn_dir, ctx.scenario_id, ctx.cfg["assimilate_sensors"]), host,
+    loop = Loop(ctx, sink, clock, ReplaySource(scn_dir, ctx.scenario_id, ctx.cfg["assimilate_sensors"],
+                                                 reports=bool(ctx.cfg.get("use_documented_reports"))), host,
                 cache.DEFAULT_ROOT, "main", model_version(a.members_profile),
                 briefings="background" if a.profile == "online" else "off", inbox=InboxSource(),
                 survive_physics_errors=True)

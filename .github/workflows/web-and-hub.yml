@@ -1,9 +1,9 @@
 name: Dashboard and hub checks
 on:
   push:
-    paths: ['web/**', 'stdb/**', '.github/workflows/web-and-hub.yml']
+    paths: ['web/**', 'stdb/**', 'fixtures/**', 'tools/check_dashboard_source.mts', 'tools/check_dashboard_panels.mts', '.github/workflows/web-and-hub.yml']
   pull_request:
-    paths: ['web/**', 'stdb/**', '.github/workflows/web-and-hub.yml']
+    paths: ['web/**', 'stdb/**', 'fixtures/**', 'tools/check_dashboard_source.mts', 'tools/check_dashboard_panels.mts', '.github/workflows/web-and-hub.yml']
 permissions:
   contents: read
 jobs:
@@ -19,8 +19,18 @@ jobs:
           node-version: '22'
       - run: npm ci --ignore-scripts
       - run: npm run lint -- --deny-warnings
+      - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      - run: npm exec -- playwright install --with-deps chromium
+      - run: npm run test:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dashboard-browser-report
+          path: |
+            web/playwright-report/
+            web/test-results/
   hub-types:
     runs-on: ubuntu-latest
     defaults:

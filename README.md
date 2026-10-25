@@ -70,3 +70,8 @@ output directory on subsequent runs.
 ## Deep learning research framework
 
 See [Deep Learning Framework](DEEP_LEARNING_FRAMEWORK.md) for candidate tradeoffs, the selected compact physics-assisted U-Net, Python training and Rust inference, and the gated implementation backlog. This is a research plan; no learned model is active and no forecast-skill or latency improvement has been demonstrated.
+
+Scientific follow-up tools: [calibration equations and experiments](docs/SCIENTIFIC_CALIBRATION.md),
+[frozen-artifact historical evaluation](docs/HISTORICAL_VALIDATION.md), and
+[Phase A fixture hosting / approval boundary](docs/DASHBOARD_PHASE_A.md).
+The example scorer uses synthetic data; it does not establish historical forecast skill.

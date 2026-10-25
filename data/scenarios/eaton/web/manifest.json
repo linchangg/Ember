@@ -7,8 +7,10 @@
   "honesty": {
     "real": [
       "GOES-18 FDC",
+      "VIIRS 375m",
       "HRRR winds",
       "USGS 3DEP",
+      "LANDFIRE LF2024",
       "Census 2020",
       "LA County zones (Jan 2025 Eaton/Palisades evacuation snapshot: only zones warned or ordered that night are included; status/time fields dropped; names derived from zone codes)",
       "official timeline"
