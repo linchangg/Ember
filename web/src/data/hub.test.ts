@@ -92,6 +92,10 @@ test('lineage takes all ancestor fork minima and rejects missing/cyclic ancestor
   assert.throws(() => lineage([{ ...child, parent_id: 'child' }], 'child', at))
 })
 test('committed heads, causal evidence and exact issue validation gate snapshots', () => {
+  const fractional = rows()
+  fractional.clock[0].anchor_sim_ms = at + 0.5
+  assert.equal(selectHub(fractional, manifest, base, 0, null).now, at)
+
   const r = rows()
   const s = selectHub(r, manifest, base, 0, at + 120 * 60000)
   assert.equal(s.cycle?.cycle_id, b.cycle.cycle_id)

@@ -65,15 +65,15 @@ export function hubClock(rows: HubRows, scenario: string): ClockState {
   const c = rows.clock?.find((r) => r.scenario_id === scenario)
   if (!c || !['ok', 'computing', 'catching_up'].includes(String(c.status)))
     throw new Error('Hub clock unavailable or invalid')
-  for (const name of [
-    'anchor_sim_ms',
-    'anchor_wall_ms',
-    'min_sim_ms',
-    'max_sim_ms',
-    'epoch',
-  ])
+  for (const name of ['anchor_wall_ms', 'min_sim_ms', 'max_sim_ms', 'epoch'])
     if (!Number.isSafeInteger(c[name]))
       throw new Error('Invalid hub clock time')
+  if (
+    typeof c.anchor_sim_ms !== 'number' ||
+    !Number.isFinite(c.anchor_sim_ms) ||
+    Math.abs(c.anchor_sim_ms) > Number.MAX_SAFE_INTEGER
+  )
+    throw new Error('Invalid hub clock anchor')
   if (
     typeof c.playing !== 'boolean' ||
     typeof c.speed !== 'number' ||

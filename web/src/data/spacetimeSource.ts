@@ -230,6 +230,7 @@ export class SpacetimeSource implements DataSource {
   private review(id: string, name: string, args: Record<string, unknown>) {
     const alert = this.state.alerts.find((a) => a.alert_id === id)
     if (
+      this.state.status !== 'ready' ||
       !alert ||
       alert.branch_id !== this.state.clock?.active_branch_id ||
       alert.state !== 'proposed'
