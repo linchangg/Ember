@@ -139,28 +139,3 @@ export function reprojectPixels(rgba: Uint8ClampedArray, lookup: Reprojection) {
   }
   return result
 }
-
-/** Exact projected cell geometry for Linda's globe, in Float64 lon/lat. */
-export function projectGrid(grid: RasterGrid) {
-  const [x0, y0] = gridOrigin(grid)
-  const centers = new Float64Array(grid.nx * grid.ny * 2)
-  const corners = new Float64Array((grid.nx + 1) * (grid.ny + 1) * 2)
-  for (let row = 0; row <= grid.ny; row++) {
-    for (let col = 0; col <= grid.nx; col++) {
-      const offset = (row * (grid.nx + 1) + col) * 2
-      corners.set(
-        geographic.inverse([x0 + col * grid.cell_m, y0 - row * grid.cell_m]),
-        offset
-      )
-      if (row < grid.ny && col < grid.nx)
-        centers.set(
-          geographic.inverse([
-            x0 + (col + 0.5) * grid.cell_m,
-            y0 - (row + 0.5) * grid.cell_m,
-          ]),
-          (row * grid.nx + col) * 2
-        )
-    }
-  }
-  return { centers, corners }
-}

@@ -78,11 +78,6 @@ export class ArrivalGridCache {
       i = validateGeometryCollection(isochrones)
     if (JSON.stringify(p.features.map((f) => f.id)) !== '["burned","front"]')
       throw new Error('Perimeter feature IDs mismatch')
-    if (
-      p.features[0].geometry.type !== 'MultiPolygon' ||
-      p.features[1].geometry.type !== 'MultiLineString'
-    )
-      throw new Error('Perimeter geometry types mismatch')
     const result = { arrival, perimeter: p, isochrones: i }
     this.cache.set(key, result)
     while (this.cache.size > this.capacity)

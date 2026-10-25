@@ -6,6 +6,9 @@ import Sidebar from './components/Sidebar'
 import GlobeNetwork from './pages/GlobeNetwork'
 import './App.css'
 
+const FileDashboard = lazy(() => import('./forecast/FileDashboard.tsx'))
+const DATA_MODE = import.meta.env.VITE_DATA_SOURCE || 'mock'
+
 const Compare = lazy(() => import('./pages/Compare'))
 const PatternCesium = lazy(() => import('./pages/PatternCesium'))
 const PatternMapLibreThree = lazy(() => import('./pages/PatternMapLibreThree'))
@@ -58,7 +61,10 @@ export default function App() {
     >
       <Routes>
         <Route path="/" element={<GlobeNetwork />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route
+          path="/dashboard"
+          element={DATA_MODE === 'mock' ? <Dashboard /> : <FileDashboard />}
+        />
         <Route path="/compare" element={<Compare />} />
         <Route path="/compare/cesium" element={<PatternCesium />} />
         <Route

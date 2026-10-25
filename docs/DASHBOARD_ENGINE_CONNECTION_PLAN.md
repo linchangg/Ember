@@ -1,282 +1,242 @@
-# Dashboard–engine connection plan — Linda-based revision
+# Dashboard–engine connection plan
 
-Revision 2026-10-24. Baseline: Linda/main `2a62206` (scenario-backed globe, replay
-clock, basemap, 50-member analytic fixture) plus the verified Rust backend and prior
-science frameworks. Latest fetch found that same commit on main and Linda's Cursor
-branch; it was already included in Phase C. This revision changes the architecture
-of A–C to extend her implementation instead of maintaining a parallel application.
+Based on the merged PR #8 implementation (`c5e2599`) and its recorded verification.
+This is a proposed implementation plan, not a claim that the following integration
+already exists. Preserve Linda’s current routes and visual design.
 
-## 1. Authority and release boundaries
+## 1. Readiness and release boundaries
 
-| Area | Authority / current status |
-|---|---|
-| UI layout, globe, interaction, terrain, basemap | Linda's `web/src/pages/GlobeNetwork.jsx`; preserve visual direction |
-| Clock | Linda's `web/src/lib/replayClock.js`, frozen `simNow`; no second application clock |
-| Scenario files | `lib/scenarioData.js` facade → validated `data/scenario.ts` |
-| Wire types | Frozen `contracts.ts` / Python contracts; unchanged by this revision |
-| Native model | Operational Python HazardModel → Rust bridge; existing assimilation/checkpoints |
-| Fixture | Canonical analytic N=50 and separate generated native N=16; both synthetic |
-| Hub | Existing generated bindings + Linda's clock connection; live forecast transport incomplete |
-| Calibration / historical skill / latency | Not established; no validated-use claim |
-
-The old `data/fileSource.ts`, store/hooks and tests remain compatibility/reference
-code. No route mounts that provider. Removed Phase C's parallel FileDashboard,
-MapLibre component, CSS and worker. `/` is the connected incident globe;
-`/dashboard` remains the explicitly separate original mock. No model equations,
-likelihood defaults, notifications or frozen schemas change as part of this work.
-
-## 2. Implemented A–C, revised around Linda
-
-| Phase | Implementation | Remaining acceptance |
+| Capability | Current evidence | Status |
 |---|---|---|
-| A | Preserve fixture generation, explicit loopback hosting, independent decoder; target Linda's `/` route | Refresh native artifact whenever model/config/evidence changes; never treat analytic fixture as native evidence |
-| B | Linda scenario API + one Linda clock; shared validators, atomic staging, generation/abort, bounded cache, visible failures, disposal | Full hub clock adoption/reconnect/lineage acceptance belongs to E |
-| C | Pure quantile decoder + exact projected cells on Linda's globe, published vectors, existing time strip plus modes/leads | Browser screenshots/console/rotation/limb checks and target-size frame timings |
+| Rust forecasts behind Python HazardModel | Native propagation, quantiles, observation assimilation and checkpoint parity; complete 39-cycle synthetic replay | Implemented; ready for experimental dashboard integration |
+| Scientific calibration | N=128 synthetic outline score improved 0.7259 → 0.9132, but wind and ROS recovery fail | Incomplete |
+| Historical validation | No independently held-out historical forecast evaluation has established skill | Not established |
+| Performance | Target exists: ≤0.5 s/cycle at 128 members, 340×340, six-hour horizon; prior cold/contended run took 244.25 s | Target not met |
+| Dashboard hookup | Current globe spread is simulated; dashboard figures are mocked | Not implemented |
 
-Detailed commands and behavior: `DASHBOARD_PHASE_A.md`, `DASHBOARD_PHASE_B.md`,
-`DASHBOARD_PHASE_C.md`. Do not use the earlier flat-map route instructions.
+The 114.405 s N=16 full-fixture replay is a different workload, not proof of target
+latency. All 12 PR checks passing establishes software integration, not predictive
+accuracy. Keep spotting disabled. No deep-learning component exists.
 
-Active file flow:
+Deliver two separate milestones: (A) verified experimental forecast replay in the
+existing UI, (B) continuously updating engine/hub integration. Scientific deployment
+acceptance remains a separate gate after both.
+
+## 2. Data path and ownership
 
 ```text
-existing runtime / Rust HazardModel
-  -> schema2 bundles + binary/GeoJSON assets
-  -> Linda scenarioData facade / ScenarioFiles validation + selection
-  -> Linda replayClock supplies now, branch, epoch; scrub supplies view
-  -> one selected entry -> globe cells / published vectors / existing labels
+Eligible weather + observations
+  -> Python runtime / HazardModel
+  -> persistent Rust bridge and native propagation
+  -> Python assimilation, weighted arrival quantiles, risk/alert calculations
+  -> immutable CycleBundle + binary/GeoJSON assets
+  -> FileSource initially, SpacetimeSource later
+  -> shared dashboard state and hooks
+  -> Linda’s existing map, timeline and sidebar
 ```
 
-Select issue `I=max{k | k<=min(now,view)}`. If no cycle, show not issued. Beyond
-`I+60000*horizon_min`, show unavailable. Cache key includes scenario/context, issue
-and validated model/config/assets identity. An epoch change invalidates files.
-One stage either commits bundle+all required assets or exposes no entry. Never
-reuse the former `lastEntry` under the new clock/view label. Missing values do not
-become zero probability, a clear zone or a Unix-epoch act-by date.
+Abby owns engine output/decoder parity; Cody owns runtime, asset hosting and hub
+publication; Linda owns the data-source hooks and rendering integration. Renderers
+must not launch Rust, recompute spread or manufacture risk values. Use the operational
+`engine/emberline/hazard/` factory, not the separate unweighted research CLI adapter.
 
-## 3. Phase D — published decision data and assimilation review
+Read `spec/00_contracts.md` §§3–4, `spec/06_frontend.md` §§2–4, the existing
+`web/src/contracts.ts`, `tools/check_hazard_frontend.mjs`, and
+`docs/RUST_HAZARD_BACKEND.md`. Existing shared contracts are authoritative. Older
+frontend renderer/route suggestions are not a reason to replace the current UI.
 
-**Planning only. Start D only after a new direct confirmation.** Confirmation for
-this architectural revision authorizes A–C adjustments and D/E planning, not their
-implementation. D remains file-backed; it does not add hub delivery or real alerts.
-Before D, finish C's visual checklist or explicitly record the unresolved gate.
+## 3. Phase A — establish a reproducible file-backed fixture
 
-### D1. Define a shared selected incident snapshot
+1. Build native release code and generate the Rust fixture, using the locked Python
+   environment:
 
-Owner: Linda, with Abby checking decoder semantics and Cody checking wire mappings.
-Extend `data/scenario.ts` and a small React subscription adapter; do not introduce a
-second clock or another app. Snapshot must include selected branch/epoch/issue/view,
-cycle, map assets, zone risk, observation/scan/event history, alerts/briefings and status.
-Use subscribe/getSnapshot or the existing 100 ms update loop initially. Keep one
-selection token for map and panels. Components do not fetch independent bundles.
+   ```sh
+   cargo build --manifest-path physics/surface_v1/Cargo.toml -p fire-bridge --release --locked
+   engine/.venv/bin/python -m emberline.hazard.demo --out /tmp/emberline-dashboard-fixture --members 16
+   node tools/check_hazard_frontend.mjs /tmp/emberline-dashboard-fixture
+   ```
 
-History cannot be inferred from the last bundle: publisher bundles can contain only
-new observations/events. Read eligible earlier bundles bounded by the selected issue;
-deduplicate immutable observations by obs_id and events by event_id. Preserve alert
-state updates with allowed transitions and never downgrade an approved record. Keep
-light metadata separately from the four raster entries; cap history/prefetch using
-configured time windows. Invalidate history on epoch/scenario/evidence revision.
+2. Serve that directory as an asset root. It must expose
+   `static/rust-fixture/manifest.json`, `cache/rust-fixture/main/index.json`, and
+   every relative asset referenced by its bundles. Do not overwrite canonical
+   `fixtures/` or reuse synthetic files under a historical-data label.
+3. Configure the existing Vite application using `VITE_DATA_SOURCE=file`,
+   `VITE_SCENARIO_ID=rust-fixture`, and `VITE_ASSET_BASE` pointing to that root.
+   These variables are the planned selection mechanism and need wiring into the
+   application. Use a same-origin development proxy or explicit allowed-origin CORS
+   on the asset host; do not rely on an ordinary cross-origin static server allowing it.
+4. Run the Node consumer against the actual HTTP asset URL before browser work.
+   It must accept all 36 forecast and 3 pre-ignition entries.
 
-Acceptance: compare every displayed row with its fixture bundle; no future available
-observation, no duplicate event, no mismatched cycle_id. Reordered and failed history
-requests cannot alter a newer selection. Explicit loading state until required rows
-are consistent; absent optional fields render unavailable.
+Acceptance: a repeatable generation command and HTTP root pass the existing decoder;
+missing files return visible failures rather than substituted mock predictions.
 
-### D2. Populate Linda's existing incident panel
+## 4. Phase B — shared FileSource and consistent time selection
 
-Keep `gn__side` layout/style; replace/extend its incident details with published data.
-Do not replace NASA event-magnitude “Risk level” with an unlabelled forecast probability;
-separate external event metadata from forecast/zone results.
+Add these modules without changing shared wire types:
 
-| UI item | Wire source / rule |
-|---|---|
-| Zone name/geometry | manifest zone FeatureCollection, stable zone_id |
-| Rank/status/risk | selected cycle's `zone_risk`, sort numeric rank; preserve published status |
-| Chance by +30…+360 | `p_by_lead[lead/30-1]`, leads [30,60,…,360]; +120 is index3 |
-| ETA | published eta_q10/q50/q90_sim_ms; null means unavailable |
-| Act by | published act_by_sim_ms and act_by_basis; never recompute from an editable form without engine output |
-| Fire stats | cycle.burned_ha/front_km/growth_ha_per_h/head_bearing_deg with units/null handling |
-| Model diagnostics | cycle model_version, config_hash, n_members, ess, tempering_alpha, filter_mode and data_through_sim_ms |
-| Recommendation | published alert/briefing matched by IDs; no client LLM/numeric estimates |
+- `web/src/data/source.ts`: internal DataSource and snapshot/subscription interfaces.
+  Expose manifest, clock, branches, cycles and bundle-derived collections, plus
+  disposal and actions. Use types from `contracts.ts`; isolate mock/file/hub selection.
+- `web/src/data/fileSource.ts`: fetch manifest/index, validate schema and IDs, load
+  bundles, implement local replay and the specified offline alert transitions.
+- `web/src/data/store.ts` and `hooks.ts`: implement the hooks in frontend spec §2,
+  so components no longer fetch forecast data themselves.
+- `web/src/data/arrivalGrid.ts`: validated binary loading/decoding with a four-entry
+  LRU keyed by scenario, branch, cycle, model/config identity and asset URL.
+- `web/src/data/assetUrl.ts`: resolve ASSET_BASE-relative paths centrally. Reject
+  absolute/traversing/unexpected-origin asset references.
 
-Controls viewing +0 (“now”) must not index an absent lead0 probability. Show the
-published lead labels separately from current view lead if between discrete steps.
-Any evacuation-time override is displayed as an operator input awaiting recalculation;
-never make published risk/act-by appear to incorporate an unsent override.
+Implementation rules:
 
-Acceptance: golden fixtures exercise null ETA, 0% chance, no alert, multiple alerts,
-all leads, pre-ignition, outdated output and errors. A zero and a missing value remain
-visibly different. Map and panel issue/branch identities agree after rapid scrubbing.
+1. Validate schema version 2, scenario/branch identity, grid dimensions, quantile
+   order, time fields and asset response status before exposing a snapshot.
+2. Sort index entries by `knowledge_sim_ms`; reject duplicates/inconsistent entries.
+   At simulated now `s` and view time `v`, select the latest eligible cycle with
+   `knowledge_sim_ms <= min(s,v)`. For a future view use the latest cycle known at
+   `s`, and render only within its forecast horizon.
+3. Start the local clock paused at manifest replay start, speed 240, bounds from the
+   manifest. Reuse the clock anchor math and epoch semantics in `contracts.ts`.
+   Scrubbing the view does not silently change the shared simulation clock.
+4. Pre-ignition bundles have `cycle: null`: show observations/events as eligible,
+   clear forecast layers and show “No forecast yet.” Do not carry a later forecast back.
+5. Stage each bundle and required map assets, then commit one consistent view.
+   Panel/map values must refer to the same cycle. Use AbortController plus a request
+   generation token; abort alone does not prevent a late decoded result from committing.
+6. Dispose requests/subscriptions on route exit. Reset scenario/branch/epoch-sensitive
+   caches on switches; prefetch only a bounded number of nearby eligible assets.
+7. Offline alert approval is local only. Preserve approved alerts, use only permitted
+   proposal/superseded transitions and honor pause-on-proposal. Do not trigger messages.
 
-### D3. Provenance and observation/assimilation review
+Acceptance: backward/forward seeks, pre-ignition and deliberately reordered responses
+never reveal future evidence or mix cycles. A slow old response cannot replace a new seek.
 
-Add an expandable section to Linda's panel/time strip with observed and available
-sim times, sensor/platform, kind, hot/clear flag, trust, provenance, source_ref,
-assimilation status/influence when published, ESS and tempering. Explain observed vs
-available delay. Badges distinguish real/simulated/injected/derived. Keep experimental
-and synthetic labels persistent; mark urban spread heuristic when applicable.
+## 5. Phase C — decoder and map layers
 
-Read-only branch comparison requires explicit branch descriptors and indexes. Port
-eligible ancestor/fork-time filtering from tested legacy FileSource utilities into
-ScenarioFiles, rather than mounting its clock. Selection key must include branch,
-epoch, issue, model and config. Compare parent/child at **identical issue and view lead**;
-if one side is absent, show unavailable, not a nearby cycle. Preserve immutable parent.
-Do not promise a report shifts a boundary by 300 m; current low-trust evidence fails that gate.
+For dimensions nx, ny, let C = nx*ny. Require exactly `5*C` bytes. At quantile
+index q, row r and column c, the offset is `q*C + r*nx + c`. Row zero is north.
+Quantile order is [0.1, 0.3, 0.5, 0.7, 0.9].
 
-Acceptance: delayed observations excluded before available_sim_ms; parent after fork
-cannot leak into child; identical inputs reproduce output; negative/all-clear reports
-and rejected reports retain explanations; branch switch during loading cannot mix masks.
-Synthetic parent/child fixtures must be generated with the actual engine, not drawn by UI.
+For byte b and issue time I (epoch milliseconds):
 
-### D4. Alert review, tests and approval stop
+- b=255: no arrival within the modeled horizon; never draw it as burned.
+- b=0: reached by issue time.
+- 1<=b<=254: encoded arrival time `A = I + 120000*b`.
 
-File mode may provide local review state only, visibly “local demo; no delivery.”
-Approval/decline affects operator state separately from cached physics and survives
-seeks. No call/SMS/email or report submission endpoint is activated in D. Proposed,
-approved, declined and superseded transitions must match frozen reducers; rejected
-transitions show an error. If keeping controls read-only is preferable for Linda's
-screen, ship read-only alert cards and defer mutations explicitly.
+At view time t, compute
 
-Required checks: existing web/decoder/native checks; new snapshot/history/panel tests;
-real browser tests against Rust-generated data; screenshots and console review. Include
-all quantiles, three representative leads, late loading, missing asset/retry, route exit,
-backward seek and absent data. No arbitrary pixel snapshot alone proves scientific parity.
-Record branch/commit/fixture hashes and browser evidence. **Stop after D and request
-explicit confirmation before E.** Do not combine D acceptance with live delivery claims.
+`k(cell,t) = sum_q 1[b_q != 255 and I + 120000*b_q <= t]`.
 
-## 4. Phase E — continuous engine/hub delivery and operator commands
+k=0 has no supported arrival class; k=1..5 corresponds to the threshold lower bound
+QUANTILES[k-1]. These are quantile-derived probability classes, not an exact continuous
+probability such as 63%. Cells with all five bytes zero use the burned style. For a
+single chosen quantile, render its reached mask separately; do not confuse the two views.
 
-**Planning only; requires a separate direct confirmation after D.** Reuse Linda's
-existing clock connection, generated SDK bindings and Cody's runtime/API; do not build
-a parallel Rust server, invented WebSocket protocol or second hub client by default.
-Pin the existing spacetimedb SDK 2.13.0. Verify current official SDK docs and generated
-bindings at implementation time; the plan does not assume future API signatures.
+- Add a pure `forecastRaster.ts` decoder and renderer adapter. Compare its output
+  against the existing Node decoder before connecting React.
+- Use manifest outer corners, not cell-center bounds. MapLibre image corner order is
+  [tl,tr,br,bl]; deck.gl BitmapLayer uses [bl,tl,tr,br]. For the current custom globe,
+  map raster positions through its existing geographic projection and clip at the limb;
+  do not paste the raster in screen coordinates. Honor the projected-grid geometry;
+  use a georeferenced mesh/reprojection if a four-corner approximation exceeds one cell.
+- Render the published burned/front perimeter and q50 isochrones. Never regenerate
+  them from decorative ellipses. Validate a known northwest/southeast marker raster
+  to detect mirrored axes or transposed dimensions.
+- Connect one existing incident/dashboard view first. Keep the homepage’s decorative
+  events separate until its renderer can consume the same validated forecast state.
+  Experimental map prototypes need not all be integrated in the first deliverable.
+- Rebuild textures on data/lead/class changes, not every animation frame. Keep the
+  selected buffer cached and panel subscriptions at minute/cycle granularity.
 
-### E1. Inventory and establish one connection owner
+Acceptance: all five quantiles and +30/+120/+360 min match the reference; all-255
+cells remain unpainted, all-zero cells appear burned, and map placement is within one
+cell of a reference georeferenced rendering.
 
-Inspect `replayClock.js`, generated `module_bindings`, `stdb/src`, runtime model_host,
-loop/publisher/cache, `sync/stdb_sink.py`, `sync/cache_sink.py`, `api/local.py` and run.py.
-Document actual deployment URI/database identity and scenario. Confirm engine health
-using GET `/healthz`; its `hub_ok`, last_cycle_sim_ms, physics_ms and cache_coverage are
-status, not guarantees that assets match the dashboard head.
+## 6. Phase D — panels, provenance and assimilation review
 
-Extract the existing connection into a single session owner shared by clock and
-scenario transport. Do not create a second clock subscription that races adoption.
-Implement connection state (connecting/ready/disconnected/recovering/error), teardown,
-row validation and scenario checks. On disconnect, freeze the authoritative state and
-show stale original issue/data-through; never silently switch to an advancing local
-clock while implying live data. Explicit offline replay is a separate operator choice.
+Replace each mock value in the connected view with bundle data:
 
-Acceptance: one connection/subscription set per mounted scenario, StrictMode-safe;
-disposal before connection completes creates no orphan; reconnect does not duplicate
-callbacks. Validate clock anchor/adoption on two clients, including epoch reset and
-engine computing/catching_up statuses.
+- Zone ranking/probability: `zone_risk`, selecting the published lead array correctly.
+- Burned area, growth and heading: the selected Cycle; retain units from contracts.
+- Observations/events: eligible bundle observations and activity feed.
+- Alerts/briefings: published records; no invented recommendations or auto-send action.
+- Status: forecast issue, view time/lead, data-through time, model version, member count,
+  ESS and tempering. Keep “Synthetic replay / experimental model” visible.
 
-### E2. Consume committed cycle heads atomically
+When a value is absent, show unavailable rather than falling back to mock numbers.
+Distinguish unavailable, pre-ignition, forecast computation pending and stale output.
+Retain old output only with its original issue time and explicit stale status.
 
-Subscribe to generated tables for selected scenario/lineage: clock, branch, cycle,
-cycle_head, zone_risk, observation, scan_event, alert, briefing, report, sensor_info,
-activity_event and metrics as named in current generated bindings. Verify names;
-do not guess snake/camel case. SQL has no ORDER BY: sort deterministically client-side.
-Adapt camelCase to frozen snake_case, options to null and *_json to parsed objects,
-then run the same scenario/bundle/geometry/causality validators.
+Use parent/branch replay for the report demonstration. Show observation timestamp,
+availability, trust and provenance; compare branches at the same issue/lead. Changing
+branches must not mutate the parent. Do not claim every report moves the q50 boundary
+by 300 m: the current low-trust experiment fails that gate.
 
-A cycle head triggers staging, not immediate relabeling. Resolve published asset URLs
-through the same confined loader; commit cycle+all selected panel rows+assets as one
-snapshot after verifying identities. Use generation/AbortController keyed by scenario,
-branch, epoch, issue, model/config and asset identity. Ignore old heads and deduplicate
-immutable rows; on reset/epoch revision invalidate same-URL bytes. Reconnect from a
-complete subscribed snapshot before returning to ready. Never rely on the file index
-being immutable or a hub clock alone to discover new forecasts.
+Acceptance: map, zone panel, observation feed and alert card use one cycle/branch;
+synthetic inputs and unavailable results remain visible and correctly labeled.
 
-Acceptance: deliberately delay binary, vectors and risk rows; no mixed-cycle screen.
-Missing/corrupt assets expose explicit pending/error status. Duplicate/out-of-order
-heads and events have no duplicate effects. Disconnect/reconnect preserves operator
-approvals. Changing active branch clears wrong-lineage output before the new stage.
+## 7. Phase E — continuously updating runtime and hub
 
-### E3. Verify Cody's publication/restart path rather than replacing it
+This follows a working FileSource integration; it is additional runtime work.
 
-Existing runtime/cache writes use temporary-file replacement; existing sinks/publisher
-and ModelHost already implement substantial orchestration. Audit their actual commit
-boundary with tests: assets complete and checksummed/sized before bundle/index/head
-publication; failed writes must not expose a usable head. A bundle is either fully
-committed or absent. If current same-URL revisions remain possible, keep revalidation
-and epoch/evidence identity; do not assert immutable content-addressed URLs exist.
+1. Cody assembles ForcingProvider plus the five-minute orchestrator using the existing
+   HazardModel factory. Enforce `available_sim_ms <= issue` for every assimilated input.
+   Weather valid in the future is allowed only if the forecast was available at issue.
+2. Preserve authoritative issue state separately from forecast-extension state.
+   Run at most one authoritative update per scenario/branch worker. Coalesce/queue
+   new work with documented handling of delayed observations; expose backlog status.
+3. Write immutable assets first; verify sizes/hashes, write bundle, then atomically
+   publish the file index/head or use the existing hub publish reducer. Never point
+   the dashboard at half-written assets. Maintain model/config/evidence provenance.
+4. Add `web/src/data/spacetimeSource.ts` using existing generated bindings and pinned
+   SDK 2.13.0. Adapt camelCase rows to snake_case, undefined to null and JSON columns
+   to parsed values. Apply branch lineage rules from the contracts before rendering.
+5. Subscribe to committed cycle heads and obtain assets through the same loader as
+   FileSource. Reconnect with a full consistent snapshot; prevent duplicate event,
+   alert and observation application. Preserve offline file mode as an explicit choice.
+6. Add checkpoint/restart and branch command handling. Keep operator approvals in
+   operator state; restoring a physics checkpoint must not revert an approval.
 
-Enforce observation available_sim_ms<=issue, including rejected/future reports. Future
-weather validity is allowed only from forecasts issued/available by the cycle cutoff.
-Verify one authoritative model update per scenario/branch, bounded backlog/coalescing,
-checkpoint identity and restart parity. Forecast extension must not advance the saved
-assimilation issue state. Existing Rust HazardModel stays behind its Python factory;
-no browser process invokes Rust. Diagnose late engine output separately from UI delays.
+Acceptance: two browsers agree on the committed cycle and allowed alert transitions;
+reconnect/restart produces no duplicate effects; interrupted publication exposes no
+partial cycle. Live service acceptance must run against an actual published hub.
 
-Acceptance: crash after each asset/bundle/head step, resume deterministically; no partial
-head; unchanged cached evidence matches; changed forcing/config/observations invalidates
-cache; physics restart does not restore an old operator approval decision.
+## 8. Required tests and final handoff
 
-### E4. Commands and human review
+Add unit tests for byte offsets, 0/255 handling, quantile order, horizon bounds,
+corner mapping, lead indexing, malformed manifest, missing/truncated binary, stale
+requests, clock/branch selection, pre-ignition and alert transitions.
 
-Use generated approved reducer signatures for play/pause/seek/speed and allowed alert
-transitions. Obtain operator PIN through the existing flow; never put credentials in
-asset URLs, docs, screenshots or logs. Preserve explicit operator identity where required.
-UI errors must handle reducer rejection without pretending local success.
+Add browser tests that use the generated Rust fixture (not hand-authored substitute
+predictions): load all 39 entries, select all quantiles, scrub backward, choose +120
+min, inspect the delayed report and an alert, change branches, simulate asset failure,
+and navigate away during loading. Assert decoded masks and sidebar values in addition
+to taking screenshots. Check the browser console for lifecycle errors.
 
-For reports, inspect existing POST `/dev/report`: current code sets branch_id="main".
-It cannot be used for a child-branch demo without coordinated Cody work. Define branch
-routing using existing authoritative state/contracts, or keep child report injection
-disabled with an explanation. Do not silently add a wire field. Show submission ID,
-accept/reject/pending assimilation and resulting cycle separately; acceptance of a
-report is not proof that it changed the forecast. Existing `/dev/seek-preset` and
-`/dev/duty-officer` are not replacements for clock/report semantics. Never auto-enable
-outbound calls; notification testing needs separately authorized recipients and scope.
+Keep existing engine/research/Rust/Node checks, run web lint/test/build, and include
+browser tests in CI. For hub mode also verify two-browser propagation, reconnection,
+source ordering and service failures. The dashboard should show published results
+promptly (proposed UI target: p95 <=1 s after receiving the committed head on the named
+demo machine); benchmark UI fetch/decode/render separately from physics computation.
 
-Acceptance: future/malformed report rejection, duplicate submit protection, main/child
-routing, interrupted request, command rejection and no delivery on mere proposal.
-Any frozen contract change goes through Cody, schema versioning and both language types.
+Handoff includes exact commands/environment selection, hosted asset root, model and
+config identity, sample cycle IDs, test evidence and screenshots, plus the open
+scientific and performance gates. Do not call it a validated real-time predictor.
 
-### E5. Hosting, measurements, release gate
+## 9. Parallel science and performance work
 
-Use Cody's existing :8787 asset/API server or a same-origin proxy; Vite's development
-scenario middleware does not exist in production. Its fixture cache fallback always
-uses main, so it is not an acceptable child-branch asset server. Configure explicit
-allowed UI origins; note current local API CORS allows http://localhost, while the
-fixture host can explicitly allow http://127.0.0.1. Resolve that deployment detail
-with Cody; do not bypass origin checks or assume both hostnames are interchangeable.
-Keep hub/asset URLs configurable and credentials out of static artifacts.
+These do not block clearly labeled replay integration but do block validated-use claims:
 
-Measure head-received → fetch → decode → projected paint separately from physics.
-For each run record hardware/browser, grid, members, cache state, network and fixture
-identity; report p50/p95 and peak browser/process RSS. Proposed UI target p95<=1 s
-after committed head is received must be approved as a target and measured; it is not
-established. The native <=0.5 s/cycle N=128/340×340/six-hour target is also unmet.
-Canvas projection still touches many cells per frame: profile visible-cell bounds,
-precomputed unit vectors/terrain samples and a worker for mask decode before replacing
-Linda's renderer. Retain exact mask/coordinate parity for every optimization.
+- Calibration: predeclared multi-seed twin tests; wind error <=8°, ROS error <=25%,
+  ESS >=0.2N on >=80% cycles, improved +2 h outline skill over open loop. Separate
+  likelihood effects from geometric reanchoring and test negative observations.
+- Historical validation: frozen checksum inputs and availability times; independent
+  perimeter truth excluded from assimilation/tuning; held-out incidents; compare
+  none/reinit/PF at 30/60/120/360 min, including calibration and boundary/arrival errors.
+- Performance: isolated target-size p50/p95 and process-tree RSS, then incremental
+  native state, cached statics and bounded active regions with parity tests. Preserve
+  causal replay after parameter changes; revise the target explicitly if necessary.
+- Physics: independent pyretechnics parity, convergence/terrain/barrier tests and
+  documented urban heuristic limits. Keep unsupported spotting disabled.
 
-Release checks: two browsers same scenario/branch/head; new cycle automatically appears;
-restart and reconnect; missing asset; branch/reset; report roundtrip; allowed alert
-transitions; production URL/CORS; browser console, screenshots and timing evidence.
-Keep clearly labeled file replay as fallback. No live or scientific-ready claim until
-its corresponding gate is passed. Stop at the agreed E scope; do not send real alerts
-or deploy services merely because local integration checks pass.
-
-## 5. Independent science gates remain open
-
-Calibration: predeclared multi-seed twins, wind error<=8°, ROS error<=25%, ESS>=.2N
-on>=80% cycles, improved +2h skill over open-loop; isolate likelihood from reanchoring.
-Historical validation: frozen checksummed inputs/availability, independent truth withheld
-from tuning/assimilation, held-out incidents, none/reinit/PF/persistence at 30/60/120/360
-minutes with calibration/boundary/arrival errors. See SCIENTIFIC_CALIBRATION.md and
-HISTORICAL_VALIDATION.md. Performance: isolated target workload p50/p95/RSS and parity
-before accepting optimization. Spotting stays disabled; no deep-learning component
-is implied by this dashboard integration.
-
-## Revision evidence
-
-Local checks: 44/44 tests on each analytic and generated native fixture; strict
-typecheck, warning-free lint and production file build passed. Existing large
-map-library chunk warnings remain. The active Linda API HTTP checker accepted all
-39 entries and all quantiles at +30/+120/+360. Independent wire decoder also passed.
-Evidence: `docs/evidence/linda-dashboard-integration.json`; native artifact generation
-evidence remains in Phase A. This revision did not rerun native propagation. Browser
-control was unavailable, so visual acceptance, screenshots, browser CI and target-size
-frame timings remain open. No D/E code or main merge is included.
+Detailed existing tasks: `docs/RUST_HAZARD_NEXT_TASKS.md` in the repository.

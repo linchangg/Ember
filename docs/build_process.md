@@ -1,12 +1,3 @@
-## Dashboard integration revision (Oct 24)
-
-The owner requested A–C to build on Linda's main implementation, not a parallel UI.
-The active application is `GlobeNetwork.jsx` with `scenarioData.js` and
-`replayClock.js`; validated transport and quantile decoding are reused underneath.
-See [the revised A–E plan](DASHBOARD_ENGINE_CONNECTION_PLAN.md). D and E are plans
-only and each requires new direct owner confirmation. Previous phase records are
-superseded by DASHBOARD_PHASE_A/B/C.md; historical evidence is retained.
-
 # Build process
 
 ## Rust backend update (Oct 24)

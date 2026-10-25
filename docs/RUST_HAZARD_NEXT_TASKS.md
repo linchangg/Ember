@@ -32,8 +32,7 @@ asset summarization. The Rust integration now exercises those existing functions
 
 ## 2. Connect Linda's existing dashboard (Linda + Cody)
 
-- Extend Linda's `scenarioData.js` / `data/scenario.ts` API and `replayClock.js`;
-  the standalone FileSource is retained only for compatibility/reference. Read
+- Implement/finish her `FileSource` behind the agreed data-source interface. Read
   `static/<scenario>/manifest.json`, sorted cache index, and the latest bundle at/before
   the current replay clock. Resolve asset URLs relative to the fixture hosting root.
 - Decode `arrival_q.bin` as `(5,ny,nx)` north-first uint8. `255` is unreached, `0` is
@@ -47,7 +46,7 @@ asset summarization. The Rust integration now exercises those existing functions
   report and an alert. Verify missing asset handling and quantile 255 transparency.
 - Gate: `tools/check_hazard_frontend.mjs` passes via HTTP and Linda's real UI renders
   the same selected raster/zone values. Capture dashboard proof; test SpacetimeSource
-  separately against the published hub after the Linda file-replay path works.
+  separately against the published hub after the FileSource path works.
 
 ## 3. Resolve parameter identifiability and pass the twin gate (Abby)
 
@@ -209,13 +208,3 @@ Rust-generated fixtures, including HTTP consumption. Main 2181e1b now provides C
 runtime/publisher/local API modules; remaining work is integration acceptance, not
 creating those modules from scratch. See `DASHBOARD_PHASE_B.md`. Stop before Phase C
 map rendering until new direct owner confirmation. Scientific/performance gates remain.
-
-
-### Linda-based A–E revision (2026-10-24)
-
-The earlier Phase B/C handoff notes above are historical. The owner authorized
-adapting A–C around Linda/main 2a62206. The active route is her globe `/`, with her
-clock, a validated scenario facade and the shared decoder; the parallel file dashboard
-was removed. See DASHBOARD_PHASE_A/B/C.md and DASHBOARD_ENGINE_CONNECTION_PLAN.md
-for the current architecture, commands, remaining browser gate, and detailed D/E
-plans. Do not start D or E without separate direct owner confirmation for each.
