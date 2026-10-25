@@ -3,9 +3,10 @@
   "base_main": "655b775",
   "integration_code": "2475aee",
   "engine_tests": {
-    "passed": 310,
-    "skipped": 19,
-    "warning": "existing rioxarray deprecation"
+    "passed": 311,
+    "skipped": 18,
+    "warning": "existing rioxarray deprecation",
+    "duration_s": 44.66
   },
   "web_tests": {
     "passed": 48,
