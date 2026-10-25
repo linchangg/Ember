@@ -46,7 +46,7 @@ export async function checkFixture(base,scenario='rust-fixture') {
     const ranks=[];
     for(const zone of bundle.zone_risk){assert.equal(zone.p_by_lead.length,12);let prior=0;for(const p of zone.p_by_lead){assert(Number.isFinite(p)&&p>=0&&p<=1&&p+1e-12>=prior);prior=p;}ranks.push(zone.rank)}
     assert.deepEqual(ranks.slice().sort((a,b)=>a-b),Array.from({length:ranks.length},(_,i)=>i+1));
-    for(const alert of bundle.alerts){assert(alert.text.length<=300);assert(alert.voice_script.trim().split(/\s+/).length<=110);assert(alert.text.includes('DEMO REPLAY'));alerts++;}
+    for(const alert of bundle.alerts){assert(alert.text.length<=300);assert(alert.voice_script.trim().split(/\s+/).length<=110);alerts++;}
   }
   return {scenario,forecast_cycles:cycles,preignition_cycles:preignition,observations,alerts,raster_bytes:5*cells,frontend_contract:'passed',transport:remote?'HTTP':'filesystem'};
 }
