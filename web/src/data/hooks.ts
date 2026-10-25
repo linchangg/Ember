@@ -1,4 +1,4 @@
-/** Shared hooks for the connected forecast map and later panel consumers. */
+/** Compatibility/reference hooks; Linda's globe uses scenarioData/replayClock. */
 import {
   createContext,
   createElement,

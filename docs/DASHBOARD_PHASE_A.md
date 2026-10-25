@@ -1,64 +1,58 @@
-# Dashboard connection: Phase A record
+# Phase A — fixtures and hosting for Linda's globe (revised)
 
-Subsequent update: the owner directly authorized Phase B, which is now implemented;
-see `DASHBOARD_PHASE_B.md`. The Phase A boundary below is the original handoff.
+This revision supersedes the earlier route/configuration instructions. Linda's
+`GlobeNetwork.jsx`, `scenarioData.js` and `replayClock.js` are the application path.
+The Rust fixture and scientific validation work remain reusable; no separate UI is needed.
 
-The owner explicitly requires direct confirmation before each subsequent phase.
-This record covers Phase A only. No FileSource, dashboard store/hooks, forecast-map
-wiring or later-phase UI changes were implemented. The calibration candidate and
-historical scorer are separate authorized scientific framework work.
+## Two deliberately different fixtures
 
-## Completed
+| Fixture | Source | Use |
+|---|---|---|
+| `fixture`, checked into `fixtures/` | Linda/main's seeded analytic 50-member ensemble, 120×120 at 255 m | Fast deterministic UI regression; not Rust propagation |
+| `rust-fixture`, generated outside `fixtures/` | Rust HazardModel, 16-member development profile, 120×120 at 255 m | End-to-end adapter/assimilation/encoding regression; not historical skill |
 
-- Built the release Rust bridge from merged main `c5e2599`.
-- Regenerated the complete N=16 fixture: 36 forecast + 3 pre-ignition cycles,
-  111 observations, 7 alert records and exact checkpoint next-step parity.
-- Total local replay time: 114.130 s. This is not the target-size per-cycle benchmark.
-- Verified all 39 entries and 72,000-byte rasters using the existing Node consumer,
-  both from files and through HTTP.
-- Added a loopback-only read-only fixture server with explicitly allowed development
-  origins. HEAD/GET/OPTIONS work, POST is rejected, missing assets return 404, and
-  unapproved origins, hidden files, traversal and escaped symlinks are rejected.
-- Prepared the existing plan as `docs/DASHBOARD_ENGINE_CONNECTION_PLAN.md`.
-- Independent calibration research code remains opt-in; model defaults are unchanged.
+Both have 36 forecasts and 3 pre-ignition bundles. Keep names, model version,
+configuration identity and provenance distinct. Do not overwrite the canonical fixture
+with Rust output or describe either as a held-out historical evaluation.
 
-## Local output and restart
+## Run from repository root
 
-Generated assets: `/private/tmp/emberline-dashboard-phase-a/`.
-The server started for this session at `http://127.0.0.1:8790/`; it lasts only while
-that local process and machine remain available. Restart from the repository root:
+Use the locked Python environment and Rust toolchain documented in
+`RUST_HAZARD_BACKEND.md`. If dependencies are absent, prepare them as directed there.
 
 ```sh
+cargo build --manifest-path physics/surface_v1/Cargo.toml -p fire-bridge --release --locked
+engine/.venv/bin/python -m emberline.hazard.demo --out /private/tmp/emberline-dashboard-phase-a --members 16
+node tools/check_hazard_frontend.mjs /private/tmp/emberline-dashboard-phase-a
 engine/.venv/bin/python -m emberline.hazard.fixture_server \
-  --root /private/tmp/emberline-dashboard-phase-a --port 8790 \
-  --allow-origin http://localhost:5173 --allow-origin http://127.0.0.1:5173
+  --root /private/tmp/emberline-dashboard-phase-a --port 8791 \
+  --allow-origin http://127.0.0.1:5175
 ```
 
-In another terminal with Node 22+:
+In a second terminal (Node 22.18+ or Node 24):
 
 ```sh
-node tools/check_hazard_frontend.mjs http://127.0.0.1:8790/
-node tools/check_fixture_host.mjs http://127.0.0.1:8790/
+npm --prefix web ci --ignore-scripts
+VITE_DATA_SOURCE=file VITE_SCENARIO_ID=rust-fixture \
+  VITE_ASSET_BASE=http://127.0.0.1:8791/ \
+  npm --prefix web run dev -- --host 127.0.0.1 --port 5175
+node tools/check_dashboard_source.mts http://127.0.0.1:8791/ rust-fixture
 ```
 
-If generated output has been removed, regenerate with the Phase A commands in the
-connection plan. Keep canonical fixtures unchanged.
+Open `http://127.0.0.1:5175/` and **Open scenario**. The NASA event feed is optional
+for this action. Do not use `/dashboard` for the integration; it retains the original
+mock. For the analytic fixture, omit the environment variables and start Vite; Linda's
+scenario middleware serves the checked-in files. Production hosting must explicitly
+publish/proxy `/static` and `/cache`: Vite's development middleware is not a production server.
 
-## Configuration prepared for Phase B, not yet wired
+## Acceptance and evidence
 
-```dotenv
-VITE_DATA_SOURCE=file
-VITE_SCENARIO_ID=rust-fixture
-VITE_ASSET_BASE=http://127.0.0.1:8790/
-```
+The independent wire decoder and Linda-path HTTP checker must accept all 39 entries.
+Startup/missing/index/binary failures must be visible, not replaced with mock forecasts.
+Allow only the exact preview origin when using the Rust fixture host. No hub, secrets,
+notification delivery or new service is required for offline file replay.
 
-The current application does not implement FileSource; setting these alone does not
-connect it. Port 5173 origins are permitted by the fixture server; explicitly add
-another exact origin if a different dashboard development port is chosen.
-
-## Approval boundary
-
-Stop here. Phase B would add the shared FileSource, clock/store/hooks, validated
-asset loader and request cancellation. It needs a new direct owner confirmation.
-Phase B completion must itself stop for confirmation before Phase C rendering work.
-The same rule applies to all remaining phases, including live runtime/hub assembly.
+Original Phase A generation evidence remains in `docs/evidence/phase-a/`: 114.130 s
+for the complete synthetic run, 111 observations, checkpoint next-step parity. This
+revision reuses that generated artifact rather than claiming a new native solver run.
+Target-size latency, historical skill and calibration gates remain separate.

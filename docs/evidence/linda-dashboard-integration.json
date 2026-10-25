@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-24",
+  "branch": "feat/linda-dashboard-integration",
+  "linda_main_baseline": "2a62206",
+  "prior_phase_c": "70e255d",
+  "active_route": "/",
+  "mock_route": "/dashboard",
+  "clock_owner": "web/src/lib/replayClock.js",
+  "scenario_facade": "web/src/lib/scenarioData.js",
+  "validated_loader": "web/src/data/scenario.ts",
+  "canonical_fixture": {
+    "kind": "analytic synthetic",
+    "members": 50,
+    "tests_passed": 44,
+    "tests_failed": 0
+  },
+  "rust_fixture": {
+    "kind": "Rust-generated synthetic; existing Phase A artifact",
+    "members": 16,
+    "tests_passed": 44,
+    "tests_failed": 0,
+    "native_regenerated_this_revision": false
+  },
+  "strict_typecheck": "passed",
+  "lint_deny_warnings": "passed",
+  "production_file_build": "passed; existing large map bundle warning",
+  "visual_acceptance": "pending; browser controller unavailable (navigation timeout/native server unavailable)",
+  "screenshots": null,
+  "phase_d": "plan revised; implementation not started",
+  "phase_e": "plan revised; implementation not started",
+  "main_modified": false
+}

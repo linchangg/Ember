@@ -1,6 +1,6 @@
 # Legendary Fire Project · Emberline
 
-Wildfire command dashboard for Cal Hacks, with satellite-data tooling and an experimental Rust fire-spread backend. The current globe and dashboard use labeled prototype overlays; they are not yet connected to the Rust forecasts.
+Wildfire command dashboard for Cal Hacks, with satellite-data tooling and an experimental Rust fire-spread backend. Linda's globe consumes validated scenario bundles, including generated Rust forecasts in explicit file replay. The separate `/dashboard` route remains a mock; live forecast transport and scientific acceptance are still pending.
 
 ## Web UI
 
@@ -18,7 +18,7 @@ Open the printed local URL (default `http://localhost:5173`).
 
 | Path | What |
 |------|------|
-| `/` | Globe home page: terrain, labels, simulated Eaton spread + forecast (`/?focus=eaton`) |
+| `/` | Linda globe: terrain, basemap, scenario file forecasts; select Open scenario |
 | `/dashboard` | Earlier command dashboard (mock Sierra Vista scene) |
 | `/compare` | Globe pattern bake-off hub |
 | `/compare/cesium` | **Pattern 1** — Cesium only + Esri WorldElevation3D |

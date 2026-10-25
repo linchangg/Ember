@@ -1,4 +1,4 @@
-import { simNow } from '../contracts'
+import { simNow } from '../contracts.ts'
 
 // Replay clock (spec/00 section 3.2). One interface, two backends:
 //   hub   - SpacetimeDB `clock` row, when VITE_STDB_URI is set and reachable
@@ -48,13 +48,22 @@ export function createClock(manifest) {
     max_sim_ms: manifest.replay_end_sim_ms,
   }
   let hub = null
+  let connection = null
+  let disposed = false
   const clock = {
     kind: 'local',
     note: '',
     get: () => state,
     now: () => simNow(state),
     // every change re-anchors first, as the hub does
+    dispose() {
+      disposed = true
+      connection?.disconnect()
+      connection = null
+      hub = null
+    },
     reanchor(patch) {
+      if (disposed) return
       const now = simNow(state)
       state = { ...state, anchor_sim_ms: now, anchor_wall_ms: Date.now(), ...patch }
     },
@@ -67,32 +76,38 @@ export function createClock(manifest) {
       clock.reanchor({ playing: false })
     },
     seek(simMs) {
+      if (disposed) return
+      if (!Number.isSafeInteger(simMs)) throw new Error('Seek requires integer epoch milliseconds')
       if (hub) return hub.reducers.clockSeek({ scenarioId: scn, simMs, pin: readPin() })
       state = { ...state, anchor_sim_ms: Math.min(state.max_sim_ms, Math.max(state.min_sim_ms, simMs)), anchor_wall_ms: Date.now(), epoch: state.epoch + 1 }
     },
     setSpeed(speed) {
+      if (!Number.isFinite(speed) || speed <= 0 || speed > 3600) throw new Error('Replay speed must be in (0,3600]')
       if (hub) return hub.reducers.clockSetSpeed({ scenarioId: scn, speed, pin: readPin() })
       clock.reanchor({ speed })
     },
   }
 
-  const uri = import.meta.env.VITE_STDB_URI
+  const uri = import.meta.env?.VITE_STDB_URI
   if (uri) {
     import('../module_bindings')
       .then(({ DbConnection }) => {
+        if (disposed) return
         const adopt = (row) => {
-          if (row.scenarioId === scn) state = fromRow(row)
+          if (!disposed && row.scenarioId === scn) state = fromRow(row)
         }
-        DbConnection.builder()
+        connection = DbConnection.builder()
           .withUri(uri)
           .withDatabaseName('emberline')
           .withToken(localStorage.getItem('emberline_stdb_token') || undefined)
           .onConnect((c, _identity, token) => {
+            if (disposed) { c.disconnect(); return }
             if (token) localStorage.setItem('emberline_stdb_token', token)
             c.db.clock.onInsert((_ctx, row) => adopt(row))
             c.db.clock.onUpdate((_ctx, _old, row) => adopt(row))
             c.subscriptionBuilder()
               .onApplied(() => {
+                if (disposed) return
                 for (const row of c.db.clock.iter()) adopt(row)
                 hub = c
                 clock.kind = 'hub'
@@ -100,11 +115,13 @@ export function createClock(manifest) {
               .subscribe(`SELECT * FROM clock WHERE scenario_id = '${scn}'`)
           })
           .onConnectError((_ctx, err) => {
+            if (disposed) return
             clock.note = `hub unreachable (${err?.message ?? err}); using local clock`
           })
           .build()
       })
       .catch((err) => {
+        if (disposed) return
         clock.note = `hub client failed to load (${err?.message ?? err}); using local clock`
       })
   }

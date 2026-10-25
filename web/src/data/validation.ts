@@ -63,6 +63,24 @@ export function validateManifest(
     !(m.config_hash === null || typeof m.config_hash === 'string')
   )
     throw new Error('Invalid provenance/config identity')
+  const bbox = list(m.aoi_bbox)
+  if (bbox.length !== 4) throw new Error('Invalid AOI bounds')
+  coordinate([bbox[0], bbox[1]])
+  coordinate([bbox[2], bbox[3]])
+  if (
+    (bbox[0] as number) >= (bbox[2] as number) ||
+    (bbox[1] as number) >= (bbox[3] as number)
+  )
+    throw new Error('Invalid AOI bounds')
+  const initial = record(m.initial_view)
+  coordinate([initial.longitude, initial.latitude])
+  for (const key of ['zoom', 'pitch', 'bearing']) finite(initial[key])
+  if (
+    (initial.zoom as number) < 0 ||
+    (initial.pitch as number) < 0 ||
+    (initial.pitch as number) > 85
+  )
+    throw new Error('Invalid initial map view')
   const honesty = record(m.honesty)
   strings(honesty.real)
   strings(honesty.simulated)
