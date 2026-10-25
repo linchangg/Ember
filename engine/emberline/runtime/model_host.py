@@ -32,7 +32,7 @@ CHECKPOINT_MS = 30 * 60_000
 NON_BURNABLE = (0, 92, 93, 98, 99)  # hazard/bridge.py's list
 PROFILES = ("target", "dev")
 DEV_MEMBERS = 16
-STATICS = ("dem.tif", "fbfm40.tif")  # spec/01 §0, §6: Abby's data/statics.py writes them
+STATICS = ("dem.tif", "fbfm40.tif")  # spec/01 §0, §6: data/statics.py writes them
 
 
 def model_version(members_profile: str = "target") -> str:
@@ -78,13 +78,13 @@ def ignition(ctx: Scenario) -> api.Ignition:
 
 
 def landscape(ctx: Scenario) -> api.Landscape:
-    """Abby's load_landscape over static/*.tif. Stops naming whatever is missing; never fabricates a landscape."""
+    """data.statics.load_landscape over static/*.tif. Stops naming whatever is missing; never fabricates a landscape."""
     missing = [f"static/{n}" for n in STATICS if not (ctx.scn_dir / "static" / n).exists()]
     statics = importlib.import_module("emberline.data.statics") if importlib.util.find_spec("emberline.data.statics") else None
     if getattr(statics, "load_landscape", None) is None:
         missing.append("emberline.data.statics.load_landscape")
     if missing:
-        raise SystemExit(f"{ctx.scenario_id}: real physics needs Abby's statics (spec/01 §6); missing "
+        raise SystemExit(f"{ctx.scenario_id}: real physics needs data/statics.py output (spec/01 §6); missing "
                          f"{', '.join(missing)} (scenario dir {ctx.scn_dir}). No landscape is fabricated.")
     land = statics.load_landscape(ctx.scenario_id)
     assert land.grid == model_grid(ctx), f"landscape grid {land.grid} != scenario.yaml grid {model_grid(ctx)}"

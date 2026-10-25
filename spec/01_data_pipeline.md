@@ -1,4 +1,4 @@
-# 01: Data pipeline (owner: Cody; statics §6 DEM/LANDFIRE/slope by Abby)
+# 01: Data pipeline (owner: Cody; statics §6 reassigned from Abby to Cody, Sat Oct 24 evening)
 
 > **v1.1 changes after review:**
 > - one shared `area_x_satellite_hit()` function for G1-a and metrics
@@ -290,7 +290,7 @@ In live mode, `available_ms = first_seen_wall_ms`. Not needed for the demo. Ment
 | Step | Owner | Est. | Needed by |
 |---|---|---|---|
 | G1-a GOES check (coding agent, Cody reviews) | Cody | 1.25 h | 09:30 |
-| Grid + DEM + LANDFIRE + slope/aspect + `load_landscape` | **Abby** | 1.5 h | herself at ~10:00 |
+| Grid + DEM + LANDFIRE + slope/aspect + `load_landscape` | **Cody** (was Abby) | 1.5 h | herself at ~10:00 |
 | HRRR fxx 0–9 + `ForcingProvider` | Cody | 1.5 h | Abby at ~12:00 |
 | GOES-18 FDCC pixel table + scan events + manifest | Cody | 1.25 h | engine M1 13:00 |
 | Zones + exposure + assets + area X + spawn points | Cody (agent) | 2 h | risk at M1 |
