@@ -1,9 +1,9 @@
 name: Rust HazardModel integration
 on:
   push:
-    paths: ['engine/**', 'physics/surface_v1/**', 'web/src/contracts.ts', 'spec/00_contracts.md', 'tools/check_hazard_frontend.mjs', '.github/workflows/hazard-backend.yml']
+    paths: ['engine/**', 'physics/surface_v1/**', 'web/src/contracts.ts', 'spec/00_contracts.md', 'tools/check_hazard_frontend*.mjs', '.github/workflows/hazard-backend.yml']
   pull_request:
-    paths: ['engine/**', 'physics/surface_v1/**', 'web/src/contracts.ts', 'spec/00_contracts.md', 'tools/check_hazard_frontend.mjs', '.github/workflows/hazard-backend.yml']
+    paths: ['engine/**', 'physics/surface_v1/**', 'web/src/contracts.ts', 'spec/00_contracts.md', 'tools/check_hazard_frontend*.mjs', '.github/workflows/hazard-backend.yml']
 permissions:
   contents: read
 jobs:
@@ -33,6 +33,7 @@ jobs:
           uv run --project engine pytest engine/tests
       - name: Complete synthetic fixture and frontend decoder
         run: |
+          node --test tools/check_hazard_frontend.test.mjs
           uv run --project engine python -m emberline.scripts.make_fixture
           uv run --project engine python -m emberline.hazard.demo --out "$RUNNER_TEMP/rust-hazard-demo" --members 16
           node tools/check_hazard_frontend.mjs "$RUNNER_TEMP/rust-hazard-demo"

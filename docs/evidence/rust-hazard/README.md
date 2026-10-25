@@ -23,6 +23,7 @@ The shared Python/TypeScript wire contracts and canonical fixture files are unch
 | Alert publication | **7 proposals/transitions**, using Cody's actual alert evaluator; no messages/calls sent |
 | Checkpoint | Fresh-object restore reproduced the next cycle's quantiles and weights exactly |
 | Frontend consumer | Passed all 39 entries via filesystem and HTTP; **72,000 bytes** per forecast raster |
+| Frontend compatibility guards | **3 Node tests passed**, including rejection of changed TypeScript quantiles and lead order |
 | Browser | First/last cycle and lead 0/360 controls verified; **zero browser warning/error logs** |
 
 The fixture took **253.97 seconds** while the larger assimilation evaluation was also

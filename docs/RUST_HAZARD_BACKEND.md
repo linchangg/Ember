@@ -218,6 +218,7 @@ quantile, time or binary-layout changes require matched tests and an explicit mi
 uv run --project engine python -m emberline.scripts.make_fixture
 uv run --project engine python -m emberline.hazard.demo --out /tmp/emberline-rust-demo --members 16
 node tools/check_hazard_frontend.mjs /tmp/emberline-rust-demo
+node --test tools/check_hazard_frontend.test.mjs
 python3 -m http.server 8787 --bind 127.0.0.1 --directory /tmp/emberline-rust-demo
 ```
 
@@ -245,7 +246,9 @@ it does not maintain a second competing alert policy. No notification is sent.
 
 The Node consumer checks every cycle, no-future observation timestamps, all five
 quantile planes, monotonic encodings, geometry IDs, probabilities, ranks and alert
-length/replay labeling through both filesystem and HTTP access. Additional Python
+length/replay labeling through both filesystem and HTTP access. The consumer directly
+compares the TypeScript quantile and lead constants; three Node tests verify that
+future frontend changes fail visibly. Additional Python
 integration tests pass Rust output through Cody's real cache, risk, alert and asset
 functions. These checks prepare Linda's data connection; they do not claim her
 interactive dashboard or a deployed SpacetimeDB replay has been tested end to end.

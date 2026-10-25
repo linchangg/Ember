@@ -3,7 +3,16 @@ import {readFile} from 'node:fs/promises';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 
+export function checkWireConstants(source) {
+  for (const [name, expected] of Object.entries({QUANTILES:[.1,.3,.5,.7,.9],LEADS_MIN:Array.from({length:12},(_,i)=>(i+1)*30)})) {
+    const expression=source.match(new RegExp(`export\\s+const\\s+${name}\\s*=\\s*(\\[[\\s\\S]*?\\])\\s+as\\s+const`));
+    assert(expression,`Cannot read frontend ${name}; reconcile shared contracts explicitly`);
+    assert.deepEqual(JSON.parse(expression[1]),expected,`Frontend ${name} changed; update adapter, publisher and decoder together`);
+  }
+}
+
 export async function checkFixture(base,scenario='rust-fixture') {
+  checkWireConstants(await readFile(new URL('../web/src/contracts.ts',import.meta.url),'utf8'));
   const remote=/^https?:\/\//.test(base);
   const bytes=async relative=>{
     assert(!relative.startsWith('/')&&!relative.split('/').includes('..'),'asset path must be relative and confined');
