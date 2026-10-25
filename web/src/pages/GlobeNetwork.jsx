@@ -4,6 +4,7 @@ import { newHeli } from '../lib/globeData.js'
 import { FileSource } from '../data/fileSource.ts'
 import { acquireSource } from '../data/store.ts'
 import { createGlobeView, loadExtras } from '../lib/globeView.js'
+import { AlertsTab, ZonesTab } from './GlobePanels.jsx'
 
 const EONET = 'https://eonet.gsfc.nasa.gov/api/v3/events?status=all&start=2025-01-05&end=2025-01-09&limit=500'
 const FOCUS_MS = Date.parse('2025-01-07T12:00:00Z')
@@ -295,6 +296,10 @@ export default function GlobeNetwork() {
   const leadRef = useRef(60)
   const [compare, setCompare] = useState(true) // draw the previous forecast for comparison
   const compareRef = useRef(true)
+  const [tab, setTab] = useState('zones') // right panel: zones | alerts | event
+  const [selZone, setSelZone] = useState(null)
+  const selZoneRef = useRef(null)
+  const flyRef = useRef(null)
   const [probe, setProbe] = useState(null) // clicked spot for the arrival-time estimate
   const probeRef = useRef(null)
   const showTime = !!pick && !!scenario && /eaton/i.test(pick.title)
@@ -306,7 +311,8 @@ export default function GlobeNetwork() {
     leadRef.current = lead
     compareRef.current = compare
     probeRef.current = probe
-  }, [pick, scenario, showTime, lead, compare, probe])
+    selZoneRef.current = selZone
+  }, [pick, scenario, showTime, lead, compare, probe, selZone])
 
   // static extras the snapshot does not carry, then open the replay shortly after ignition so the fire is on screen
   const manifest = snap.manifest
@@ -427,8 +433,11 @@ export default function GlobeNetwork() {
       pump()
     }
     let lastEntry = null
-    let cellH = null
     let clsBuf = null
+    let cornerH = null
+    let cornerXY = null
+    let cornerStamp = null
+    let frameNo = 0
     let liftNow = 0
     const fireCv = document.createElement('canvas')
     const lineCv = document.createElement('canvas')
@@ -455,20 +464,6 @@ export default function GlobeNetwork() {
     const sizeObserver = new ResizeObserver(resize)
     sizeObserver.observe(wrapRef.current)
 
-    const heatSprite = (core, mid) => {
-      const c = document.createElement('canvas')
-      c.width = c.height = 64
-      const g = c.getContext('2d')
-      const r = g.createRadialGradient(32, 32, 0, 32, 32, 32)
-      r.addColorStop(0, rgba(core, 1))
-      r.addColorStop(0.5, rgba(mid, 0.55))
-      r.addColorStop(1, rgba(mid, 0))
-      g.fillStyle = r
-      g.fillRect(0, 0, 64, 64)
-      return c
-    }
-    // five forecast classes = P(fire arrived) >= 10, 30, 50, 70, 90 % (the engine's five quantiles)
-    const heat = [null, ...FORECAST_COLORS.map((c) => heatSprite(c, c))]
     const sprites = {}
     const spr = (c) => (sprites[c.join()] ??= sprite(c))
 
@@ -767,14 +762,13 @@ export default function GlobeNetwork() {
         let en = sc.entry(K)
         if (en) lastEntry = en
         else en = K == null ? null : lastEntry
-        const { nx, ny, cell_m } = sc.manifest.grid
+        const { nx, ny } = sc.manifest.grid
         if (fireCv.width !== W || fireCv.height !== H) {
           fireCv.width = W
           fireCv.height = H
           lineCv.width = W
           lineCv.height = H
         }
-        if (!cellH || cellH.length !== nx * ny) cellH = new Float32Array(nx * ny).fill(NaN)
         const fg = fireCv.getContext('2d')
         fg.clearRect(0, 0, W, H)
         fg.filter = 'none'
@@ -787,8 +781,6 @@ export default function GlobeNetwork() {
           const t = (Tf - issue) / 120000
           const a = en.arrival
           const n = nx * ny
-          const rad = Math.max(3, (cell_m * 1.0) / mpp0)
-          const ll = sc.cellLonLat
           if (!clsBuf || clsBuf.length !== n) clsBuf = new Uint8Array(n)
           for (let i = 0; i < n; i++) {
             let k = 0
@@ -801,24 +793,64 @@ export default function GlobeNetwork() {
             clsBuf[i] = zero === 5 ? 0 : k
           }
           fg.globalCompositeOperation = 'source-over'
-          fg.globalAlpha = 0.62 * ff
-          for (let k = 1; k <= 5; k++) {
-            for (let i = 0; i < n; i++) {
-              if (clsBuf[i] !== k) continue
-              const lo = ll[i * 2]
-              const la = ll[i * 2 + 1]
-              const v3 = vec(lo, la)
-              P(v3[0], v3[1], v3[2], tmp)
-              if (tmp[2] < 0) continue
-              let h = cellH[i]
-              if (h !== h) {
-                const r = sampleRaw(lo, la)
-                if (r != null) cellH[i] = r
-                h = r ?? 0
+          // true raster: every grid cell is a quad on the terrain, one fill per class so neighbours leave no seams
+          fg.globalAlpha = 1
+          {
+            const cl = sc.cornerLonLat
+            const cw = nx + 1
+            if (!cornerH || cornerH.length !== cw * (ny + 1)) {
+              cornerH = new Float32Array(cw * (ny + 1)).fill(NaN)
+              cornerXY = new Float32Array(cw * (ny + 1) * 3)
+              cornerStamp = new Int32Array(cw * (ny + 1)).fill(-1)
+            }
+            frameNo++
+            const corner = (ci) => {
+              if (cornerStamp[ci] !== frameNo) {
+                cornerStamp[ci] = frameNo
+                const lo = cl[ci * 2]
+                const la = cl[ci * 2 + 1]
+                const v3 = vec(lo, la)
+                P(v3[0], v3[1], v3[2], tmp)
+                let h = cornerH[ci]
+                if (h !== h) {
+                  const r = sampleRaw(lo, la)
+                  if (r != null) cornerH[ci] = r
+                  h = r ?? 0
+                }
+                cornerXY[ci * 3] = tmp[0]
+                cornerXY[ci * 3 + 1] = tmp[1] - h * lift
+                cornerXY[ci * 3 + 2] = tmp[2]
               }
-              const y = tmp[1] - h * lift
-              if (tmp[0] < -rad || tmp[0] > W + rad || y < -rad || y > H + rad) continue
-              fg.drawImage(heat[k], tmp[0] - rad, y - rad, rad * 2, rad * 2)
+              return ci * 3
+            }
+            const paths = [null, new Path2D(), new Path2D(), new Path2D(), new Path2D(), new Path2D()]
+            for (let i = 0; i < n; i++) {
+              const k = clsBuf[i]
+              if (!k) continue
+              const ix = i % nx
+              const iy = (i - ix) / nx
+              const c00 = iy * cw + ix
+              const a0 = corner(c00)
+              const a1 = corner(c00 + 1)
+              const a2 = corner(c00 + cw + 1)
+              const a3 = corner(c00 + cw)
+              if (cornerXY[a0 + 2] < 0 || cornerXY[a1 + 2] < 0 || cornerXY[a2 + 2] < 0 || cornerXY[a3 + 2] < 0) continue
+              const x0 = cornerXY[a0]
+              const y0 = cornerXY[a0 + 1]
+              if (x0 < -60 || x0 > W + 60 || y0 < -60 || y0 > H + 60) continue
+              const pa = paths[k]
+              pa.moveTo(x0, y0)
+              pa.lineTo(cornerXY[a1], cornerXY[a1 + 1])
+              pa.lineTo(cornerXY[a2], cornerXY[a2 + 1])
+              pa.lineTo(cornerXY[a3], cornerXY[a3 + 1])
+              pa.closePath()
+            }
+            for (let k = 1; k <= 5; k++) {
+              fg.fillStyle = rgba(FORECAST_COLORS[k - 1], 0.62 * ff)
+              fg.strokeStyle = fg.fillStyle
+              fg.lineWidth = 0.7
+              fg.fill(paths[k])
+              fg.stroke(paths[k])
             }
           }
           fg.globalAlpha = 1
@@ -962,6 +994,16 @@ export default function GlobeNetwork() {
           const st = zr?.status ?? 'clear'
           const col = STATUS_COLOR[st] ?? STATUS_COLOR.clear
           const polys = z.geometry.type === 'Polygon' ? [z.geometry.coordinates] : z.geometry.coordinates
+          if (z.properties.zone_id === selZoneRef.current) {
+            // only the zone picked in the panel gets an outline
+            const spath = new Path2D()
+            for (const poly of polys) for (const rg of poly) spath.addPath(lines(rg, true))
+            ctx.fillStyle = rgba(col, 0.12 * ff)
+            ctx.fill(spath)
+            ctx.lineWidth = 2
+            ctx.strokeStyle = rgba(col, 0.95 * ff)
+            ctx.stroke(spath)
+          }
           const ring = polys[0][0]
           const cen = lift3(ring.reduce((s2, p2) => s2 + p2[0], 0) / ring.length, ring.reduce((s2, p2) => s2 + p2[1], 0) / ring.length)
           if (cen[2] > 0) {
@@ -1357,6 +1399,11 @@ export default function GlobeNetwork() {
       view.target = { lon, lat, zoom }
     }
 
+    flyRef.current = (lon, lat, zoom) => {
+      view.spin = 0
+      view.target = { lon, lat, zoom }
+    }
+
     spinRef.current = (dir) => {
       view.target = null
       view.spin = dir * 0.064
@@ -1642,13 +1689,24 @@ export default function GlobeNetwork() {
           <button className="gn__close" onClick={() => setPick(null)} aria-label="Close">×</button>
           <h2>{pick.title}</h2>
           <button className="gn__fit" onClick={() => fitRef.current?.(pick)}>Fit to fire</button>
-          <dl>
-            <dt>Type</dt><dd>{pick.kind}</dd>
-            <dt>Started</dt><dd>{fmtDate(pick.started)}</dd>
-            <dt>Risk level</dt><dd>{riskOf(pick)}</dd>
-            <dt>Links</dt>
-            <dd>{pick.link ? <a href={pick.link} target="_blank" rel="noreferrer">{pick.source} event record</a> : '—'}</dd>
-          </dl>
+          {showTime ? (
+            <div className="gn__tabs">
+              {[['zones', 'Zones'], ['alerts', `Alerts${scenario.alerts.filter((a) => a.state === 'proposed').length ? ` (${scenario.alerts.filter((a) => a.state === 'proposed').length} new)` : ''}`], ['event', 'Event']].map(([id, label]) => (
+                <button key={id} className={tab === id ? 'on' : ''} onClick={() => setTab(id)}>{label}</button>
+              ))}
+            </div>
+          ) : null}
+          {showTime && tab === 'zones' ? <ZonesTab scenario={scenario} selZone={selZone} onSelect={(z) => { setSelZone(z.id); flyRef.current?.(z.lon, z.lat, 3500) }} /> : null}
+          {showTime && tab === 'alerts' ? <AlertsTab scenario={scenario} actions={source.actions} act={act} /> : null}
+          {!showTime || tab === 'event' ? (
+            <dl>
+              <dt>Type</dt><dd>{pick.kind}</dd>
+              <dt>Started</dt><dd>{fmtDate(pick.started)}</dd>
+              <dt>Risk level</dt><dd>{riskOf(pick)}</dd>
+              <dt>Links</dt>
+              <dd>{pick.link ? <a href={pick.link} target="_blank" rel="noreferrer">{pick.source} event record</a> : '—'}</dd>
+            </dl>
+          ) : null}
         </aside>
       ) : null}
     </div>

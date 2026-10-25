@@ -20,6 +20,14 @@ function gridGeo(manifest) {
       cellLonLat[(j * nx + i) * 2 + 1] = lerp((i + 0.5) / nx, (j + 0.5) / ny, 1)
     }
   }
+  // cell corners ((nx+1) x (ny+1)) for drawing the forecast as a true raster
+  const cornerLonLat = new Float32Array((nx + 1) * (ny + 1) * 2)
+  for (let j = 0; j <= ny; j++) {
+    for (let i = 0; i <= nx; i++) {
+      cornerLonLat[(j * (nx + 1) + i) * 2] = lerp(i / nx, j / ny, 0)
+      cornerLonLat[(j * (nx + 1) + i) * 2 + 1] = lerp(i / nx, j / ny, 1)
+    }
+  }
   const k = Math.cos((tl[1] * Math.PI) / 180)
   const e1 = [(tr[0] - tl[0]) * k, tr[1] - tl[1]]
   const e2 = [(bl[0] - tl[0]) * k, bl[1] - tl[1]]
@@ -31,7 +39,7 @@ function gridGeo(manifest) {
     if (u < 0 || u >= 1 || v < 0 || v >= 1) return null
     return Math.floor(v * ny) * nx + Math.floor(u * nx)
   }
-  const out = { cellLonLat, cellAt }
+  const out = { cellLonLat, cornerLonLat, cellAt }
   geoCache.set(manifest, out)
   return out
 }
@@ -87,6 +95,10 @@ export function createGlobeView(snap, extras) {
     timeline: extras?.timeline ?? [],
     quantiles: QUANTILES,
     cellLonLat: geo.cellLonLat,
+    cornerLonLat: geo.cornerLonLat,
+    zoneRiskList: snap.zoneRisk,
+    alerts: snap.alerts,
+    briefings: snap.briefings,
     cellAt: geo.cellAt,
     simTime: snap.simTime,
     viewTime: snap.view.viewTime,
