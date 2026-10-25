@@ -28,15 +28,15 @@ Outcome: `38 passed` (numpy 2.5.4). That includes grid, time, and arrival unit t
 python tools/benchmark_workloads.py --out docs/benchmark_smoke.json --repeats 3 --warmup 1 --max-wall-s 600
 ```
 
-Profile `smoke` completed. One warm-up and three repeats, 64×64, 90 m, one member, 3600 s horizon, release `fire-cli`.
+Profile `smoke` completed at commit `97c1870d0fbf9eb574d4b7ce50c732d069647a97`. One warm-up and three repeats, 64×64, 90 m, one member, 3600 s horizon, release `fire-cli`.
 
 | | Warm-up | Repeat median (min–max) |
 |---|---|---|
-| End-to-end wall | 0.836 s | 0.0195 s (0.0187–0.0276 s) |
-| Solver | 0.827 s | about 0.016–0.025 s |
-| Peak RSS | 3.6 MB | 3.2–3.8 MB via `/usr/bin/time` |
+| End-to-end wall | 0.318 s | 0.0479 s (0.0467–0.0507 s) |
+| Solver | 0.304 s | 0.038–0.043 s |
+| Peak RSS | 3.8 MB | 3.4–3.9 MB via `/usr/bin/time` |
 
-Build time on this already-warm tree was 4.76 s and is recorded separately. Requested and completed members were 1. No numerical failures or timeouts. Quality flag `terrain_gradient_incomplete` was recorded. `member_128_gate_passed` is false. The 340×340 profiles were not run. The five-minute update profile is blocked in the protocol and was not simulated.
+Build time on this already-warm tree was 16.5 s and is recorded separately. Requested and completed members were 1. No numerical failures or timeouts. Quality flag `terrain_gradient_incomplete` was recorded. `member_128_gate_passed` is false. The 340×340 profiles were not run. The five-minute update profile is blocked in the protocol and was not simulated.
 
 These times are a uniform FM1 window, not a 128-member Eaton forecast.
 
