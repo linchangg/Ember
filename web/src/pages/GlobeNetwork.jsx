@@ -10,6 +10,8 @@ const WIN = [Date.parse('2025-01-05T00:00:00Z'), Date.parse('2025-01-10T00:00:00
 const D2R = Math.PI / 180
 const fmtHM = (ms) => new Date(ms).toLocaleTimeString('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', minute: '2-digit' })
 const LABEL_FONT = "Michroma, 'Eurostile', 'Orbitron', sans-serif"
+const FORECAST_COLORS = [[255, 233, 120], [255, 196, 62], [255, 150, 38], [243, 98, 32], [225, 52, 42]]
+const FORECAST_LABELS = ['≥10%', '≥30%', '≥50%', '≥70%', '≥90%']
 const STATUS_COLOR = { order: [255, 90, 60], warning: [255, 176, 58], watch: [232, 211, 106], clear: [90, 140, 210] }
 const fmtPT = (ms) => `${new Date(ms).toLocaleString('en-US', { timeZone: 'America/Los_Angeles', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} PT`
 
@@ -286,6 +288,12 @@ export default function GlobeNetwork() {
   const [scrub, setScrub] = useState(null) // null = follow the replay clock; a number = looking at another time
   const scrubRef = useRef(null)
   const [ui, setUi] = useState(null)
+  const [lead, setLead] = useState(60) // forecast slider: minutes after the forecast's issue time
+  const leadRef = useRef(60)
+  const [compare, setCompare] = useState(true) // draw the previous forecast for comparison
+  const compareRef = useRef(true)
+  const [probe, setProbe] = useState(null) // clicked spot for the arrival-time estimate
+  const probeRef = useRef(null)
   const showTime = !!pick && !!scenario && /eaton/i.test(pick.title)
   const timeRef = useRef(false)
   useEffect(() => {
@@ -293,7 +301,10 @@ export default function GlobeNetwork() {
     scnRef.current = scenario
     scrubRef.current = scrub
     timeRef.current = showTime
-  }, [pick, scenario, scrub, showTime])
+    leadRef.current = lead
+    compareRef.current = compare
+    probeRef.current = probe
+  }, [pick, scenario, scrub, showTime, lead, compare, probe])
 
   // Scenario files (Cody's formats) + the replay clock (hub if VITE_STDB_URI is set, else local)
   useEffect(() => {
@@ -420,6 +431,8 @@ export default function GlobeNetwork() {
     }
     let lastEntry = null
     let cellH = null
+    let clsBuf = null
+    let liftNow = 0
     const fireCv = document.createElement('canvas')
     const maskCv = document.createElement('canvas')
     const lineCv = document.createElement('canvas')
@@ -458,10 +471,8 @@ export default function GlobeNetwork() {
       g.fillRect(0, 0, 64, 64)
       return c
     }
-    const heat = {
-      high: heatSprite([255, 140, 30], [245, 110, 20]),
-      low: heatSprite([255, 205, 80], [250, 170, 60]),
-    }
+    // five forecast classes = P(fire arrived) >= 10, 30, 50, 70, 90 % (the engine's five quantiles)
+    const heat = [null, ...FORECAST_COLORS.map((c) => heatSprite(c, c))]
     const sprites = {}
     const spr = (c) => (sprites[c.join()] ??= sprite(c))
 
@@ -619,6 +630,7 @@ export default function GlobeNetwork() {
       const tf = layerW[0]
       const xf = smooth(Math.log(300), Math.log(650), lz) // far tiles hand over to near tiles
       const lift = Math.min(0.06, (1.6 * R) / 6371000)
+      liftNow = lift
       const drawn = []
       if (view.zoom > 25 && ms - lastPlan > 250) {
         lastPlan = ms
@@ -773,12 +785,16 @@ export default function GlobeNetwork() {
         fg.filter = 'none'
         fg.globalCompositeOperation = 'lighter'
         // forecast: client rule from spec/00 4.2, class k = how many of the 5 quantile arrivals have passed
+        // at the forecast's own time (issue + lead), so the actual-time slider picks the forecast and the lead slider the future
+        const issue = en ? en.bundle.knowledge_sim_ms : null
+        const Tf = issue == null ? null : issue + leadRef.current * 60000
         if (en?.arrival) {
-          const t = (T - en.bundle.knowledge_sim_ms) / 120000
+          const t = (Tf - issue) / 120000
           const a = en.arrival
           const n = nx * ny
-          const rad = Math.max(3, (cell_m * 0.95) / mpp0)
+          const rad = Math.max(3, (cell_m * 1.0) / mpp0)
           const ll = sc.cellLonLat
+          if (!clsBuf || clsBuf.length !== n) clsBuf = new Uint8Array(n)
           for (let i = 0; i < n; i++) {
             let k = 0
             let zero = 0
@@ -787,24 +803,31 @@ export default function GlobeNetwork() {
               if (v !== 255 && v <= t) k++
               if (v === 0) zero++
             }
-            if (k === 0 || zero === 5) continue
-            const lo = ll[i * 2]
-            const la = ll[i * 2 + 1]
-            const v3 = vec(lo, la)
-            P(v3[0], v3[1], v3[2], tmp)
-            if (tmp[2] < 0) continue
-            let h = cellH[i]
-            if (h !== h) {
-              const r = sampleRaw(lo, la)
-              if (r != null) cellH[i] = r
-              h = r ?? 0
+            clsBuf[i] = zero === 5 ? 0 : k
+          }
+          fg.globalCompositeOperation = 'source-over'
+          fg.globalAlpha = 0.62 * ff
+          for (let k = 1; k <= 5; k++) {
+            for (let i = 0; i < n; i++) {
+              if (clsBuf[i] !== k) continue
+              const lo = ll[i * 2]
+              const la = ll[i * 2 + 1]
+              const v3 = vec(lo, la)
+              P(v3[0], v3[1], v3[2], tmp)
+              if (tmp[2] < 0) continue
+              let h = cellH[i]
+              if (h !== h) {
+                const r = sampleRaw(lo, la)
+                if (r != null) cellH[i] = r
+                h = r ?? 0
+              }
+              const y = tmp[1] - h * lift
+              if (tmp[0] < -rad || tmp[0] > W + rad || y < -rad || y > H + rad) continue
+              fg.drawImage(heat[k], tmp[0] - rad, y - rad, rad * 2, rad * 2)
             }
-            const y = tmp[1] - h * lift
-            if (tmp[0] < -rad || tmp[0] > W + rad || y < -rad || y > H + rad) continue
-            fg.globalAlpha = [0, 0.14, 0.26, 0.42, 0.6, 0.8][k] * ff // more member overlap = more intense
-            fg.drawImage(k >= 3 ? heat.high : heat.low, tmp[0] - rad, y - rad, rad * 2, rad * 2)
           }
           fg.globalAlpha = 1
+          fg.globalCompositeOperation = 'lighter'
         }
         const lift3 = (lo, la) => {
           const v3 = vec(lo, la)
@@ -869,18 +892,72 @@ export default function GlobeNetwork() {
             ctx.stroke(path)
           }
         }
-        // isochrones (q50 arrival contours), labelled +Nh
+        // isochrones (q50 arrival contours): the one at the forecast slider's lead is bold; the previous forecast's is dashed for comparison
+        const leadSnap = Math.max(60, Math.min(360, Math.round(leadRef.current / 60) * 60))
         if (en) {
           for (const f of en.isochrones) {
             const g = f.geometry
             const parts = g.type === 'MultiLineString' ? g.coordinates : [g.coordinates]
+            const on = f.properties.lead_min === leadSnap && leadRef.current > 0
             for (const line of parts) {
-              ctx.lineWidth = 1
-              ctx.strokeStyle = `rgba(225,238,255,${0.28 * ff})`
+              ctx.lineWidth = on ? 1.8 : 1
+              ctx.strokeStyle = `rgba(225,238,255,${(on ? 0.95 : 0.2) * ff})`
               ctx.stroke(lines(line, false))
               const mid = lift3(...line[Math.floor(line.length / 2)])
-              if (mid[2] > 0) labelQ.push({ text: `+${f.properties.lead_min / 60}h`, x: mid[0], y: mid[1], color: [225, 238, 255], a: 0.7 * ff, size: 8 })
+              if (mid[2] > 0) labelQ.push({ text: `+${f.properties.lead_min / 60}h`, x: mid[0], y: mid[1], color: [225, 238, 255], a: (on ? 1 : 0.5) * ff, size: 8 })
             }
+          }
+        }
+        const prevK = K != null ? sc.prevCycle(K) : null
+        const prevEn = compareRef.current && prevK != null && leadRef.current > 0 ? sc.entry(prevK) : null
+        if (prevEn) {
+          ctx.setLineDash([6, 5])
+          for (const f of prevEn.isochrones) {
+            if (f.properties.lead_min !== leadSnap) continue
+            const g = f.geometry
+            const parts = g.type === 'MultiLineString' ? g.coordinates : [g.coordinates]
+            for (const line of parts) {
+              ctx.lineWidth = 1.5
+              ctx.strokeStyle = `rgba(120,225,255,${0.9 * ff})`
+              ctx.stroke(lines(line, false))
+              const mid = lift3(...line[Math.floor(line.length / 3)])
+              if (mid[2] > 0) labelQ.push({ text: 'previous forecast', x: mid[0], y: mid[1], color: [120, 225, 255], a: ff, size: 7.5 })
+            }
+          }
+          ctx.setLineDash([])
+        }
+        // observations the engine has seen in the last hour: hot satellite pixels, fading with age
+        const OBS_WINDOW = 900000
+        const obs = sc.observationsIn(T - OBS_WINDOW, Math.min(T, nowMs))
+        let freshLabelled = false
+        for (const o of obs) {
+          if (!o.hot || o.geometry?.type !== 'footprint') continue
+          const age = Math.min(T, nowMs) - o.observed_sim_ms
+          const path = lines(o.geometry.ring, true)
+          ctx.lineWidth = age < 600000 ? 1.5 : 0.8
+          ctx.strokeStyle = `rgba(150,235,255,${(0.1 + 0.8 * Math.max(0, 1 - age / OBS_WINDOW)) * ff})`
+          ctx.stroke(path)
+          if (!freshLabelled && age < 600000) {
+            const ring = o.geometry.ring
+            const c = lift3(ring.reduce((s2, p2) => s2 + p2[0], 0) / ring.length, ring.reduce((s2, p2) => s2 + p2[1], 0) / ring.length)
+            if (c[2] > 0) labelQ.push({ text: `new observation ${fmtHM(o.observed_sim_ms)}`, x: c[0], y: c[1], color: [150, 235, 255], a: ff, size: 7.5 })
+            freshLabelled = true
+          }
+        }
+        // clicked spot
+        const pr = probeRef.current
+        if (pr) {
+          const c = lift3(pr.lon, pr.lat)
+          if (c[2] > 0) {
+            ctx.lineWidth = 1.5
+            ctx.strokeStyle = 'rgba(255,255,255,0.95)'
+            ctx.beginPath()
+            ctx.arc(c[0], c[1], 5, 0, 7)
+            ctx.stroke()
+            ctx.strokeStyle = 'rgba(255,255,255,0.35)'
+            ctx.beginPath()
+            ctx.arc(c[0], c[1], 10, 0, 7)
+            ctx.stroke()
           }
         }
         // zones: outline by status, label with the name and risk
@@ -1245,7 +1322,7 @@ export default function GlobeNetwork() {
       for (const o of opts) if (o[2] / mpp <= 150 && o[2] > best[2]) best = o
       const len = best[2] / mpp
       const bx = 28
-      const by = H - (timeRef.current ? 200 : 40)
+      const by = H - (timeRef.current ? 330 : 40)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.strokeStyle = 'rgba(190,215,250,0.85)'
       ctx.fillStyle = 'rgba(190,215,250,0.9)'
@@ -1323,6 +1400,23 @@ export default function GlobeNetwork() {
       view.lastMove = performance.now()
       view.lat = Math.max(-80, Math.min(80, d.lat + (e.clientY - d.y) * k))
     }
+    // inverse of the projection, undoing the elevation lift so a click lands on the ground point drawn under it
+    const screenToGeo = (sx, sy) => {
+      let yy = sy
+      let out = null
+      for (let it = 0; it < 3; it++) {
+        const y1 = (sx - cx) / R
+        const z2 = (cy - yy) / R
+        const d2 = 1 - y1 * y1 - z2 * z2
+        if (d2 <= 0) return null
+        const x2 = Math.sqrt(d2)
+        const x1 = x2 * cp0 - z2 * sp0
+        const gz = x2 * sp0 + z2 * cp0
+        out = [Math.atan2(x1 * sl0 + y1 * cl0, x1 * cl0 - y1 * sl0) / D2R, Math.asin(gz) / D2R]
+        yy = sy + sampleAt(out[0], out[1]) * liftNow
+      }
+      return out
+    }
     const onUp = (e) => {
       const d = view.drag
       view.drag = null
@@ -1342,8 +1436,24 @@ export default function GlobeNetwork() {
             best = ev
           }
         }
-        if (best) fitRef.current(best)
-        setPick(best)
+        const sc = scnRef.current
+        if (best) {
+          fitRef.current(best)
+          setPick(best)
+        } else if (sc && view.zoom > 150) {
+          // click on the map: arrival-time estimate for that spot, if it is inside the forecast grid
+          const g = screenToGeo(mx, my)
+          const cell = g ? sc.cellAt(g[0], g[1]) : null
+          if (cell != null) {
+            setProbe({ lon: g[0], lat: g[1], cell, x: mx, y: my })
+            return
+          }
+          setProbe(null)
+          setPick(null)
+        } else {
+          setProbe(null)
+          setPick(null)
+        }
       }
     }
     // zoom about the cursor: keep the point under the pointer fixed on screen
@@ -1436,32 +1546,67 @@ export default function GlobeNetwork() {
       <div className="gn__credit">Roads, places, water: US Census TIGERweb · USGS · Terrain: AWS Terrain Tiles · Events: NASA EONET</div>
       {hover && !pick ? <div className="gn__tip" style={{ left: hover.x + 14, top: hover.y + 14 }}>{hover.title}</div> : null}
       {hover && pick && hover.title !== pick.title ? <div className="gn__tip" style={{ left: hover.x + 14, top: hover.y + 14 }}>{hover.title}</div> : null}
+      {scenario && probe ? (() => {
+        const m = scenario.manifest
+        const now = ui?.now ?? m.replay_start_sim_ms
+        const t = scrub ?? now
+        const K = scenario.cycleAt(Math.min(t, now))
+        const en = K != null ? scenario.entry(K) : null
+        if (!en?.arrival) return null
+        const n = m.grid.nx * m.grid.ny
+        const rows = en.arrival ? [0, 1, 2, 3, 4].map((q) => en.arrival[q * n + probe.cell]) : []
+        const burned = rows.every((v) => v === 0)
+        const when = (v) => {
+          const ms = K + 2 * v * 60000
+          const mins = Math.round((ms - K) / 60000)
+          return `${fmtHM(ms)} PT · +${Math.floor(mins / 60)}h ${String(mins % 60).padStart(2, '0')}m`
+        }
+        return (
+          <div className="gn__probe" style={{ left: Math.min(probe.x + 14, (window.innerWidth || 1000) - 620), top: Math.max(8, probe.y - 200) }}>
+            <button className="gn__probe-x" onClick={() => setProbe(null)} aria-label="Close">×</button>
+            <b>Fire arrival estimate here</b>
+            <span className="gn__probe-sub">Forecast issued {fmtHM(K)} PT · {scenario.quantiles.length} quantiles of {en.bundle.cycle?.n_members ?? '?'} runs</span>
+            {burned ? <div>Already burned when this forecast was issued.</div> : (
+              <table>
+                <tbody>
+                  {rows.map((v, q) => (
+                    <tr key={q}>
+                      <td><i style={{ background: rgba(FORECAST_COLORS[q], 1) }} />{FORECAST_LABELS[q]} chance by</td>
+                      <td>{v === 255 ? 'not within 6 h' : v === 0 ? 'already burned' : when(v)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )
+      })() : null}
       {showTime ? (() => {
         const m = scenario.manifest
         const now = ui?.now ?? m.replay_start_sim_ms
         const t = scrub ?? now
         const clk = ui?.clock
         const K = scenario.cycleAt(Math.min(t, now))
-        const cyc = K != null ? scenario.entry(K)?.bundle.cycle : null
+        const en = K != null ? scenario.entry(K) : null
+        const cyc = en?.bundle.cycle ?? null
+        const prevK = K != null ? scenario.prevCycle(K) : null
+        const prev = prevK != null ? scenario.entry(prevK)?.bundle.cycle : null
         const span = m.replay_end_sim_ms - m.replay_start_sim_ms
-        const sorry = ui?.note
+        const obsKinds = cyc ? Object.entries(cyc.n_obs_by_kind ?? {}).map(([k, v]) => `${v} ${k.replace('_', ' ')}${v === 1 ? '' : 's'}`).join(', ') : ''
         return (
           <div className="gn__time">
             <button onClick={() => (clk?.playing ? clockRef.current.pause() : clockRef.current.play())} aria-label={clk?.playing ? 'Pause' : 'Play'}>{clk?.playing ? '❚❚' : '▶'}</button>
             <div className="gn__time-main">
               <div className="gn__badges">
                 <span className="gn__badge gn__badge--mode">REPLAY {clk?.speed ?? 240}× · {ui?.kind === 'hub' ? 'hub clock' : 'local clock'}</span>
-                {m.is_fixture ? <span className="gn__badge" title={`Simulated in this scenario: ${m.honesty.simulated.join(', ')}`}>{m.title}</span> : null}
+                {m.is_fixture ? <span className="gn__badge" title={`Simulated in this scenario: ${m.honesty.simulated.join(', ')}`}>{m.title}</span> : <span className="gn__badge gn__badge--real" title={`Real: ${m.honesty.real.join(', ')}\nSimulated: ${m.honesty.simulated.join(', ')}`}>REAL INPUTS</span>}
               </div>
               <div className="gn__legend2">
                 <span><i style={{ background: '#8c121a' }} />Burned</span>
-                <span><i style={{ background: '#ff8c1e' }} />High likelihood prediction (50%–99%)</span>
-                <span><i style={{ background: '#ffd05a' }} />Low likelihood prediction (10%–49%)</span>
+                {FORECAST_COLORS.map((c, i) => <span key={i}><i style={{ background: rgba(c, 1) }} />{FORECAST_LABELS[i]}</span>)}
+                <span><i style={{ background: '#96ebff' }} />Observation</span>
               </div>
-              <div className="gn__time-row">
-                <b>{fmtPT(t)}</b>
-                <span>{cyc ? `Data through ${fmtHM(cyc.data_through_sim_ms)} · burned ${Math.round(cyc.burned_ha)} ha · front ${cyc.front_km} km` : 'Before first forecast'}</span>
-              </div>
+              <div className="gn__time-row"><b>Actual time</b><span>{fmtPT(t)}</span></div>
               <div className="gn__slider">
                 <input type="range" min={m.replay_start_sim_ms} max={m.replay_end_sim_ms} step={60000} value={t} onChange={(e) => setScrub(+e.target.value)} />
                 {scenario.timeline.map((ev) => (
@@ -1469,13 +1614,28 @@ export default function GlobeNetwork() {
                 ))}
                 <i className="gn__now" style={{ left: `${((now - m.replay_start_sim_ms) / span) * 100}%` }} title="Replay clock" />
               </div>
+              <div className="gn__time-row">
+                <b>Forecast</b>
+                <span>{K != null ? `issued ${fmtHM(K)} · showing ${lead === 0 ? 'the fire now' : `+${Math.floor(lead / 60)}h ${String(lead % 60).padStart(2, '0')}m → ${fmtHM(K + lead * 60000)}`}` : 'no forecast yet'}</span>
+              </div>
+              <input className="gn__lead" type="range" min={0} max={m.horizon_min} step={5} value={lead} disabled={K == null} onChange={(e) => setLead(+e.target.value)} />
+              <div className="gn__meta">
+                {cyc ? (
+                  <>
+                    <span>{cyc.model_version} · {cyc.n_members} runs · {cyc.filter_mode} filter · ESS {Number(cyc.ess).toFixed(1)}{cyc.resampled ? ' · resampled' : ''}</span>
+                    <span>Issued {fmtHM(K)} PT · data through {fmtHM(cyc.data_through_sim_ms)} PT · source: {cyc.source} · {m.is_fixture ? 'SYNTHETIC inputs' : 'real inputs'}</span>
+                    <span>{obsKinds ? `This update assimilated ${obsKinds}.` : 'No new observations this update.'}{prev ? ` Since the previous forecast: burned ${cyc.burned_ha - prev.burned_ha >= 0 ? '+' : ''}${(cyc.burned_ha - prev.burned_ha).toFixed(1)} ha, front ${cyc.front_km - prev.front_km >= 0 ? '+' : ''}${(cyc.front_km - prev.front_km).toFixed(2)} km.` : ''}</span>
+                  </>
+                ) : <span>Before the first forecast (the fire starts at {fmtHM(m.t_ignition_sim_ms)} PT).</span>}
+              </div>
               <div className="gn__time-row gn__time-ctl">
                 <button onClick={() => { clockRef.current.pause(); clockRef.current.seek(m.replay_start_sim_ms); setScrub(null) }} title="Rewind to the start of the replay">⏮ Restart</button>
                 {[60, 240, 600].map((v) => (
                   <button key={v} className={clk?.speed === v ? 'on' : ''} onClick={() => clockRef.current.setSpeed(v)}>{v}×</button>
                 ))}
                 {scrub != null ? <button className="on" onClick={() => setScrub(null)}>Follow clock</button> : null}
-                {sorry ? <span className="gn__warn">{sorry}</span> : null}
+                <button className={compare ? 'on' : ''} onClick={() => setCompare((c) => !c)} title="Dashed line = the previous forecast, so you can see how new observations moved it">Compare to previous forecast</button>
+                {ui?.note ? <span className="gn__warn">{ui.note}</span> : null}
               </div>
             </div>
           </div>

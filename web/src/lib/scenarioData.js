@@ -79,6 +79,34 @@ export async function loadScenario(scn) {
       for (const c of cycles) if (c.knowledge_sim_ms <= t) k = c.knowledge_sim_ms
       return k
     },
+    /** knowledge time of the cycle before k, or null */
+    prevCycle(k) {
+      const i = cycles.findIndex((c) => c.knowledge_sim_ms === k)
+      return i > 0 ? cycles[i - 1].knowledge_sim_ms : null
+    },
+    /** observations seen in (t0, t1], from the bundles of the cycles in that window (loads them lazily) */
+    observationsIn(t0, t1) {
+      const out = new Map()
+      for (const c of cycles) {
+        if (c.knowledge_sim_ms < t0 - 600000 || c.knowledge_sim_ms > t1) continue
+        const en = this.entry(c.knowledge_sim_ms)
+        for (const o of en?.bundle.observations ?? []) if (o.observed_sim_ms > t0 && o.observed_sim_ms <= t1) out.set(o.obs_id, o)
+      }
+      return [...out.values()]
+    },
+    /** grid cell index under a lon/lat, or null outside the grid */
+    cellAt(lon, lat) {
+      const { tl, tr, bl } = manifest.grid.corners
+      const k = Math.cos((tl[1] * Math.PI) / 180)
+      const e1 = [(tr[0] - tl[0]) * k, tr[1] - tl[1]]
+      const e2 = [(bl[0] - tl[0]) * k, bl[1] - tl[1]]
+      const d = [(lon - tl[0]) * k, lat - tl[1]]
+      const det = e1[0] * e2[1] - e1[1] * e2[0]
+      const u = (d[0] * e2[1] - d[1] * e2[0]) / det
+      const v = (e1[0] * d[1] - e1[1] * d[0]) / det
+      if (u < 0 || u >= 1 || v < 0 || v >= 1) return null
+      return Math.floor(v * ny) * nx + Math.floor(u * nx)
+    },
     /** loaded entry for cycle k (kicks off loading, and its neighbour, if needed) */
     entry(k) {
       if (k == null) return null
