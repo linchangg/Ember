@@ -638,3 +638,5 @@ a:hover {
 .gn__probe td:last-child { text-align: right; color: #ffd7a1; }
 .gn__probe i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 7px; }
 .gn__probe-x { position: absolute; top: 6px; right: 8px; background: none; border: 0; color: #8fb0e0; font-size: 18px; cursor: pointer; }
+
+.gn__err { z-index: 8; position: absolute; top: 14px; left: 50%; transform: translateX(-50%); max-width: 520px; padding: 8px 12px; background: #2a1013ee; border: 1px solid #e5483c88; border-radius: 8px; color: #ffb3a8; font-size: 12px; }

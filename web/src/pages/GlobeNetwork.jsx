@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { CITIES, LOCAL, STATES } from '../labels.js'
 import { newHeli } from '../lib/globeData.js'
-import { createClock } from '../lib/replayClock.js'
-import { loadScenario } from '../lib/scenarioData.js'
+import { FileSource } from '../data/fileSource.ts'
+import { acquireSource } from '../data/store.ts'
+import { createGlobeView, loadExtras } from '../lib/globeView.js'
 
 const EONET = 'https://eonet.gsfc.nasa.gov/api/v3/events?status=all&start=2025-01-05&end=2025-01-09&limit=500'
 const FOCUS_MS = Date.parse('2025-01-07T12:00:00Z')
@@ -282,12 +283,14 @@ export default function GlobeNetwork() {
   const spinRef = useRef(null)
   const [hover, setHover] = useState(null)
   const scnId = new URLSearchParams(window.location.search).get('scn') || import.meta.env.VITE_SCENARIO_ID || 'fixture'
-  const [scenario, setScenario] = useState(null)
+  // Abby's validated data layer: local replay clock, forecast cycles, observations, zones
+  const source = useMemo(() => new FileSource({ assetBase: import.meta.env.VITE_ASSET_BASE ?? '/', scenario: scnId, pageUrl: window.location.href }), [scnId])
+  useEffect(() => acquireSource(source), [source])
+  const snap = useSyncExternalStore(source.subscribe, source.getSnapshot)
+  const [extras, setExtras] = useState(null)
+  const scenario = useMemo(() => (snap.manifest ? createGlobeView(snap, extras) : null), [snap, extras])
   const scnRef = useRef(null)
-  const clockRef = useRef(null)
-  const [scrub, setScrub] = useState(null) // null = follow the replay clock; a number = looking at another time
-  const scrubRef = useRef(null)
-  const [ui, setUi] = useState(null)
+  const act = (promise) => promise.catch((e) => console.warn(e.message))
   const [lead, setLead] = useState(60) // forecast slider: minutes after the forecast's issue time
   const leadRef = useRef(60)
   const [compare, setCompare] = useState(true) // draw the previous forecast for comparison
@@ -299,32 +302,26 @@ export default function GlobeNetwork() {
   useEffect(() => {
     selRef.current = !!pick
     scnRef.current = scenario
-    scrubRef.current = scrub
     timeRef.current = showTime
     leadRef.current = lead
     compareRef.current = compare
     probeRef.current = probe
-  }, [pick, scenario, scrub, showTime, lead, compare, probe])
+  }, [pick, scenario, showTime, lead, compare, probe])
 
-  // Scenario files (Cody's formats) + the replay clock (hub if VITE_STDB_URI is set, else local)
+  // static extras the snapshot does not carry, then open the replay shortly after ignition so the fire is on screen
+  const manifest = snap.manifest
   useEffect(() => {
+    if (!manifest) return undefined
     let alive = true
-    loadScenario(scnId)
-      .then((sc) => {
-        if (!alive) return
-        clockRef.current = createClock(sc.manifest)
-        setScenario(sc)
-      })
-      .catch((e) => console.warn('scenario load failed', e))
+    loadExtras(manifest).then((x) => alive && setExtras(x))
     return () => { alive = false }
-  }, [scnId])
+  }, [manifest])
+  const seeded = useRef(null)
   useEffect(() => {
-    const id = setInterval(() => {
-      const c = clockRef.current
-      if (c) setUi({ now: c.now(), clock: c.get(), kind: c.kind, note: c.note })
-    }, 100)
-    return () => clearInterval(id)
-  }, [])
+    if (snap.status !== 'ready' || !manifest || seeded.current === source) return
+    seeded.current = source
+    act(source.actions.seek(Math.min(manifest.replay_end_sim_ms, manifest.t_ignition_sim_ms + 90 * 60000)))
+  }, [snap.status, manifest, source])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -434,7 +431,6 @@ export default function GlobeNetwork() {
     let clsBuf = null
     let liftNow = 0
     const fireCv = document.createElement('canvas')
-    const maskCv = document.createElement('canvas')
     const lineCv = document.createElement('canvas')
     const labelQ = []
     let base = null
@@ -762,12 +758,11 @@ export default function GlobeNetwork() {
       // scenario layers in Cody's bundle format: forecast raster, burned area, front, isochrones, zones
       const ff = smooth(Math.log(25), Math.log(120), lz)
       const sc = scnRef.current
-      const clk = clockRef.current
       labelQ.length = 0
-      if (sc && clk && ff > 0.01) {
+      if (sc && ff > 0.01) {
         const mpp0 = 6371008 / R
-        const nowMs = clk.now()
-        const T = scrubRef.current ?? nowMs
+        const nowMs = sc.simTime
+        const T = sc.viewTime
         const K = sc.cycleAt(Math.min(T, nowMs))
         let en = sc.entry(K)
         if (en) lastEntry = en
@@ -1544,13 +1539,12 @@ export default function GlobeNetwork() {
         <button onClick={() => spinRef.current?.(1)} aria-label="Spin clockwise" title="Spin clockwise">↻</button>
       </div>
       <div className="gn__credit">Roads, places, water: US Census TIGERweb · USGS · Terrain: AWS Terrain Tiles · Events: NASA EONET</div>
+      {snap.status === 'error' ? <div className="gn__err">{/doctype|Unexpected token/i.test(snap.error ?? '') ? `No forecast files for scenario "${scnId}" yet: the engine has not written cache/${scnId}/main/ (index.json is missing).` : `Scenario data problem: ${snap.error}`}</div> : null}
       {hover && !pick ? <div className="gn__tip" style={{ left: hover.x + 14, top: hover.y + 14 }}>{hover.title}</div> : null}
       {hover && pick && hover.title !== pick.title ? <div className="gn__tip" style={{ left: hover.x + 14, top: hover.y + 14 }}>{hover.title}</div> : null}
       {scenario && probe ? (() => {
         const m = scenario.manifest
-        const now = ui?.now ?? m.replay_start_sim_ms
-        const t = scrub ?? now
-        const K = scenario.cycleAt(Math.min(t, now))
+        const K = scenario.cycleAt()
         const en = K != null ? scenario.entry(K) : null
         if (!en?.arrival) return null
         const n = m.grid.nx * m.grid.ny
@@ -1583,22 +1577,24 @@ export default function GlobeNetwork() {
       })() : null}
       {showTime ? (() => {
         const m = scenario.manifest
-        const now = ui?.now ?? m.replay_start_sim_ms
-        const t = scrub ?? now
-        const clk = ui?.clock
-        const K = scenario.cycleAt(Math.min(t, now))
+        const now = scenario.simTime
+        const t = scenario.viewTime
+        const clk = scenario.clock
+        const scrub = scenario.scrubbing ? t : null
+        const actions = source.actions
+        const K = scenario.cycleAt()
         const en = K != null ? scenario.entry(K) : null
         const cyc = en?.bundle.cycle ?? null
         const prevK = K != null ? scenario.prevCycle(K) : null
-        const prev = prevK != null ? scenario.entry(prevK)?.bundle.cycle : null
+        const prev = prevK != null ? scenario.cycleOf(prevK) : null
         const span = m.replay_end_sim_ms - m.replay_start_sim_ms
         const obsKinds = cyc ? Object.entries(cyc.n_obs_by_kind ?? {}).map(([k, v]) => `${v} ${k.replace('_', ' ')}${v === 1 ? '' : 's'}`).join(', ') : ''
         return (
           <div className="gn__time">
-            <button onClick={() => (clk?.playing ? clockRef.current.pause() : clockRef.current.play())} aria-label={clk?.playing ? 'Pause' : 'Play'}>{clk?.playing ? '❚❚' : '▶'}</button>
+            <button onClick={() => act(clk?.playing ? actions.pause() : actions.play())} aria-label={clk?.playing ? 'Pause' : 'Play'}>{clk?.playing ? '❚❚' : '▶'}</button>
             <div className="gn__time-main">
               <div className="gn__badges">
-                <span className="gn__badge gn__badge--mode">REPLAY {clk?.speed ?? 240}× · {ui?.kind === 'hub' ? 'hub clock' : 'local clock'}</span>
+                <span className="gn__badge gn__badge--mode">REPLAY {clk?.speed ?? 240}× · local clock (file source)</span>
                 {m.is_fixture ? <span className="gn__badge" title={`Simulated in this scenario: ${m.honesty.simulated.join(', ')}`}>{m.title}</span> : <span className="gn__badge gn__badge--real" title={`Real: ${m.honesty.real.join(', ')}\nSimulated: ${m.honesty.simulated.join(', ')}`}>REAL INPUTS</span>}
               </div>
               <div className="gn__legend2">
@@ -1608,7 +1604,7 @@ export default function GlobeNetwork() {
               </div>
               <div className="gn__time-row"><b>Actual time</b><span>{fmtPT(t)}</span></div>
               <div className="gn__slider">
-                <input type="range" min={m.replay_start_sim_ms} max={m.replay_end_sim_ms} step={60000} value={t} onChange={(e) => setScrub(+e.target.value)} />
+                <input type="range" min={m.replay_start_sim_ms} max={m.replay_end_sim_ms} step={60000} value={t} onChange={(e) => act(actions.setScrub(+e.target.value))} />
                 {scenario.timeline.map((ev) => (
                   <i key={ev.t_sim_ms} className="gn__tick" style={{ left: `${((ev.t_sim_ms - m.replay_start_sim_ms) / span) * 100}%` }} title={`${fmtPT(ev.t_sim_ms)} · ${ev.label}`} />
                 ))}
@@ -1629,13 +1625,13 @@ export default function GlobeNetwork() {
                 ) : <span>Before the first forecast (the fire starts at {fmtHM(m.t_ignition_sim_ms)} PT).</span>}
               </div>
               <div className="gn__time-row gn__time-ctl">
-                <button onClick={() => { clockRef.current.pause(); clockRef.current.seek(m.replay_start_sim_ms); setScrub(null) }} title="Rewind to the start of the replay">⏮ Restart</button>
+                <button onClick={() => act(actions.reset())} title="Rewind to the start of the replay">⏮ Restart</button>
                 {[60, 240, 600].map((v) => (
-                  <button key={v} className={clk?.speed === v ? 'on' : ''} onClick={() => clockRef.current.setSpeed(v)}>{v}×</button>
+                  <button key={v} className={clk?.speed === v ? 'on' : ''} onClick={() => act(actions.setSpeed(v))}>{v}×</button>
                 ))}
-                {scrub != null ? <button className="on" onClick={() => setScrub(null)}>Follow clock</button> : null}
+                {scrub != null ? <button className="on" onClick={() => act(actions.goLive())}>Follow clock</button> : null}
                 <button className={compare ? 'on' : ''} onClick={() => setCompare((c) => !c)} title="Dashed line = the previous forecast, so you can see how new observations moved it">Compare to previous forecast</button>
-                {ui?.note ? <span className="gn__warn">{ui.note}</span> : null}
+                {snap.pending ? <span className="gn__warn">loading forecast…</span> : null}
               </div>
             </div>
           </div>
