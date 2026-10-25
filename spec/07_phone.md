@@ -27,7 +27,7 @@
      - zone name + status chip: Clear / Watch / Warning / ORDER
      - "**Act by 23:40**" with a countdown in **sim time** (uses `simNow()` from the `clock` row), or "No action needed yet"
      - "Chance fire reaches your area within 1 h: 34%" (the `person` row's `p_60`, which equals the zone's value, so it always matches the dashboard)
-     - "Updated 23:05 · demo replay"
+     - "Updated 23:05"
    - **Map** (MapLibre GL, light vector basemap, ~55% of the height):
      - "You are here (demo location)" marker
      - danger polygons from `cycle_head.danger`: `lead60_p30` (red fill α .35) and `lead120_p30` (orange outline)
@@ -38,7 +38,7 @@
    - **Status buttons:** I'm safe · I'm evacuating · I need help (`set_person_status`).
 4. **When an alert covering my zone becomes `approved`:**
    - full-width banner in amber (warning) or red (order) + `navigator.vibrate([300,100,300])`
-   - play `/api/tts` audio: "Emberline alert for {zone}: fire {p_words} within {lead}. Act by {time}. This is a demo replay."
+   - play `/api/tts` audio: "Emberline alert for {zone}: fire {p_words} within {lead}. Act by {time}."
    - show the alert `text`
    - fire once per alert ID (remember in localStorage)
 5. **After a report:**

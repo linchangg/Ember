@@ -116,8 +116,8 @@ def test_template_six_zone_merge_fits():
     names = {z: f"Altadena Farnsworth Park North {i}" for i, z in enumerate(ids)}
     crit = {ids[0]: ["nursing home"], ids[1]: ["school", "nursing home"]}
     text, voice = template("order_recommended", zones, names, crit, 0.7, 1, K0 + 30 * MIN, K0, K0 - 5 * MIN)
-    assert text.startswith("DEMO REPLAY (Jan 2025).")
-    assert voice.startswith("This is an Emberline demo replay of January 2025.")
+    assert "demo" not in text.lower()
+    assert voice.startswith("This is Emberline.")
     assert len(text) <= 300 and len(voice.split()) <= 110
     assert "EVACUATION ORDER recommended" in text and "(P 70%)" in text
     assert ", nursing home, school." in text and "including a nursing home and a school" in voice

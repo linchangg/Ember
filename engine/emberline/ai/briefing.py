@@ -30,7 +30,7 @@ DEFAULT_MODEL = "claude-sonnet-5-5"
 OPENROUTER_URL = "https://openrouter.ai/api"
 PROMPT_VERSION = "briefing_v2"
 MAX_INPUT_CHARS = 4096
-HONESTY = "Retrospective replay of Jan 7–8 2025. Decision support only."
+HONESTY = "Decision support only."
 CRITICAL_TYPES = ("hospital", "nursing_home", "assisted_living", "school")  # spec/01 §6 n_critical
 
 log = logging.getLogger(__name__)

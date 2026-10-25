@@ -179,7 +179,7 @@ def manifest(scn: str, cfg: dict, terrain_blk: dict, lake_ave: list[list[float]]
     s = f"static/{scn}"
     return {
         "scenario_id": scn,
-        "title": cfg["title"],
+        "title": cfg["title"].replace(" replay", ""),  # cfg feeds run_hash, so the yaml title stays
         "tz": cfg["tz"],
         "config_hash": None,
         "is_fixture": False,

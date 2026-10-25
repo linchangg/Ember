@@ -39,7 +39,7 @@
               "critical": ["nursing home: <name>"], "egress_roads": 2, "trend": "up"} ],
   "fire": {"burned_ha": 1830, "growth_ha_per_h": 410, "head_bearing_deg": 250},
   "sensors": [{"name": "GOES-18", "last_scan_pst": "23:05", "status": "ok"}, {"name": "VIIRS", "last_pass_pst": null}],
-  "honesty": "Retrospective replay of Jan 7–8 2025. Decision support only."
+  "honesty": "Decision support only."
 }
 ```
 
@@ -60,7 +60,7 @@
 
 **System prompt** (`ai/prompts/briefing_v1.md`; record `prompt_version`):
 - You write decision-support briefings for an incident commander. Use only facts in the input JSON.
-- `text` must begin with "DEMO REPLAY (Jan 2025)." `voice_script` must begin with "This is an Emberline demo replay of January 2025."
+- `voice_script` must begin with "This is Emberline."
 - Refer to facilities by type ("a nursing home"), never by name. The input carries types only.
 - Copy times, percentages, zone names and counts exactly.
 - Probability words must follow this mapping: ≥ 90% "very likely", ≥ 70% "likely", ≥ 50% "more likely than not", ≥ 30% "possible", otherwise "unlikely".
@@ -118,7 +118,7 @@ The phone page (`07_phone`) records ≤ 15 s of audio. **Encode WAV in the brows
 - Max 400 characters.
 - **Used for:**
   - (a) report readbacks;
-  - (b) the **resident in-app alert**: when an alert for the phone's zone becomes `approved`, the phone requests `/api/tts` with "Emberline demo replay. Alert for {zone}: fire {p_words} within {lead}. Act by {time}."
+  - (b) the **resident in-app alert**: when an alert for the phone's zone becomes `approved`, the phone requests `/api/tts` with "Emberline alert for {zone}: fire {p_words} within {lead}. Act by {time}."
 
 **Why Grok and not Cartesia here:** public-facing voice and officials-facing voice are separate jobs and separate prizes (`SPEC.md` D8). Mention in README that **Grok Voice API is used for speech-to-text and text-to-speech of public reports**. Confirm at the SpaceXSI booth that this satisfies "Grok … Voice API". If not, swap the phone readback to Grok's realtime voice endpoint (stretch, +2–3 h).
 

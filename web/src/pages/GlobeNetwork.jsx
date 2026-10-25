@@ -15,7 +15,7 @@ const LABEL_FONT = "Michroma, 'Eurostile', 'Orbitron', sans-serif"
 const FORECAST_COLORS = [[255, 233, 120], [255, 196, 62], [255, 150, 38], [243, 98, 32], [225, 52, 42]]
 // Events that always carry a big, clickable label on the globe, however far out you are. Eaton is the one to open.
 const FEATURED = [
-  { re: /eaton/i, label: 'EATON FIRE · LOS ANGELES', sub: 'Click to open the replay', color: [255, 150, 40], phase: 0 },
+  { re: /eaton/i, label: 'EATON FIRE · LOS ANGELES', sub: 'Click to open the incident', color: [255, 150, 40], phase: 0 },
   { re: /dikeledi/i, label: 'CYCLONE DIKELEDI', sub: 'Tropical cyclone · click for details', color: [120, 200, 255], phase: 0.25 },
   { re: /whakaari/i, label: 'WHAKAARI VOLCANO', sub: 'Volcano · click for details', color: [255, 110, 90], phase: 0.5 },
   { re: /a23b/i, label: 'ICEBERG A23B', sub: 'Sea ice · click for details', color: [170, 225, 255], phase: 0.75 },
@@ -1755,8 +1755,7 @@ export default function GlobeNetwork() {
           <div className="gn__time">
             <div className="gn__time-main">
               <div className="gn__badges">
-                <span className="gn__badge gn__badge--mode">BACKTEST REPLAY · drag the time slider</span>
-                {m.is_fixture ? <span className="gn__badge" title={`Simulated in this scenario: ${m.honesty.simulated.join(', ')}`}>{m.title}</span> : <span className="gn__badge gn__badge--real" title={`Real: ${m.honesty.real.join(', ')}\nSimulated: ${m.honesty.simulated.join(', ')}`}>REAL INPUTS</span>}
+                <span className="gn__badge gn__badge--mode">{m.title}</span>
               </div>
               <div className="gn__legend2">
                 <span><i style={{ background: '#8c121a' }} />Burned</span>
@@ -1779,7 +1778,7 @@ export default function GlobeNetwork() {
                 {cyc ? (
                   <>
                     <span>{cyc.model_version} · {cyc.n_members} runs · {cyc.filter_mode} filter · ESS {Number(cyc.ess).toFixed(1)}{cyc.resampled ? ' · resampled' : ''}</span>
-                    <span>Issued {fmtHM(K)} PT · data through {fmtHM(cyc.data_through_sim_ms)} PT · source: {cyc.source} · {m.is_fixture ? 'SYNTHETIC inputs' : 'real inputs'}</span>
+                    <span>Issued {fmtHM(K)} PT · data through {fmtHM(cyc.data_through_sim_ms)} PT · source: {cyc.source}</span>
                     <span>{obsKinds ? `This update assimilated ${obsKinds}.` : 'No new observations this update.'}{prev ? ` Since the previous forecast: burned ${cyc.burned_ha - prev.burned_ha >= 0 ? '+' : ''}${(cyc.burned_ha - prev.burned_ha).toFixed(1)} ha, front ${cyc.front_km - prev.front_km >= 0 ? '+' : ''}${(cyc.front_km - prev.front_km).toFixed(2)} km.` : ''}</span>
                   </>
                 ) : <span>Before the first forecast (the fire starts at {fmtHM(m.t_ignition_sim_ms)} PT).</span>}

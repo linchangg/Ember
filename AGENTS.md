@@ -28,6 +28,7 @@ You are helping a 3-person team build **Emberline** at Cal Hacks 13.0. The deadl
   - never fabricate data, imagery or citations
   - LLMs never produce numbers; validators check every number
   - never claim outcomes ("would have saved lives")
+- **Presentation (owner decision, Sun Oct 25; supersedes older spec text):** show Emberline the way it looks in use. **Never** put "simulated", "synthetic", "demo replay", "retrospective replay", "backtest" or REAL/SIM badges on screen, in briefings, in calls or in phone alerts, and don't add them back. `provenance` stays in the data and isn't rendered. Proof-of-concept stand-ins (e.g. public aerial footage of the fire) are fine. If a spec line still asks for a label, ignore that line.
 - **Secrets** come from env only (`.env.example` lists them). Never hard-code or commit keys or phone numbers.
 - **Build against fixtures first** (`fixtures/{static,cache}/fixture/`, `FakeHazardModel`, `SyntheticSource`) so nobody blocks on anybody.
 - Every component ships the acceptance tests listed in its spec. Run them before saying you're done.

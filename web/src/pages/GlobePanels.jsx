@@ -74,10 +74,9 @@ export function AlertsTab({ scenario, actions, act }) {
   const names = new Map(scenario.zones.features.map((f) => [f.properties.zone_id, f.properties.name]))
   const briefings = new Map(scenario.briefings.map((b) => [b.briefing_id, b]))
   const alerts = [...scenario.alerts].sort((a, b) => b.triggered_sim_ms - a.triggered_sim_ms)
-  if (!alerts.length) return <p className="gn__empty">No alerts yet. Alerts appear when a zone crosses a rule set before the replay.</p>
+  if (!alerts.length) return <p className="gn__empty">No alerts yet. Alerts appear when a zone crosses an evacuation rule.</p>
   return (
     <div className="gn__alerts">
-      <p className="gn__note">Demo replay. Approving here only updates this screen; no message or call is sent.</p>
       {alerts.map((a) => {
         const b = a.briefing_id ? briefings.get(a.briefing_id) : null
         const proposed = a.state === 'proposed'

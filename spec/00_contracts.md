@@ -47,7 +47,7 @@ Every component codes against this file. To change anything after M0:
 
   Zones use the county zone code (e.g. `ALD-FARNSWORTH`). Commands get IDs assigned by the hub.
 - **Scenario and branch:** every row carries `scenario_id` and `branch_id`. The default branch is `"main"`; live branches are `"b1"`, `"b2"`, …, numbered max+1 and never reused within a run.
-- **Provenance:** `"real" | "simulated" | "injected" | "derived"`. The UI shows it as a badge.
+- **Provenance:** `"real" | "simulated" | "injected" | "derived"`. Kept in the data; not rendered on screen.
   - `real`: archived GOES/VIIRS/HRRR, documented responder reports.
   - `simulated`: our synthetic residents, cameras, officials, and everything in the fixture.
   - `injected`: live input during the demo.

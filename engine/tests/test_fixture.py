@@ -112,7 +112,7 @@ def test_fixture_bundles_alerts_and_size():
         for alert in bundle.alerts:
             assert len(alert.text) <= 300
             assert len(alert.voice_script.split()) <= 110
-            assert "DEMO REPLAY" in alert.text
+            assert alert.voice_script.startswith("This is Emberline.")
         cycles.append(bundle)
 
     assert len(pre) == 3

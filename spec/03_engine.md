@@ -199,9 +199,9 @@ def build_bundle(phys: PhysicsOutput, hub: HubSnapshot) -> CycleBundle:
 **Templates** (always available). They use facility **types**, never names, and always carry the demo framing:
 
 ```
-text:  "DEMO REPLAY (Jan 2025). {LEVEL} recommended — {zones}: fire {p_words} within {lead_h} h (P {p:.0%}). Act by {act_by:%H:%M} PST.
+text:  "{LEVEL} recommended — {zones}: fire {p_words} within {lead_h} h (P {p:.0%}). Act by {act_by:%H:%M} PST.
         ~{pop:,} residents{, critical types}. Forecast {k:%H:%M}, satellite data through {data_through:%H:%M}."
-voice: "This is an Emberline demo replay of January 2025. Briefing for the duty officer. Recommend {level_words} for
+voice: "This is Emberline. Briefing for the duty officer. Recommend {level_words} for
         {zones_spoken}. Fire is {p_words} to reach the zone within {lead_words}. Act by {act_by_spoken}. About {pop}
         residents{, critical_spoken}. This is decision support; you make the call. Say 'acknowledged' to confirm."
 ```

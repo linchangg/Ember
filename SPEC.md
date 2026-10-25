@@ -63,7 +63,7 @@ backend has not passed every scientific or latency gate and remains experimental
 
 | # | Decision | Revisit if |
 |---|---|---|
-| D1 | **Demo fire: Eaton, Jan 7–8 2025, hybrid replay.** Real: satellite, winds, terrain, fuels, zone names, timeline. Simulated (labeled): residents, phones, duty officer. **Backup: Palisades** (same GOES/HRRR files). Last resort: synthetic "TRAINING SCENARIO". | **G1-a 09:30:** `area_x_satellite_hit` finds no GOES-18 hit before 03:25 PST → VIIRS as the honest-number sensor, else Palisades |
+| D1 | **Demo fire: Eaton, Jan 7–8 2025, hybrid replay.** Real: satellite, winds, terrain, fuels, zone names, timeline. Stand-ins (not labelled on screen): residents, phones, duty officer. **Backup: Palisades** (same GOES/HRRR files). Last resort: synthetic "TRAINING SCENARIO". | **G1-a 09:30:** `area_x_satellite_hit` finds no GOES-18 hit before 03:25 PST → VIIRS as the honest-number sensor, else Palisades |
 | D2 | **Grid:** EPSG:32611, 90 m, 340×340 (30.6 km), upper-left (381480, 3800280). 60 m (510²) only after everything works. | — |
 | D3 | **Physics:** custom numba minimum-travel-time solver with elliptical Rothermel spread (pyretechnics fuel table). **Urban NB91 spread is P0.** SIR particle filter with tempering, jitter and re-anchoring. N=128, 6 h horizon, 5-min cycle, branch-independent RNG. | **Sat 18:00 gate:** `pf` vs `reinit`, judged on the twin experiment + the **first 2 h of the fire only** (`02` §8). Ties go to `reinit`. |
 | D4 | **Physics outputs precomputed and cached for the whole replay.** Risk, alerts and people are re-derived at publish time from current hub state. Live compute runs only for injected reports (branch from a 30-min checkpoint). | — |
@@ -74,7 +74,7 @@ backend has not passed every scientific or latency gate and remains experimental
 | D9 | **LLM: Claude.** `claude-sonnet-5-5` briefing (structured outputs; no temperature/forced tool), `claude-haiku-5-5` parser. Claude never computes numbers; a validator + template fallback catches any change. | — |
 | D10 | **Hosting:** the laptop runs the engine (outbound only) and the dashboard. Hub on Maincloud (dev on local `spacetime start`). Vercel hosts `/p` + `web/api/*`. Offline: everything local except phones. | Maincloud limits → self-host on Vultr |
 | D11 | **Act-by** = q30 arrival − zone evacuation minutes. Tier 1 = hospital or nursing/assisted living, or ≤ 1 egress road → 75 min; otherwise 45. Editable on the dashboard; edits survive replay. | — |
-| D12 | **Honesty protocol** (`08` §2): **one** freeze (target Sat 20:00) after tuning on the first 2 h only; the first full run after it is reported (v1); later changes are disclosed as v2. Lead time is reported DA vs open-loop even if negative. Everything is badged; urban spread is labeled heuristic; every alert says "demo replay". | — |
+| D12 | **Honesty protocol** (`08` §2): **one** freeze (target Sat 20:00) after tuning on the first 2 h only; the first full run after it is reported (v1); later changes are disclosed as v2. Lead time is reported DA vs open-loop even if negative. Presentation: no "simulated"/"synthetic"/"demo replay" labels on screen, in briefings or in calls; the product is shown as it would be used (owner decision, Sun Oct 25; see `AGENTS.md`). `provenance` stays in the data. | — |
 
 **Skipped on purpose:**
 - Tiger Data, Bright Data, ElevenLabs, Snowflake, Fetch.ai, Factory, DigitalOcean, Twilio.
@@ -145,7 +145,7 @@ flowchart LR
 5. E9 Apify zones/orders Actor; `.tech` domain (10 min, anytime)
 6. Tier 3, only from idle hands: E10 Meshtastic off-grid channel, E11 aerial IR + simulated units, E12 post-fire debris flow, E13 physics v2 (60 m, terrain wind; reported as v2 only)
 
-**Never cut:** offline mode, the honesty labels, the template fallback, hard reset.
+**Never cut:** offline mode, the template fallback, hard reset.
 
 ## 5. Milestones and gates (PT)
 

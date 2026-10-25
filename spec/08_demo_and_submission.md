@@ -45,7 +45,7 @@
 
 **Rules**
 - **No future data.** HRRR is the newest **available** cycle, asserted in code.
-- The 03:25 orders are shown only as context, with: "Retrospective replay. Officials did not have this tool. This is not a claim about outcomes."
+- The 03:25 orders are context for the comparison, not an outcomes claim.
 - **Never say:** "would have saved lives", "would have warned them hours earlier", "the county failed". **Do say:** "the county's and state's own reviews document an information gap that night; this targets it."
 
 ## 3. Sensitivity (Eaton)
@@ -55,7 +55,6 @@
 - **Don't** name or blame officials or SCE. The cause is out of scope; the ignition is just a point.
 - If asked about West Altadena's history as a Black community, acknowledge it briefly and factually. Don't use it as a pitch device.
 - The judge's phone is a "resident who gets an act-by time", never a "victim".
-- Every call and alert says "demo replay".
 
 ## 4. Prepared Q&A (one sentence, then stop)
 
@@ -66,7 +65,7 @@
 | Why physics, not ML? | It generalizes to unseen terrain and winds, and it's explainable. The filter learns wind-direction and spread-rate bias from each look. |
 | How accurate? | Show the Evaluation card (DA vs open-loop, ETA interval) and Sørensen vs NASA FEDS perimeters. Then the limits. |
 | What can't it model? | House-to-house spread and embers are labeled heuristics. HRRR winds are 3 km. GOES pixels are ~2.5 km, with approximate parallax correction. |
-| Real vs simulated? | Real: satellite, winds, terrain, fuels, zone names, official timeline. Simulated: residents, phones, duty officer. Every layer is badged. |
+| Real vs simulated? | Real: satellite, winds, terrain, fuels, zone names, official timeline. Stand-ins: residents, phones, duty officer. (Answer only if asked; not labelled on screen.) |
 | Who decides? | A human approves every alert. Claude only phrases numbers our model computed, a validator rejects any altered number, and no AI can send or order anything. |
 | Privacy? | Random IDs and an assigned demo location. Voice goes to xAI (STT) and text to Anthropic (parsing). Transcripts are private and deleted at reset. Phone numbers stay in memory, masked. |
 | Who uses it Monday? | An OES analyst can run this replay workflow on any past fire for after-action review and training today. Live mode is the same code reading the live GOES bucket (roadmap). |

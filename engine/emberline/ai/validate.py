@@ -12,8 +12,7 @@ BANNED = ("will reach", "will burn", "guaranteed", "certain", "would have saved"
 
 _PHRASES = sorted([w for _, w in P_WORDS] + ["unlikely"], key=len, reverse=True)
 
-TEXT_PREFIX = "DEMO REPLAY (Jan 2025)."
-VOICE_PREFIX = "This is an Emberline demo replay of January 2025."
+VOICE_PREFIX = "This is Emberline."
 VOICE_SUFFIX = "You make the call."
 
 _TIME = re.compile(r"\b(\d{1,2}):(\d{2})(?:\s?([AaPp])\.?[Mm]\.?)?")
@@ -134,8 +133,6 @@ def _check_banned(out: dict, level: str) -> list[str]:
 
 def _check_shape(out: dict) -> list[str]:
     failures = []
-    if not out["text"].startswith(TEXT_PREFIX):
-        failures.append("prefix text")
     if not out["voice_script"].startswith(VOICE_PREFIX):
         failures.append("prefix voice")
     if not out["voice_script"].rstrip().endswith(VOICE_SUFFIX):

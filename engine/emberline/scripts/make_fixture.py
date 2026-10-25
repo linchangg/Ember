@@ -561,12 +561,12 @@ def alert_copy(zone: Zone, rule: str, k_ms: int, cycle_id: str, p120: float, p60
     critical_spoken = ", including a school" if zone.n_critical else ""
     lead_words = "1 hour" if lead_h == 1 else "2 hours"
     text = (
-        f"DEMO REPLAY (Jan 2025). {level_token} recommended — {zone.zone_id}: "
+        f"{level_token} recommended — {zone.zone_id}: "
         f"fire {p_words(p)} within {lead_h} h (P {p:.0%}). Act by {act_hm} PST. "
         f"~{zone.population:,} residents{critical}. Forecast {hm(k_ms)}, satellite data through {hm(k_ms)}."
     )
     voice = (
-        "This is an Emberline demo replay of January 2025. Briefing for the duty officer. "
+        "This is Emberline. Briefing for the duty officer. "
         f"Recommend {level_words} for {zone.name}. Fire is {p_words(p)} to reach the zone within {lead_words}. "
         f"Act by {act_spoken}. About {zone.population} residents{critical_spoken}. "
         "This is decision support; you make the call. Say 'acknowledged' to confirm."

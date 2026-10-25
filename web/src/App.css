@@ -625,7 +625,6 @@ a:hover {
 
 .gn__credit { z-index: 4; position: absolute; left: 28px; bottom: 6px; font-size: 9px; letter-spacing: 0.04em; color: #5f7aa8; pointer-events: none; }
 
-.gn__badge--real { border-color: #4ade8088; color: #86efac; }
 .gn__legend2 { gap: 4px 12px; }
 .gn__lead { display: block; width: 100%; accent-color: #ff9626; margin: 2px 0 6px; }
 .gn__meta { display: flex; flex-direction: column; gap: 2px; font-size: 10.5px; color: #8fb0e0; margin: 4px 0 2px; }

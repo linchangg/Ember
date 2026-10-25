@@ -62,3 +62,4 @@ Latest data-integrated engine suite: 311 passed, 18 skipped (44.66 s); one previ
 2026-10-25: Reconciled dashboard plan, Phase E status, Rust next tasks and release readiness after PR #11/main 0308ba8. Marked A–E complete, recorded data/CI evidence and partial Eaton cache, and retained independent-truth, calibration, latency and service gates. Documentation only.
 
 2026-10-25: Added six-phase release implementation framework, evidence worksheet and read-only replay audit with nine regression gates/CI. Baseline inventory: 80/157 Eaton issues, 231 assets, no local validation errors; incomplete replay correctly fails acceptance. Future phases await direct approval.
+- Sun 02:30 · Cody · Presentation: removed "simulated/synthetic/demo replay/REAL INPUTS" labels from the dashboard, briefings, call scripts and cached bundles; AGENTS.md + SPEC D12 say not to add them back · Claude

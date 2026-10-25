@@ -19,11 +19,11 @@ GOOD = {
         "Forecast 19:55 PST, satellite data through 19:55; data age 0 min.",
     ],
     "text": (
-        "DEMO REPLAY (Jan 2025). Warning for FIX-Z2: fire possible within 2 h (P 30%). "
+        "Warning for FIX-Z2: fire possible within 2 h (P 30%). "
         "Act by 21:07 PST. About 420 residents. Forecast 19:55, satellite data through 19:55."
     ),
     "voice_script": (
-        "This is an Emberline demo replay of January 2025. A warning is recommended for Fixture Z2. "
+        "This is Emberline. A warning is recommended for Fixture Z2. "
         "Fire is possible to reach the zone within 2 hours. Act by 9:07 PM. About 420 residents. "
         "Forecast issued at 7:55 PM. You make the call."
     ),
@@ -52,7 +52,7 @@ CASES = [
     ("wrong p word", mutate("text", "fire possible", "fire likely"), "pword likely"),
     ("will reach", mutate("voice_script", "Fire is possible to reach", "Fire will reach"), "banned: will reach"),
     ("evacuate now at warning", with_bullets([*GOOD["bullets"], "Evacuate now."]), "banned: evacuate now"),
-    ("missing DEMO prefix", mutate("text", "DEMO REPLAY (Jan 2025). ", ""), "prefix text"),
+    ("missing voice prefix", mutate("voice_script", "This is Emberline. ", ""), "prefix voice"),
     ("text over 300", mutate("text", "About 420", "Residents should " + "stay alert and " * 12 + "about 420"), "len text"),
     ("voice over 110 words", mutate("voice_script", "You make", "Stay alert. " * 45 + "You make"), "words voice"),
     ("5 bullets", with_bullets(GOOD["bullets"] + ["Stay alert.", "Watch the map."]), "bullets 5"),

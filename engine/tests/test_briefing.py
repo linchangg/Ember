@@ -46,8 +46,8 @@ def good_output(inp: dict) -> dict:
     return {
         "headline": f"Warning for {z['zone_id']}: act by {z['act_by_pst']} PST",
         "bullets": [f"About {z['population']} residents; {z['egress_roads']} egress roads."],
-        "text": f"DEMO REPLAY (Jan 2025). Warning for {z['zone_id']}. Act by {z['act_by_pst']} PST. Forecast {inp['issued_pst']}.",
-        "voice_script": "This is an Emberline demo replay of January 2025. A warning is recommended. You make the call.",
+        "text": f"Warning for {z['zone_id']}. Act by {z['act_by_pst']} PST. Forecast {inp['issued_pst']}.",
+        "voice_script": "This is Emberline. A warning is recommended. You make the call.",
     }
 
 

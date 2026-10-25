@@ -45,7 +45,7 @@ npm i deck.gl@9.4.0 @deck.gl/react@9.4.0 @deck.gl/core@9.4.0 @deck.gl/layers@9.4
 | 11:00 | `TerrainLayer` with a placeholder DEM; forecast draped; perimeter and front; activity feed |
 | 13:00 | **M1:** `SpacetimeSource` live from the hub; alert approval card; real terrain and texture once Cody exports them |
 | 16:00 | `web/api/report-tap`, `tts`, `cartesia/status`, `cartesia/ack` (`05`) |
-| 18:00 | **M2:** GOES satellite + scan beam pulse; recommendation card with act-by countdown; sources panel; REAL/SIM badges |
+| 18:00 | **M2:** GOES satellite + scan beam pulse; recommendation card with act-by countdown; sources panel |
 | 22:00 | **M3:** branch before/after diff; Evaluation card; `/control`; phone page (`07`) + `web/api/report-voice` |
 | 02:00 | Polish: legend, transitions, reduced-motion, projector check at 1920×1080 and 1440×900 |
 
@@ -162,7 +162,7 @@ for (let i = 0; i < ny*nx; i++) {
 
 ### 5.1 Top bar
 - Scenario title.
-- **REPLAY 240×** / **LIVE** badge; big mono sim clock (PST); "data through HH:MM".
+- Big mono clock (PST); "data through HH:MM".
 - Source-health dots per sensor (ok/stale/down).
 - `config_hash` (short) with tooltip "thresholds frozen before replay".
 
@@ -181,7 +181,7 @@ for (let i = 0; i < ny*nx; i++) {
 
 **3. Fire stats:** burned ha, growth ha/h, front km, ESS, filter mode, model run time.
 
-**4. Data sources:** each sensor with last data time, latency and a REAL/SIM badge. The voice/call channel status shows here too.
+**4. Data sources:** each sensor with last data time and latency. The voice/call channel status shows here too.
 
 ### 5.3 Activity feed (left drawer, 320 px, collapsible)
 - `useEvents(80)`, grouped per cycle.
@@ -220,7 +220,7 @@ Area X: west-Altadena foothills (outline on map)
   Satellite first saw fire there ({GOES-18 | VIIRS}): {t_sat}
   Lead time: {lead} min   · without assimilation: {lead_openloop} min
   ETA range at {t_fc}: {q10}–{q90} ({inside | outside} the actual time)
-  Context: west-Altadena evacuation orders 03:25. Retrospective replay — officials did not have this tool; not an outcomes claim.
+  Context: west-Altadena evacuation orders 03:25.
   Config {hash} frozen before the reported run.
 ```
 
@@ -245,9 +245,7 @@ Colours, type and spacing come from Linda's mockup: the tokens in `web/src/App.c
 - Never rely on colour alone: chips carry text, zones carry labels.
 - Respect `prefers-reduced-motion`: pulses become ticks.
 - Contrast ≥ 4.5:1 on panels.
-- **Honesty affordances visible at all times:**
-  - REAL / SIM / INJECTED badges per layer and source
-  - "Retrospective replay" in the top bar
+- **Always visible:**
   - "issued at / data through" stamp on the forecast
   - "heuristic" hatch on urban spread
 
