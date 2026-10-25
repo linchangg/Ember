@@ -1,5 +1,8 @@
 # Next tasks after the Rust adapter
 
+Implementation instructions, phase approvals and executable replay audit:
+[Release implementation framework](RELEASE_IMPLEMENTATION_FRAMEWORK.md).
+
 Work in this order. Each item has a concrete implementation and acceptance gate.
 Updated after PR #11 merged on 2026-10-25. The backend and dashboard connection
 are available; scientific calibration and real-time speed still require work. Do not substitute fixture output for historical evaluation.

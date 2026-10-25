@@ -1,5 +1,8 @@
 # Integration and remaining release gates
 
+Implementation instructions, phase approvals and executable replay audit:
+[Release implementation framework](RELEASE_IMPLEMENTATION_FRAMEWORK.md).
+
 Merged via [PR #11](https://github.com/linchangg/Legendary-Fire-Project/pull/11)
 on 2026-10-25, main `0308ba8`. All five PR checks passed. Local engine suite:
 311 passed / 18 skipped; full synthetic fixture, report branch and decoder passed.

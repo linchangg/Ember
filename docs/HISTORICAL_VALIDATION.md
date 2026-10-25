@@ -1,7 +1,7 @@
 # Historical validation framework v1
 
 This is an implemented offline, frozen-artifact scorer. It does not fetch real data,
-run Cody's unfinished real-data orchestrator, fit parameters or certify forecast skill.
+run the real-data orchestrator, fit parameters or certify forecast skill.
 A synthetic example exercises the scoring/audit code only. The implemented methods
 are in `engine/emberline/hazard/historical.py`; the manifest JSON schema is
 `docs/schemas/historical-v1.schema.json`.
