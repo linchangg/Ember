@@ -9,6 +9,10 @@ from typing import Any, Protocol
 from emberline.contracts import ActivityEvent, Alert, Briefing, ClockState, CycleBundle, Person, Report
 
 
+class PublicationUnavailable(RuntimeError):
+    """Transient hub publication failure; the loop must retain its pending batch."""
+
+
 @dataclass
 class HubSnapshot:
     commands: list[dict] = field(default_factory=list)  # pending, sorted by created_wall_ms

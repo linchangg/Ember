@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "fetch:basemap": "node scripts/fetch_basemap.mjs",
     "typecheck": "tsc --project tsconfig.data.json",
-    "test:browser": "playwright test"
+    "test:browser": "playwright test",
+    "test:browser:hub": "playwright test --config playwright.hub.config.ts"
   },
   "dependencies": {
     "cesium": "^1.146.0",

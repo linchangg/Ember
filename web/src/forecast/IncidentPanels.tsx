@@ -10,7 +10,9 @@ export default function IncidentPanels({
   model,
   comparison,
   decide,
+  shared = false,
 }: {
+  shared?: boolean
   model: PanelModel
   comparison: ComparisonState
   decide: (id: string, state: 'approved' | 'declined', reason: string) => void
@@ -213,10 +215,14 @@ export default function IncidentPanels({
         )}
       </section>
       <section className="sidebar__section">
-        <div className="sidebar__label">Alerts · local review only</div>
+        <div className="sidebar__label">
+          Alerts · {shared ? 'shared hub review' : 'local review only'}
+        </div>
         <p>
-          No messages or calls are sent. Prior-cycle alerts retain their
-          original issue and identifiers.
+          {shared
+            ? 'Approval updates the shared hub and may be consumed by the runtime notification worker. '
+            : 'No messages or calls are sent. '}
+          Prior-cycle alerts retain their original issue and identifiers.
         </p>
         <label>
           Decline reason{' '}
@@ -257,7 +263,7 @@ export default function IncidentPanels({
                     disabled={!model.available || a.branch_id !== model.branch}
                     onClick={() => decide(a.alert_id, 'approved', '')}
                   >
-                    Approve locally
+                    {shared ? 'Approve on hub' : 'Approve locally'}
                   </button>
                   <button
                     disabled={
@@ -267,7 +273,7 @@ export default function IncidentPanels({
                     }
                     onClick={() => decide(a.alert_id, 'declined', reason)}
                   >
-                    Decline locally
+                    {shared ? 'Decline on hub' : 'Decline locally'}
                   </button>
                 </div>
               )}

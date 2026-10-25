@@ -1,11 +1,30 @@
 import type { DataSource, Snapshot } from './source.ts'
 import { FileSource } from './fileSource.ts'
+import { SpacetimeSource } from './spacetimeSource.ts'
 
 /** Explicit selection. Importing this module never starts requests or changes the UI. */
 export function createConfiguredSource(
   env: Record<string, string | undefined>,
   pageUrl: string
 ): DataSource {
+  if (env.VITE_DATA_SOURCE === 'stdb') {
+    if (
+      !env.VITE_STDB_URI ||
+      !env.VITE_STDB_DB ||
+      !env.VITE_ASSET_BASE ||
+      !env.VITE_SCENARIO_ID
+    )
+      throw new Error(
+        'Hub mode needs VITE_STDB_URI, VITE_STDB_DB, VITE_ASSET_BASE and VITE_SCENARIO_ID'
+      )
+    return new SpacetimeSource({
+      uri: env.VITE_STDB_URI,
+      database: env.VITE_STDB_DB,
+      assetBase: env.VITE_ASSET_BASE,
+      scenario: env.VITE_SCENARIO_ID,
+      pageUrl,
+    })
+  }
   if (env.VITE_DATA_SOURCE !== 'file')
     throw new Error(
       'Phase B supports file mode only; hub/mock adapters must be selected explicitly later'

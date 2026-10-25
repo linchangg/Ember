@@ -25,6 +25,7 @@ import { useBranchComparison } from '../data/comparison.ts'
 import type { DataSource } from '../data/source.ts'
 import type { RasterMode } from './forecastRaster.ts'
 import './forecast.css'
+import { SpacetimeSource } from '../data/spacetimeSource.ts'
 const LEADS = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360]
 const noopSubscribe = () => () => {}
 function configureSource() {
@@ -76,6 +77,8 @@ export default function FileDashboard() {
   )
 }
 function ConnectedDashboard({ source }: { source: DataSource }) {
+  const hub = source instanceof SpacetimeSource
+  const [operatorPin, setOperatorPin] = useState('')
   const panelSnapshot = usePanelSnapshot()
   const panels = panelModel(panelSnapshot)
   const comparison = useBranchComparison(source, panelSnapshot)
@@ -87,7 +90,7 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
   const { cycle, assets } = useMapSelection(),
     status = useDataStatus()
   const [mode, setMode] = useState<RasterMode>('probability'),
-    [lead, setLead] = useState(120)
+    [lead, setLead] = useState(hub ? 0 : 120)
   const [actionError, setActionError] = useState<string | null>(null)
   const [actionBusy, setActionBusy] = useState(false)
   const actionPending = useRef(false)
@@ -137,7 +140,11 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
           ? 'No forecast yet — select a later replay issue.'
           : status.forecastStatus === 'beyond-horizon'
             ? 'View time is beyond the selected forecast horizon.'
-            : null
+            : hub && clock?.status !== 'ok'
+              ? `Runtime ${clock?.status ?? 'connecting'}; showing the last committed forecast at its original issue time.`
+              : hub && cycle && simTime - cycle.knowledge_sim_ms > 300000
+                ? 'Forecast is behind the shared clock; showing its original issue time.'
+                : null
   return (
     <div className="app">
       <header className="header">
@@ -180,12 +187,33 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
           )}
           <div className="time-slider forecast-controls">
             <div className="forecast-controls__row">
+              {hub && (
+                <label>
+                  Operator PIN{' '}
+                  <input
+                    aria-label="Operator PIN"
+                    type="password"
+                    autoComplete="off"
+                    value={operatorPin}
+                    onChange={(e) => {
+                      setOperatorPin(e.target.value)
+                      source.configureOperator(e.target.value, 'Operator')
+                    }}
+                  />
+                </label>
+              )}
+              {hub && (
+                <span>
+                  Shared hub · {clock?.status ?? 'connecting'} · approvals
+                  update operator state
+                </span>
+              )}
               <label>
                 Branch{' '}
                 <select
                   aria-label="Replay branch"
                   value={clock?.active_branch_id ?? 'main'}
-                  disabled={!clock || actionBusy}
+                  disabled={!clock || actionBusy || hub}
                   onChange={(event) => {
                     const branch = event.target.value
                     run(async () => {
@@ -233,7 +261,7 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
                     const next = Number(event.target.value)
                     setLead(next)
                     run(async () => {
-                      await actions.pause()
+                      if (!hub) await actions.pause()
                       await actions.setScrub(
                         (cycle?.knowledge_sim_ms ?? simTime) + next * 60000
                       )
@@ -336,6 +364,7 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
           </div>
         </main>
         <IncidentPanels
+          shared={hub}
           model={panels}
           comparison={comparison}
           decide={(id, state, reason) =>

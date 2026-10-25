@@ -8,8 +8,10 @@ Everything written is lon/lat; UTM never leaves this module.
 from __future__ import annotations
 
 import json
+import hashlib
 import math
 from pathlib import Path
+from emberline.runtime.cache import _write_atomic
 
 import numpy as np
 import shapely
@@ -179,7 +181,7 @@ def write_assets(
     encoded = np.ascontiguousarray(encode_arrival(t_q))
     raw = encoded.tobytes(order="C")
     assert len(raw) == 5 * ny * nx, f"arrival_q.bin is {len(raw)} bytes, expected {5 * ny * nx}"
-    (out_dir / "arrival_q.bin").write_bytes(raw)
+    _immutable(out_dir / "arrival_q.bin", raw)
 
     burned = p_now >= 0.5
     burned_utm = _mask_utm(burned, g)
@@ -233,8 +235,34 @@ def write_assets(
         "perimeter": f"{rel_prefix}/perimeter.geojson",
         "isochrones": f"{rel_prefix}/isochrones.geojson",
     }
+    receipt = {name: {"bytes": (out_dir / name).stat().st_size,
+                      "sha256": hashlib.sha256((out_dir / name).read_bytes()).hexdigest()}
+               for name in ("arrival_q.bin", "perimeter.geojson", "isochrones.geojson")}
+    _write(out_dir / "receipt.json", receipt)
+    verify_assets(out_dir, 5 * ny * nx)
     return assets, danger, stats
 
 
 def _write(path: Path, obj: object) -> None:
-    path.write_text(json.dumps(obj, separators=(",", ":")), encoding="utf-8")
+    _immutable(path, json.dumps(obj, separators=(",", ":")).encode("utf-8"))
+
+
+def _immutable(path: Path, data: bytes) -> None:
+    if path.exists():
+        if path.read_bytes() != data:
+            raise ValueError(f"Refusing to replace immutable forecast asset {path.name}")
+        return
+    _write_atomic(path, data)
+
+
+def verify_assets(directory: Path, expected_arrival_bytes: int) -> None:
+    """Receipt is internal metadata, not a change to frozen Cycle.assets."""
+    receipt = json.loads((directory / "receipt.json").read_text())
+    if set(receipt) != {"arrival_q.bin", "perimeter.geojson", "isochrones.geojson"}:
+        raise ValueError("Incomplete asset receipt")
+    for name, expected in receipt.items():
+        raw = (directory / name).read_bytes()
+        if len(raw) != expected["bytes"] or hashlib.sha256(raw).hexdigest() != expected["sha256"]:
+            raise ValueError(f"Asset integrity mismatch: {name}")
+    if receipt["arrival_q.bin"]["bytes"] != expected_arrival_bytes:
+        raise ValueError("Arrival raster size mismatch")
