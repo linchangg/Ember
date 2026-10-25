@@ -20,13 +20,14 @@ warm runs and process-tree memory before changing the performance claim.
 
 ## Real-data and scientific gate
 
-Both accessible checkouts lack Eaton's `forcing/` directory. The repository contains
-real terrain/fuels and GOES/VIIRS inputs, but independent timestamped burned-perimeter
-truth is absent. `zone_orders.json` is evacuation-order context, not fire perimeter
+Cody's main commits `0e7ce57` and `655b775` supply Eaton's HRRR forcing, precompute
+cache and raw sources. These are included in this integration. Real terrain/fuels
+and GOES/VIIRS inputs are present; independent timestamped burned-perimeter truth
+is still absent. `zone_orders.json` is evacuation-order context, not fire perimeter
 truth; active-fire observations used for assimilation cannot also establish independent
 accuracy. No substitute data or scientific score is generated.
 
-Required handoff: the frozen HRRR files and checksums, then independently sourced
+Required handoff: independently sourced
 perimeters with valid times, source/publication times and coverage masks. Run none,
 reinit and PF on identical causal inputs, retain raw member arrivals, and feed the
 existing `hazard.historical` framework at 30/60/120/360 minutes. Calibrate only on
@@ -43,3 +44,8 @@ service-only auth and report availability through a real worker/branch, then add
 phone submission controls. External delivery rehearsal needs provider configuration
 and an explicitly selected test recipient. No call or message was sent during this
 integration, and a precomputed call card is not delivery evidence.
+
+Recheck the committed data with `PYTHONPATH=engine python scripts/validation/eaton_data_smoke.py`.
+This verifies HRRR checksums and release-time selection across the replay, then runs
+a two-member Rust PF forecast on actual Eaton statics and delivered observations.
+It does not modify the 128-member default or establish historical skill.

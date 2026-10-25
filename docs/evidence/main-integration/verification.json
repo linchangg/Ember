@@ -1,7 +1,7 @@
 {
   "date": "2026-10-25",
-  "base_main": "2fbe729",
-  "integration_code": "c398c90",
+  "base_main": "655b775",
+  "integration_code": "2475aee",
   "engine_tests": {
     "passed": 310,
     "skipped": 19,
@@ -15,7 +15,8 @@
   "lint": "passed --deny-warnings",
   "build": "passed; existing large map chunk warning",
   "homepage_globe_diff_against_base_main": "none",
-  "forcing_available": false,
+  "forcing_available": true,
   "independent_time_resolved_perimeter_truth_available": false,
-  "outbound_calls_sent": 0
+  "outbound_calls_sent": 0,
+  "eaton_data_smoke": "eaton-data-smoke.json"
 }

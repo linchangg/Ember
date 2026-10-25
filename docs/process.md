@@ -55,3 +55,5 @@ Format: `Sat 13:05 · Cody · C0 contracts + fixture merged (PR #3) · Cursor ag
 - Sun 02:30 · Cody · Alerts whose act-by is already past say "act now" with the time the evacuation window closed; KIN-KINNELOA named "Kinneloa" · Claude
 
 2026-10-25 — Owner authorized PR review and merge. Integrated current main 2fbe729 with approved C–E on integrate/dashboard-main; retained main globe byte-for-byte and its new Eaton/statics/VIIRS/report/call-card work. Local tests: engine 310 passed/19 skipped, dashboard 48 passed/1 expected skip, types/lint/build passed. Target-size cold synthetic benchmark 94.649 s at N=128/340×340, target not met. HRRR forcing and independent time-resolved fire-perimeter truth absent from both checkouts; no scientific accuracy or delivery claim. See RELEASE_READINESS.md.
+
+2026-10-25: Integrated Cody’s Eaton source/cache commits through 655b775; verified 22 HRRR checksums, causal selection at all 157 issues, and two-member real-input Rust PF smoke (186 used observations). Independent perimeter skill and target latency remain open.
