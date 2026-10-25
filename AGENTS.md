@@ -9,7 +9,7 @@ You are helping a 3-person team build **Emberline** at Cal Hacks 13.0. The deadl
 4. `docs/build_process.md`: the task queue, who owns each task, and the prompt you were given.
 
 ## Ownership (don't edit other owners' folders without being asked)
-- `engine/emberline/hazard/`, `engine/emberline/data/statics.py`, `engine/emberline/risk/metrics.py`: Abby
+- `engine/emberline/hazard/`, `engine/emberline/risk/metrics.py`: Abby
 - `engine/emberline/{data,runtime,risk,sync,ai,notify,api,scripts}/` (rest), `stdb/`: Cody
 - `web/src/`, `web/api/` (Vercel functions): Linda
 - One-time exception: Cody converts `web/` from JavaScript to TypeScript (task C1 in `docs/build_process.md`). It must not change the look or behaviour; Linda reviews it.

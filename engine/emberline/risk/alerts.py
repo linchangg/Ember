@@ -67,15 +67,19 @@ def _render(level: str, zones_text: str, zones_spoken: str, types: list[str], po
     critical = "".join(f", {t}" for t in types)
     critical_spoken = f", including {_spoken_list([_article(t) for t in types])}" if types else ""
     lead_words = "1 hour" if lead_h == 1 else f"{lead_h} hours"
+    # act-by = arrival (act_by_q) minus evacuation minutes; at or before issue time the window has closed.
+    passed = act_by_ms is not None and act_by_ms <= k_ms
+    act_text = f"Act now: evacuation window closed {act_hm} PST." if passed else f"Act by {act_hm} PST."
+    act_voice = f"Act now. The time needed to evacuate ran out at {act_spoken}." if passed else f"Act by {act_spoken}."
     text = (
         f"DEMO REPLAY (Jan 2025). {token} recommended — {zones_text}: "
-        f"fire {p_words(p)} within {lead_h} h (P {p:.0%}). Act by {act_hm} PST. "
+        f"fire {p_words(p)} within {lead_h} h (P {p:.0%}). {act_text} "
         f"~{pop:,} residents{critical}. Forecast {_hm(k_ms)}, satellite data through {_hm(data_through_ms)}."
     )
     voice = (
         "This is an Emberline demo replay of January 2025. Briefing for the duty officer. "
         f"Recommend {level_words} for {zones_spoken}. Fire is {p_words(p)} to reach the zone within {lead_words}. "
-        f"Act by {act_spoken}. About {pop} residents{critical_spoken}. "
+        f"{act_voice} About {pop} residents{critical_spoken}. "
         "This is decision support; you make the call. Say 'acknowledged' to confirm."
     )
     return text, voice

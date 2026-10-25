@@ -54,8 +54,10 @@
     "source": "Citygate; LA County AAR",
     "kind": "report",
     "as_observation": true,
+    "note": "Hand-placed 400 m north of Farnsworth Park (OSM); the report names no street.",
     "approximate": true,
-    "note": "No street intersection in the source; location left out."
+    "lon": -118.1328,
+    "lat": 34.2057
   },
   {
     "t_sim_ms": 1736335500000,

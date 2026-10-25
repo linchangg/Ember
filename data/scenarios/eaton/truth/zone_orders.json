@@ -1,0 +1,2332 @@
+{
+ "scenario_id": "eaton",
+ "description": "Official Genasys zone evacuation warnings and orders for the Eaton Fire, Jan 7-8 2025, keyed by our zone ids. One row per (zone, alert). Times are the sent times in the AAR table (minute precision, PST = UTC-8); t_sim_ms is UTC epoch ms.",
+ "timezone": "PST (UTC-8)",
+ "sources": {
+  "aar": {
+   "title": "OFFICIAL After-Action Review of Alert Notification Systems and Evacuation Policies for the Eaton and Palisades Fires (McChrystal Group for LA County)",
+   "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+   "used": "Appendix 10 Figure 33 (printed pp.115-117) is the per-zone table; body text pp.25-26"
+  },
+  "citygate": {
+   "title": "Investigation Report of the Eaton Fire Evacuation Alerts (Citygate)",
+   "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+   "used": "Tables 1-7 (printed pp.14-44) corroborate every AAR row through 05:01 PST Jan 8 (advisory 18:48 vs 18:49); the report's tables stop at 05:00"
+  },
+  "aar_synopsis": {
+   "title": "AAR Eaton Fire Synopsis of Findings and Timeline",
+   "url": "https://file.lacounty.gov/SDSInter/lac/1192777_AAR_EatonFireSynopsisofFindingsandTimeline.pdf",
+   "used": "18:48 advisory, 19:26 first orders, 03:25 west-of-Lake orders (no per-zone times)"
+  }
+ },
+ "west_altadena_0325_zone_ids": [
+  "ALD-ARROYOSECO",
+  "ALD-CANON",
+  "ALD-CASITAS",
+  "ALD-CHANEY",
+  "ALD-FARNSWORTH",
+  "ALD-GARDEN",
+  "ALD-LAUREL",
+  "ALD-MEADOWS",
+  "ALD-MILLARD",
+  "ALD-PALM",
+  "ALD-WAPELLO",
+  "ALD-WHITEPARK",
+  "LCF-JPL"
+ ],
+ "notes": [
+  "Advisories ('BE ALERT AND MONITOR') are kept in 'advisories', not 'entries': they are neither warnings nor orders.",
+  "AAR Appendix 10 is the per-zone source; Citygate times agree minute-for-minute where both exist, except the advisory (AAR table 18:49, Citygate and AAR text 18:48).",
+  "Zone ALD-MENDOCINO: ordered 19:26, then listed again in the AAR's 19:55 warning row (Citygate's 19:55 row omits it), then ordered again 21:00.",
+  "Jan 9 Mt. Wilson orders (LAC-E167, LAC-E165-B, LAC-E168-A) are out of scope (not Jan 7-8).",
+  "Our zones that appear in no Jan 7-8 official row: ALD-RUBIO, CRV-MONTROSE, PAS-E001, PAS-E002, PAS-E003"
+ ],
+ "entries": [
+  {
+   "zone_id": "PAS-E019",
+   "official_level": "order",
+   "t_sim_ms": 1736306760000,
+   "local_pst": "2025-01-07 19:26 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 2 (p.16); AAR body text p.25 zone table"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-EASTLOMA",
+   "official_level": "order",
+   "t_sim_ms": 1736306760000,
+   "local_pst": "2025-01-07 19:26 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 2 (p.16); AAR body text p.25 zone table"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-EATONCANYON",
+   "official_level": "order",
+   "t_sim_ms": 1736306760000,
+   "local_pst": "2025-01-07 19:26 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 2 (p.16); AAR body text p.25 zone table"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-GARFIAS",
+   "official_level": "order",
+   "t_sim_ms": 1736306760000,
+   "local_pst": "2025-01-07 19:26 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 2 (p.16); AAR body text p.25 zone table"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-MENDOCINO",
+   "official_level": "order",
+   "t_sim_ms": 1736306760000,
+   "local_pst": "2025-01-07 19:26 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 2 (p.16); AAR body text p.25 zone table"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-MIDLOTHIAN",
+   "official_level": "order",
+   "t_sim_ms": 1736306760000,
+   "local_pst": "2025-01-07 19:26 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 2 (p.16); AAR body text p.25 zone table"
+    }
+   }
+  },
+  {
+   "zone_id": "KIN-KINNELOA",
+   "official_level": "order",
+   "t_sim_ms": 1736306760000,
+   "local_pst": "2025-01-07 19:26 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 2 (p.16); AAR body text p.25 zone table"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-MENDOCINO",
+   "official_level": "warning",
+   "t_sim_ms": 1736308500000,
+   "local_pst": "2025-01-07 19:55 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 2 (p.16) lists ALD-MOUNTLOWE and PAS-E014..E018 ('including for'), not ALD-MENDOCINO"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-MOUNTLOWE",
+   "official_level": "warning",
+   "t_sim_ms": 1736308500000,
+   "local_pst": "2025-01-07 19:55 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 2 (p.16) lists ALD-MOUNTLOWE and PAS-E014..E018 ('including for'), not ALD-MENDOCINO"
+    }
+   }
+  },
+  {
+   "zone_id": "PAS-E014",
+   "official_level": "warning",
+   "t_sim_ms": 1736308500000,
+   "local_pst": "2025-01-07 19:55 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 2 (p.16) lists ALD-MOUNTLOWE and PAS-E014..E018 ('including for'), not ALD-MENDOCINO"
+    }
+   }
+  },
+  {
+   "zone_id": "PAS-E015",
+   "official_level": "warning",
+   "t_sim_ms": 1736308500000,
+   "local_pst": "2025-01-07 19:55 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 2 (p.16) lists ALD-MOUNTLOWE and PAS-E014..E018 ('including for'), not ALD-MENDOCINO"
+    }
+   }
+  },
+  {
+   "zone_id": "PAS-E016",
+   "official_level": "warning",
+   "t_sim_ms": 1736308500000,
+   "local_pst": "2025-01-07 19:55 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 2 (p.16) lists ALD-MOUNTLOWE and PAS-E014..E018 ('including for'), not ALD-MENDOCINO"
+    }
+   }
+  },
+  {
+   "zone_id": "PAS-E017",
+   "official_level": "warning",
+   "t_sim_ms": 1736308500000,
+   "local_pst": "2025-01-07 19:55 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 2 (p.16) lists ALD-MOUNTLOWE and PAS-E014..E018 ('including for'), not ALD-MENDOCINO"
+    }
+   }
+  },
+  {
+   "zone_id": "PAS-E018",
+   "official_level": "warning",
+   "t_sim_ms": 1736308500000,
+   "local_pst": "2025-01-07 19:55 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 2 (p.16) lists ALD-MOUNTLOWE and PAS-E014..E018 ('including for'), not ALD-MENDOCINO"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-MENDOCINO",
+   "official_level": "order",
+   "t_sim_ms": 1736312400000,
+   "local_pst": "2025-01-07 21:00 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 3 (p.21)"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-MOUNTLOWE",
+   "official_level": "order",
+   "t_sim_ms": 1736312400000,
+   "local_pst": "2025-01-07 21:00 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 3 (p.21)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E007",
+   "official_level": "order",
+   "t_sim_ms": 1736313960000,
+   "local_pst": "2025-01-07 21:26 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 3 (p.21)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E008",
+   "official_level": "order",
+   "t_sim_ms": 1736313960000,
+   "local_pst": "2025-01-07 21:26 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 3 (p.21)"
+    }
+   }
+  },
+  {
+   "zone_id": "LAC-E183",
+   "official_level": "order",
+   "t_sim_ms": 1736314440000,
+   "local_pst": "2025-01-07 21:34 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 3 (p.21)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E004",
+   "official_level": "order",
+   "t_sim_ms": 1736317620000,
+   "local_pst": "2025-01-07 22:27 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 3 (p.21)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E005",
+   "official_level": "order",
+   "t_sim_ms": 1736317620000,
+   "local_pst": "2025-01-07 22:27 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 3 (p.21)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E006",
+   "official_level": "order",
+   "t_sim_ms": 1736317620000,
+   "local_pst": "2025-01-07 22:27 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 3 (p.21)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E007",
+   "official_level": "order",
+   "t_sim_ms": 1736317620000,
+   "local_pst": "2025-01-07 22:27 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 3 (p.21)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E008",
+   "official_level": "order",
+   "t_sim_ms": 1736317620000,
+   "local_pst": "2025-01-07 22:27 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 3 (p.21)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E009",
+   "official_level": "order",
+   "t_sim_ms": 1736317620000,
+   "local_pst": "2025-01-07 22:27 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 3 (p.21)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E010",
+   "official_level": "order",
+   "t_sim_ms": 1736317620000,
+   "local_pst": "2025-01-07 22:27 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 3 (p.21)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E011",
+   "official_level": "order",
+   "t_sim_ms": 1736317620000,
+   "local_pst": "2025-01-07 22:27 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 3 (p.21)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E012",
+   "official_level": "order",
+   "t_sim_ms": 1736317620000,
+   "local_pst": "2025-01-07 22:27 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 3 (p.21)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E013",
+   "official_level": "order",
+   "t_sim_ms": 1736317620000,
+   "local_pst": "2025-01-07 22:27 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 3 (p.21)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E014",
+   "official_level": "order",
+   "t_sim_ms": 1736317620000,
+   "local_pst": "2025-01-07 22:27 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 3 (p.21)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E017",
+   "official_level": "order",
+   "t_sim_ms": 1736317620000,
+   "local_pst": "2025-01-07 22:27 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 3 (p.21)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E019",
+   "official_level": "order",
+   "t_sim_ms": 1736317620000,
+   "local_pst": "2025-01-07 22:27 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 3 (p.21)"
+    }
+   }
+  },
+  {
+   "zone_id": "PAS-E022",
+   "official_level": "order",
+   "t_sim_ms": 1736318340000,
+   "local_pst": "2025-01-07 22:39 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 4 (p.29)"
+    }
+   }
+  },
+  {
+   "zone_id": "PAS-E018",
+   "official_level": "warning",
+   "t_sim_ms": 1736318580000,
+   "local_pst": "2025-01-07 22:43 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 4 (p.29)"
+    }
+   }
+  },
+  {
+   "zone_id": "PAS-E020",
+   "official_level": "warning",
+   "t_sim_ms": 1736318580000,
+   "local_pst": "2025-01-07 22:43 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 4 (p.29)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E001",
+   "official_level": "order",
+   "t_sim_ms": 1736320080000,
+   "local_pst": "2025-01-07 23:08 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 4 (p.29)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E002",
+   "official_level": "order",
+   "t_sim_ms": 1736320080000,
+   "local_pst": "2025-01-07 23:08 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 4 (p.29)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E003",
+   "official_level": "order",
+   "t_sim_ms": 1736320080000,
+   "local_pst": "2025-01-07 23:08 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 4 (p.29)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E015",
+   "official_level": "order",
+   "t_sim_ms": 1736320080000,
+   "local_pst": "2025-01-07 23:08 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 4 (p.29)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E016",
+   "official_level": "order",
+   "t_sim_ms": 1736320080000,
+   "local_pst": "2025-01-07 23:08 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 4 (p.29)"
+    }
+   }
+  },
+  {
+   "zone_id": "ARC-001",
+   "official_level": "order",
+   "t_sim_ms": 1736320260000,
+   "local_pst": "2025-01-07 23:11 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 4 (p.29)"
+    }
+   }
+  },
+  {
+   "zone_id": "ARC-002",
+   "official_level": "order",
+   "t_sim_ms": 1736320260000,
+   "local_pst": "2025-01-07 23:11 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 4 (p.29)"
+    }
+   }
+  },
+  {
+   "zone_id": "ARC-004",
+   "official_level": "order",
+   "t_sim_ms": 1736320260000,
+   "local_pst": "2025-01-07 23:11 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 4 (p.29)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E018",
+   "official_level": "warning",
+   "t_sim_ms": 1736320620000,
+   "local_pst": "2025-01-07 23:17 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 4 (p.29)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-101",
+   "official_level": "warning",
+   "t_sim_ms": 1736320620000,
+   "local_pst": "2025-01-07 23:17 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 4 (p.29)"
+    }
+   }
+  },
+  {
+   "zone_id": "ARC-003",
+   "official_level": "warning",
+   "t_sim_ms": 1736320620000,
+   "local_pst": "2025-01-07 23:17 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 4 (p.29)"
+    }
+   }
+  },
+  {
+   "zone_id": "ARC-005",
+   "official_level": "warning",
+   "t_sim_ms": 1736320620000,
+   "local_pst": "2025-01-07 23:17 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 4 (p.29)"
+    }
+   }
+  },
+  {
+   "zone_id": "SMD-E018",
+   "official_level": "warning",
+   "t_sim_ms": 1736325660000,
+   "local_pst": "2025-01-08 00:41 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 5 (p.35), marked 'Second Warning'"
+    }
+   },
+   "note": "repeat of the 23:17 warning"
+  },
+  {
+   "zone_id": "MRV-101",
+   "official_level": "warning",
+   "t_sim_ms": 1736325660000,
+   "local_pst": "2025-01-08 00:41 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 5 (p.35), marked 'Second Warning'"
+    }
+   },
+   "note": "repeat of the 23:17 warning"
+  },
+  {
+   "zone_id": "ARC-003",
+   "official_level": "warning",
+   "t_sim_ms": 1736325660000,
+   "local_pst": "2025-01-08 00:41 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 5 (p.35), marked 'Second Warning'"
+    }
+   },
+   "note": "repeat of the 23:17 warning"
+  },
+  {
+   "zone_id": "ARC-005",
+   "official_level": "warning",
+   "t_sim_ms": 1736325660000,
+   "local_pst": "2025-01-08 00:41 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 5 (p.35), marked 'Second Warning'"
+    }
+   },
+   "note": "repeat of the 23:17 warning"
+  },
+  {
+   "zone_id": "MRV-102",
+   "official_level": "warning",
+   "t_sim_ms": 1736326260000,
+   "local_pst": "2025-01-08 00:51 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 5 (p.35)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-201",
+   "official_level": "warning",
+   "t_sim_ms": 1736326260000,
+   "local_pst": "2025-01-08 00:51 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 5 (p.35)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-202",
+   "official_level": "warning",
+   "t_sim_ms": 1736326260000,
+   "local_pst": "2025-01-08 00:51 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 5 (p.35)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-203",
+   "official_level": "warning",
+   "t_sim_ms": 1736326260000,
+   "local_pst": "2025-01-08 00:51 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 5 (p.35)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-204",
+   "official_level": "warning",
+   "t_sim_ms": 1736326260000,
+   "local_pst": "2025-01-08 00:51 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 5 (p.35)"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-ARROYOSECO",
+   "official_level": "order",
+   "t_sim_ms": 1736335500000,
+   "local_pst": "2025-01-08 03:25 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.43) and Finding #20; AAR body text p.26"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-CANON",
+   "official_level": "order",
+   "t_sim_ms": 1736335500000,
+   "local_pst": "2025-01-08 03:25 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.43) and Finding #20; AAR body text p.26"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-CASITAS",
+   "official_level": "order",
+   "t_sim_ms": 1736335500000,
+   "local_pst": "2025-01-08 03:25 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.43) and Finding #20; AAR body text p.26"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-CHANEY",
+   "official_level": "order",
+   "t_sim_ms": 1736335500000,
+   "local_pst": "2025-01-08 03:25 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.43) and Finding #20; AAR body text p.26"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-FARNSWORTH",
+   "official_level": "order",
+   "t_sim_ms": 1736335500000,
+   "local_pst": "2025-01-08 03:25 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.43) and Finding #20; AAR body text p.26"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-GARDEN",
+   "official_level": "order",
+   "t_sim_ms": 1736335500000,
+   "local_pst": "2025-01-08 03:25 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.43) and Finding #20; AAR body text p.26"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-LAUREL",
+   "official_level": "order",
+   "t_sim_ms": 1736335500000,
+   "local_pst": "2025-01-08 03:25 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.43) and Finding #20; AAR body text p.26"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-MEADOWS",
+   "official_level": "order",
+   "t_sim_ms": 1736335500000,
+   "local_pst": "2025-01-08 03:25 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.43) and Finding #20; AAR body text p.26"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-MILLARD",
+   "official_level": "order",
+   "t_sim_ms": 1736335500000,
+   "local_pst": "2025-01-08 03:25 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.43) and Finding #20; AAR body text p.26"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-PALM",
+   "official_level": "order",
+   "t_sim_ms": 1736335500000,
+   "local_pst": "2025-01-08 03:25 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.43) and Finding #20; AAR body text p.26"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-WAPELLO",
+   "official_level": "order",
+   "t_sim_ms": 1736335500000,
+   "local_pst": "2025-01-08 03:25 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.43) and Finding #20; AAR body text p.26"
+    }
+   }
+  },
+  {
+   "zone_id": "ALD-WHITEPARK",
+   "official_level": "order",
+   "t_sim_ms": 1736335500000,
+   "local_pst": "2025-01-08 03:25 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.43) and Finding #20; AAR body text p.26"
+    }
+   }
+  },
+  {
+   "zone_id": "LCF-JPL",
+   "official_level": "order",
+   "t_sim_ms": 1736335500000,
+   "local_pst": "2025-01-08 03:25 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.43) and Finding #20; AAR body text p.26"
+    }
+   }
+  },
+  {
+   "zone_id": "LCF-BERKSHIRE",
+   "official_level": "warning",
+   "t_sim_ms": 1736336160000,
+   "local_pst": "2025-01-08 03:36 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "LCF-COMMONWEALTH",
+   "official_level": "warning",
+   "t_sim_ms": 1736336160000,
+   "local_pst": "2025-01-08 03:36 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "LCF-CROWN",
+   "official_level": "warning",
+   "t_sim_ms": 1736336160000,
+   "local_pst": "2025-01-08 03:36 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "LCF-FOOTHILLEAST",
+   "official_level": "warning",
+   "t_sim_ms": 1736336160000,
+   "local_pst": "2025-01-08 03:36 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "LCF-INVERNESS",
+   "official_level": "warning",
+   "t_sim_ms": 1736336160000,
+   "local_pst": "2025-01-08 03:36 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "LCF-STARLIGHT",
+   "official_level": "warning",
+   "t_sim_ms": 1736336160000,
+   "local_pst": "2025-01-08 03:36 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "LCF-BERKSHIRE",
+   "official_level": "order",
+   "t_sim_ms": 1736339760000,
+   "local_pst": "2025-01-08 04:36 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "LCF-COMMONWEALTH",
+   "official_level": "order",
+   "t_sim_ms": 1736339760000,
+   "local_pst": "2025-01-08 04:36 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "LCF-CROWN",
+   "official_level": "order",
+   "t_sim_ms": 1736339760000,
+   "local_pst": "2025-01-08 04:36 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "LCF-FOOTHILLEAST",
+   "official_level": "order",
+   "t_sim_ms": 1736339760000,
+   "local_pst": "2025-01-08 04:36 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "LCF-INVERNESS",
+   "official_level": "order",
+   "t_sim_ms": 1736339760000,
+   "local_pst": "2025-01-08 04:36 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "LCF-STARLIGHT",
+   "official_level": "order",
+   "t_sim_ms": 1736339760000,
+   "local_pst": "2025-01-08 04:36 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-101",
+   "official_level": "order",
+   "t_sim_ms": 1736340420000,
+   "local_pst": "2025-01-08 04:47 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-102",
+   "official_level": "order",
+   "t_sim_ms": 1736340420000,
+   "local_pst": "2025-01-08 04:47 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-201",
+   "official_level": "order",
+   "t_sim_ms": 1736340420000,
+   "local_pst": "2025-01-08 04:47 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-202",
+   "official_level": "order",
+   "t_sim_ms": 1736340420000,
+   "local_pst": "2025-01-08 04:47 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-203",
+   "official_level": "order",
+   "t_sim_ms": 1736340420000,
+   "local_pst": "2025-01-08 04:47 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-204",
+   "official_level": "order",
+   "t_sim_ms": 1736340420000,
+   "local_pst": "2025-01-08 04:47 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-301",
+   "official_level": "order",
+   "t_sim_ms": 1736340420000,
+   "local_pst": "2025-01-08 04:47 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-302",
+   "official_level": "order",
+   "t_sim_ms": 1736340420000,
+   "local_pst": "2025-01-08 04:47 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-303",
+   "official_level": "order",
+   "t_sim_ms": 1736340420000,
+   "local_pst": "2025-01-08 04:47 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-304",
+   "official_level": "order",
+   "t_sim_ms": 1736340420000,
+   "local_pst": "2025-01-08 04:47 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-305",
+   "official_level": "order",
+   "t_sim_ms": 1736340420000,
+   "local_pst": "2025-01-08 04:47 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-401",
+   "official_level": "order",
+   "t_sim_ms": 1736340420000,
+   "local_pst": "2025-01-08 04:47 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-402",
+   "official_level": "order",
+   "t_sim_ms": 1736340420000,
+   "local_pst": "2025-01-08 04:47 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-403",
+   "official_level": "order",
+   "t_sim_ms": 1736340420000,
+   "local_pst": "2025-01-08 04:47 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "MRV-404",
+   "official_level": "order",
+   "t_sim_ms": 1736340420000,
+   "local_pst": "2025-01-08 04:47 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "BRA-001",
+   "official_level": "warning",
+   "t_sim_ms": 1736341260000,
+   "local_pst": "2025-01-08 05:01 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "BRA-002",
+   "official_level": "warning",
+   "t_sim_ms": 1736341260000,
+   "local_pst": "2025-01-08 05:01 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "BRA-003",
+   "official_level": "warning",
+   "t_sim_ms": 1736341260000,
+   "local_pst": "2025-01-08 05:01 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "BRA-004",
+   "official_level": "warning",
+   "t_sim_ms": 1736341260000,
+   "local_pst": "2025-01-08 05:01 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "DUA-001",
+   "official_level": "warning",
+   "t_sim_ms": 1736341260000,
+   "local_pst": "2025-01-08 05:01 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 7 (p.44)"
+    }
+   }
+  },
+  {
+   "zone_id": "GLN-E018",
+   "official_level": "order",
+   "t_sim_ms": 1736342100000,
+   "local_pst": "2025-01-08 05:15 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "GLN-E027",
+   "official_level": "order",
+   "t_sim_ms": 1736342100000,
+   "local_pst": "2025-01-08 05:15 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "GLN-E028",
+   "official_level": "order",
+   "t_sim_ms": 1736342100000,
+   "local_pst": "2025-01-08 05:15 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "GLN-E029",
+   "official_level": "order",
+   "t_sim_ms": 1736342100000,
+   "local_pst": "2025-01-08 05:15 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "GLN-E030",
+   "official_level": "order",
+   "t_sim_ms": 1736342100000,
+   "local_pst": "2025-01-08 05:15 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "GLN-E039",
+   "official_level": "order",
+   "t_sim_ms": 1736342100000,
+   "local_pst": "2025-01-08 05:15 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "GLN-E040",
+   "official_level": "order",
+   "t_sim_ms": 1736342100000,
+   "local_pst": "2025-01-08 05:15 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "GLN-E041",
+   "official_level": "order",
+   "t_sim_ms": 1736342100000,
+   "local_pst": "2025-01-08 05:15 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "LCF-ALTACANYADA",
+   "official_level": "order",
+   "t_sim_ms": 1736342100000,
+   "local_pst": "2025-01-08 05:15 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "LCF-CASTLE",
+   "official_level": "order",
+   "t_sim_ms": 1736342100000,
+   "local_pst": "2025-01-08 05:15 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "LCF-CIVICCENTER",
+   "official_level": "order",
+   "t_sim_ms": 1736342100000,
+   "local_pst": "2025-01-08 05:15 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "LCF-CREST",
+   "official_level": "order",
+   "t_sim_ms": 1736342100000,
+   "local_pst": "2025-01-08 05:15 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "LCF-DESCANSO",
+   "official_level": "order",
+   "t_sim_ms": 1736342100000,
+   "local_pst": "2025-01-08 05:15 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "LCF-FOOTHILLWEST",
+   "official_level": "order",
+   "t_sim_ms": 1736342100000,
+   "local_pst": "2025-01-08 05:15 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "LCF-HAMPSTEAD",
+   "official_level": "order",
+   "t_sim_ms": 1736342100000,
+   "local_pst": "2025-01-08 05:15 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "LCF-HILLARD",
+   "official_level": "order",
+   "t_sim_ms": 1736342100000,
+   "local_pst": "2025-01-08 05:15 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "LCF-MEMORIAL",
+   "official_level": "order",
+   "t_sim_ms": 1736342100000,
+   "local_pst": "2025-01-08 05:15 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "LCF-PARADISE",
+   "official_level": "order",
+   "t_sim_ms": 1736342100000,
+   "local_pst": "2025-01-08 05:15 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "PAS-E006",
+   "official_level": "order",
+   "t_sim_ms": 1736342100000,
+   "local_pst": "2025-01-08 05:15 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "ALD-CALAVERAS",
+   "official_level": "order",
+   "t_sim_ms": 1736343780000,
+   "local_pst": "2025-01-08 05:43 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   },
+   "note": "AAR table reads 5:43 AM (row alignment confirmed with pdftotext -table); press reports say 05:42 (https://www.yahoo.com/news/17-deaths-eaton-fire-were-024433120.html, cited in docs/DEMO_FIRE_RESEARCH.md, not re-read here)"
+  },
+  {
+   "zone_id": "PAS-E008",
+   "official_level": "order",
+   "t_sim_ms": 1736344560000,
+   "local_pst": "2025-01-08 05:56 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "PAS-E010",
+   "official_level": "order",
+   "t_sim_ms": 1736344560000,
+   "local_pst": "2025-01-08 05:56 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "PAS-E012",
+   "official_level": "order",
+   "t_sim_ms": 1736344560000,
+   "local_pst": "2025-01-08 05:56 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "GLN-E001",
+   "official_level": "warning",
+   "t_sim_ms": 1736344800000,
+   "local_pst": "2025-01-08 06:00 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "GLN-E002",
+   "official_level": "warning",
+   "t_sim_ms": 1736344800000,
+   "local_pst": "2025-01-08 06:00 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "GLN-E003",
+   "official_level": "warning",
+   "t_sim_ms": 1736344800000,
+   "local_pst": "2025-01-08 06:00 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "GLN-E004",
+   "official_level": "warning",
+   "t_sim_ms": 1736344800000,
+   "local_pst": "2025-01-08 06:00 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "GLN-E006",
+   "official_level": "warning",
+   "t_sim_ms": 1736344800000,
+   "local_pst": "2025-01-08 06:00 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "GLN-E013",
+   "official_level": "warning",
+   "t_sim_ms": 1736344800000,
+   "local_pst": "2025-01-08 06:00 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "GLN-E017",
+   "official_level": "warning",
+   "t_sim_ms": 1736344800000,
+   "local_pst": "2025-01-08 06:00 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "GLN-E026",
+   "official_level": "warning",
+   "t_sim_ms": 1736344800000,
+   "local_pst": "2025-01-08 06:00 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "GLN-E038",
+   "official_level": "warning",
+   "t_sim_ms": 1736344800000,
+   "local_pst": "2025-01-08 06:00 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "CRV-ALABAMA",
+   "official_level": "warning",
+   "t_sim_ms": 1736344800000,
+   "local_pst": "2025-01-08 06:00 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "CRV-COMMUNITY",
+   "official_level": "warning",
+   "t_sim_ms": 1736344800000,
+   "local_pst": "2025-01-08 06:00 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "CRV-PINECONE",
+   "official_level": "warning",
+   "t_sim_ms": 1736344800000,
+   "local_pst": "2025-01-08 06:00 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "CRV-HENRIETTA",
+   "official_level": "warning",
+   "t_sim_ms": 1736344800000,
+   "local_pst": "2025-01-08 06:00 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "CRV-BRIGGSTERRACE",
+   "official_level": "warning",
+   "t_sim_ms": 1736344800000,
+   "local_pst": "2025-01-08 06:00 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "CRV-TEASLEY",
+   "official_level": "warning",
+   "t_sim_ms": 1736344800000,
+   "local_pst": "2025-01-08 06:00 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "CRV-MOUNTAIN",
+   "official_level": "warning",
+   "t_sim_ms": 1736344800000,
+   "local_pst": "2025-01-08 06:00 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.116 (PDF p.117)"
+   }
+  },
+  {
+   "zone_id": "PAS-E011",
+   "official_level": "warning",
+   "t_sim_ms": 1736345040000,
+   "local_pst": "2025-01-08 06:04 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.117 (PDF p.118)"
+   }
+  },
+  {
+   "zone_id": "PAS-E013",
+   "official_level": "warning",
+   "t_sim_ms": 1736345040000,
+   "local_pst": "2025-01-08 06:04 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.117 (PDF p.118)"
+   }
+  },
+  {
+   "zone_id": "SMD-E018",
+   "official_level": "order",
+   "t_sim_ms": 1736345940000,
+   "local_pst": "2025-01-08 06:19 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.117 (PDF p.118)"
+   }
+  },
+  {
+   "zone_id": "GLN-E043",
+   "official_level": "warning",
+   "t_sim_ms": 1736348820000,
+   "local_pst": "2025-01-08 07:07 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.117 (PDF p.118)"
+   }
+  },
+  {
+   "zone_id": "GLN-E044",
+   "official_level": "warning",
+   "t_sim_ms": 1736348820000,
+   "local_pst": "2025-01-08 07:07 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.117 (PDF p.118)"
+   }
+  },
+  {
+   "zone_id": "PAS-E004",
+   "official_level": "warning",
+   "t_sim_ms": 1736349000000,
+   "local_pst": "2025-01-08 07:10 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.117 (PDF p.118)"
+   }
+  },
+  {
+   "zone_id": "PAS-E005",
+   "official_level": "warning",
+   "t_sim_ms": 1736349000000,
+   "local_pst": "2025-01-08 07:10 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.117 (PDF p.118)"
+   }
+  },
+  {
+   "zone_id": "PAS-E007",
+   "official_level": "warning",
+   "t_sim_ms": 1736349000000,
+   "local_pst": "2025-01-08 07:10 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.117 (PDF p.118)"
+   }
+  },
+  {
+   "zone_id": "PAS-E009",
+   "official_level": "warning",
+   "t_sim_ms": 1736349000000,
+   "local_pst": "2025-01-08 07:10 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.117 (PDF p.118)"
+   }
+  },
+  {
+   "zone_id": "GLN-E043",
+   "official_level": "order",
+   "t_sim_ms": 1736353320000,
+   "local_pst": "2025-01-08 08:22 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.117 (PDF p.118)"
+   },
+   "note": "AAR body text p.26 calls the 8:22 a.m. Scholl Canyon alert 'the final evacuation warnings'; Appendix 10 lists it as Order"
+  },
+  {
+   "zone_id": "GLN-E044",
+   "official_level": "order",
+   "t_sim_ms": 1736353320000,
+   "local_pst": "2025-01-08 08:22 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.117 (PDF p.118)"
+   },
+   "note": "AAR body text p.26 calls the 8:22 a.m. Scholl Canyon alert 'the final evacuation warnings'; Appendix 10 lists it as Order"
+  }
+ ],
+ "advisories": [
+  {
+   "zone_id": "ALD-EASTLOMA",
+   "official_level": "advisory",
+   "t_sim_ms": 1736304540000,
+   "local_pst": "2025-01-07 18:49 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 1 (p.14) gives 18:48"
+    }
+   },
+   "note": "AAR body text p.25 and synopsis say 'approximately 6:48 p.m.'; 'BE ALERT AND MONITOR'"
+  },
+  {
+   "zone_id": "ALD-EATONCANYON",
+   "official_level": "advisory",
+   "t_sim_ms": 1736304540000,
+   "local_pst": "2025-01-07 18:49 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 1 (p.14) gives 18:48"
+    }
+   },
+   "note": "AAR body text p.25 and synopsis say 'approximately 6:48 p.m.'; 'BE ALERT AND MONITOR'"
+  },
+  {
+   "zone_id": "ALD-GARFIAS",
+   "official_level": "advisory",
+   "t_sim_ms": 1736304540000,
+   "local_pst": "2025-01-07 18:49 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 1 (p.14) gives 18:48"
+    }
+   },
+   "note": "AAR body text p.25 and synopsis say 'approximately 6:48 p.m.'; 'BE ALERT AND MONITOR'"
+  },
+  {
+   "zone_id": "ALD-MENDOCINO",
+   "official_level": "advisory",
+   "t_sim_ms": 1736304540000,
+   "local_pst": "2025-01-07 18:49 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 1 (p.14) gives 18:48"
+    }
+   },
+   "note": "AAR body text p.25 and synopsis say 'approximately 6:48 p.m.'; 'BE ALERT AND MONITOR'"
+  },
+  {
+   "zone_id": "ALD-MIDLOTHIAN",
+   "official_level": "advisory",
+   "t_sim_ms": 1736304540000,
+   "local_pst": "2025-01-07 18:49 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 1 (p.14) gives 18:48"
+    }
+   },
+   "note": "AAR body text p.25 and synopsis say 'approximately 6:48 p.m.'; 'BE ALERT AND MONITOR'"
+  },
+  {
+   "zone_id": "KIN-KINNELOA",
+   "official_level": "advisory",
+   "t_sim_ms": 1736304540000,
+   "local_pst": "2025-01-07 18:49 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 1 (p.14) gives 18:48"
+    }
+   },
+   "note": "AAR body text p.25 and synopsis say 'approximately 6:48 p.m.'; 'BE ALERT AND MONITOR'"
+  },
+  {
+   "zone_id": "PAS-E014",
+   "official_level": "advisory",
+   "t_sim_ms": 1736304540000,
+   "local_pst": "2025-01-07 18:49 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 1 (p.14) gives 18:48"
+    }
+   },
+   "note": "AAR body text p.25 and synopsis say 'approximately 6:48 p.m.'; 'BE ALERT AND MONITOR'"
+  },
+  {
+   "zone_id": "PAS-E015",
+   "official_level": "advisory",
+   "t_sim_ms": 1736304540000,
+   "local_pst": "2025-01-07 18:49 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 1 (p.14) gives 18:48"
+    }
+   },
+   "note": "AAR body text p.25 and synopsis say 'approximately 6:48 p.m.'; 'BE ALERT AND MONITOR'"
+  },
+  {
+   "zone_id": "PAS-E016",
+   "official_level": "advisory",
+   "t_sim_ms": 1736304540000,
+   "local_pst": "2025-01-07 18:49 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 1 (p.14) gives 18:48"
+    }
+   },
+   "note": "AAR body text p.25 and synopsis say 'approximately 6:48 p.m.'; 'BE ALERT AND MONITOR'"
+  },
+  {
+   "zone_id": "PAS-E017",
+   "official_level": "advisory",
+   "t_sim_ms": 1736304540000,
+   "local_pst": "2025-01-07 18:49 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 1 (p.14) gives 18:48"
+    }
+   },
+   "note": "AAR body text p.25 and synopsis say 'approximately 6:48 p.m.'; 'BE ALERT AND MONITOR'"
+  },
+  {
+   "zone_id": "PAS-E018",
+   "official_level": "advisory",
+   "t_sim_ms": 1736304540000,
+   "local_pst": "2025-01-07 18:49 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 1 (p.14) gives 18:48"
+    }
+   },
+   "note": "AAR body text p.25 and synopsis say 'approximately 6:48 p.m.'; 'BE ALERT AND MONITOR'"
+  },
+  {
+   "zone_id": "PAS-E019",
+   "official_level": "advisory",
+   "t_sim_ms": 1736304540000,
+   "local_pst": "2025-01-07 18:49 PST",
+   "verified": true,
+   "source": {
+    "url": "https://file.lacounty.gov/SDSInter/bos/supdocs/207915.pdf",
+    "where": "AAR Appendix 10, Figure 33 'Eaton Fire alerts--Genasys zone evacuation warnings and orders', printed p.115 (PDF p.116)",
+    "corroboration": {
+     "url": "https://file.lacounty.gov/SDSInter/lac/1208708_InvestigationReportoftheEatonFireEvacuationAlerts_05-18-26_.pdf",
+     "where": "Citygate Table 1 (p.14) gives 18:48"
+    }
+   },
+   "note": "AAR body text p.25 and synopsis say 'approximately 6:48 p.m.'; 'BE ALERT AND MONITOR'"
+  }
+ ],
+ "unmatched": [
+  {
+   "official_zone": "MRV-307",
+   "official_level": "order",
+   "local_pst": "2025-01-08 04:47 PST",
+   "reason": "not in data/scenarios/eaton/vectors/zones.geojson"
+  },
+  {
+   "official_zone": "MRV-405",
+   "official_level": "order",
+   "local_pst": "2025-01-08 04:47 PST",
+   "reason": "not in data/scenarios/eaton/vectors/zones.geojson"
+  },
+  {
+   "official_zone": "DUA-002",
+   "official_level": "warning",
+   "local_pst": "2025-01-08 05:01 PST",
+   "reason": "not in data/scenarios/eaton/vectors/zones.geojson"
+  }
+ ]
+}

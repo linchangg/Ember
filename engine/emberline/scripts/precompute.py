@@ -3,6 +3,10 @@
     uv run python -m emberline.scripts.precompute --scenario eaton --branch main --filter pf
     uv run python -m emberline.scripts.precompute --scenario eaton --branch openloop --filter none
     uv run python -m emberline.scripts.precompute --scenario eaton --branch main --profile dev   # 16 members
+    uv run python -m emberline.scripts.precompute --scenario eaton --branch goes-only --sensors goes18_fdcc
+
+`--sensors`/`--reports` override scenario.yaml's assimilate_sensors/use_documented_reports in ctx.cfg
+before the host and Loop exist, so run_hash (and every cycle key) differs per branch input set.
 
 Physics is Abby's Rust HazardModel (`hazard.factory.create_hazard_model`, docs/RUST_HAZARD_BACKEND.md)
 on her statics (static/dem.tif, static/fbfm40.tif via data.statics.load_landscape) and the HRRR files
@@ -43,6 +47,14 @@ async def precompute(ctx: Scenario, source: Any, forcing: Any, make: Any, land: 
     return loop
 
 
+def apply_overrides(cfg: dict, sensors: str | None, reports: bool | None) -> None:
+    """Per-branch inputs on top of scenario.yaml (None = keep the yaml value)."""
+    if sensors is not None:
+        cfg["assimilate_sensors"] = [s.strip() for s in sensors.split(",") if s.strip()]
+    if reports is not None:
+        cfg["use_documented_reports"] = reports
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Precompute one branch of the physics cache.")
     ap.add_argument("--scenario", default="eaton")
@@ -52,19 +64,31 @@ def main() -> None:
                     help="target = scenario.yaml n_members (reported run); dev = 16 members, labelled +dev-n16")
     ap.add_argument("--workers", type=int, default=2, help="Rust worker threads (BackendOptions)")
     ap.add_argument("--timeout-s", type=float, default=120.0, help="per Rust forecast (BackendOptions)")
+    # fire-bridge silently caps workers at (budget - arrivals) / (cells * (640 + 56 * weather frames)) bytes,
+    # ~0.2-0.4 GB per worker on Eaton, so the 1 GB default runs only 2-4 workers whatever --workers says.
+    ap.add_argument("--memory-gb", type=float, default=1.0, help="Rust memory budget (BackendOptions)")
     ap.add_argument("--no-briefings", action="store_true",
                     help="skip awaiting one Claude briefing per cycle with a new alert (spec/03 §5 default: await)")
     ap.add_argument("--cache-root", type=Path, default=cache.DEFAULT_ROOT)
+    ap.add_argument("--sensors", default=None, help="comma list overriding assimilate_sensors (default: scenario.yaml)")
+    ap.add_argument("--reports", action=argparse.BooleanOptionalAction, default=None,
+                    help="override use_documented_reports (default: scenario.yaml)")
     a = ap.parse_args()
 
     from emberline.runtime.sources import ReplaySource
 
     scn_dir = scenario_dir(a.scenario)
     ctx = load_scenario_dir(scn_dir)
+    apply_overrides(ctx.cfg, a.sensors, a.reports)
+    print(f"{ctx.scenario_id}/{a.branch}: filter {a.filter or ctx.cfg.get('filter', 'pf')}, "
+          f"sensors {','.join(ctx.cfg['assimilate_sensors'])}, "
+          f"documented reports {'on' if ctx.cfg.get('use_documented_reports') else 'off'}", flush=True)
     land = landscape(ctx)  # stops naming Abby's missing statics; never a fabricated landscape
-    source = ReplaySource(scn_dir, ctx.scenario_id, ctx.cfg["assimilate_sensors"])
+    source = ReplaySource(scn_dir, ctx.scenario_id, ctx.cfg["assimilate_sensors"],
+                          reports=bool(ctx.cfg.get("use_documented_reports")))
     forcing = NcForcing(scn_dir / "forcing", model_grid(ctx))
-    make, identity = rust_backend(BackendOptions(workers=a.workers, timeout_s=a.timeout_s))
+    make, identity = rust_backend(BackendOptions(workers=a.workers, timeout_s=a.timeout_s,
+                                                 memory_budget_bytes=int(a.memory_gb * 1024**3)))
     t0 = time.perf_counter()
     loop = asyncio.run(precompute(ctx, source, forcing, make, land, a.cache_root, a.branch, a.filter,
                                   briefings=not a.no_briefings, members_profile=a.members_profile, identity=identity))

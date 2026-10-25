@@ -76,7 +76,8 @@ def physics_fingerprint():
             paths.append(root / "build.rs")
         paths.extend((root / "src").rglob("*.rs"))
     h = hashlib.sha256()
-    for path in sorted(paths):
+    # Byte-wise, like build.rs; Windows paths otherwise sort case-insensitively.
+    for path in sorted(paths, key=lambda p: p.relative_to(WORKSPACE).parts):
         h.update(path.relative_to(WORKSPACE).as_posix().encode())
         h.update(b"\0")
         h.update(path.read_bytes())
