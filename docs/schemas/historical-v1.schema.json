@@ -1,0 +1,297 @@
+{
+  "$defs": {
+    "Case": {
+      "additionalProperties": false,
+      "properties": {
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "incident_id": {
+          "title": "Incident Id",
+          "type": "string"
+        },
+        "issue_sim_ms": {
+          "title": "Issue Sim Ms",
+          "type": "integer"
+        },
+        "lead_min": {
+          "enum": [
+            30,
+            60,
+            120,
+            360
+          ],
+          "title": "Lead Min",
+          "type": "integer"
+        },
+        "truth_source_id": {
+          "title": "Truth Source Id",
+          "type": "string"
+        },
+        "predictions": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Prediction"
+          },
+          "title": "Predictions",
+          "type": "object"
+        }
+      },
+      "required": [
+        "case_id",
+        "incident_id",
+        "issue_sim_ms",
+        "lead_min",
+        "truth_source_id",
+        "predictions"
+      ],
+      "title": "Case",
+      "type": "object"
+    },
+    "Grid": {
+      "additionalProperties": false,
+      "properties": {
+        "crs": {
+          "const": "EPSG:32611",
+          "default": "EPSG:32611",
+          "title": "Crs",
+          "type": "string"
+        },
+        "nx": {
+          "exclusiveMinimum": 0,
+          "title": "Nx",
+          "type": "integer"
+        },
+        "ny": {
+          "exclusiveMinimum": 0,
+          "title": "Ny",
+          "type": "integer"
+        },
+        "cell_m": {
+          "exclusiveMinimum": 0,
+          "title": "Cell M",
+          "type": "number"
+        },
+        "x0": {
+          "title": "X0",
+          "type": "number"
+        },
+        "y0": {
+          "title": "Y0",
+          "type": "number"
+        },
+        "row_order": {
+          "const": "north_first",
+          "default": "north_first",
+          "title": "Row Order",
+          "type": "string"
+        }
+      },
+      "required": [
+        "nx",
+        "ny",
+        "cell_m",
+        "x0",
+        "y0"
+      ],
+      "title": "Grid",
+      "type": "object"
+    },
+    "Incident": {
+      "additionalProperties": false,
+      "properties": {
+        "incident_id": {
+          "title": "Incident Id",
+          "type": "string"
+        },
+        "split": {
+          "enum": [
+            "train",
+            "calibration",
+            "test"
+          ],
+          "title": "Split",
+          "type": "string"
+        }
+      },
+      "required": [
+        "incident_id",
+        "split"
+      ],
+      "title": "Incident",
+      "type": "object"
+    },
+    "Prediction": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "input_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Input Ids",
+          "type": "array"
+        },
+        "model_version": {
+          "minLength": 1,
+          "title": "Model Version",
+          "type": "string"
+        },
+        "config_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Config Sha256",
+          "type": "string"
+        },
+        "runtime_ms": {
+          "minimum": 0,
+          "title": "Runtime Ms",
+          "type": "number"
+        },
+        "seed": {
+          "minimum": 0,
+          "title": "Seed",
+          "type": "integer"
+        },
+        "model_source_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Model Source Sha256",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "input_ids",
+        "model_version",
+        "config_sha256",
+        "runtime_ms",
+        "seed",
+        "model_source_sha256"
+      ],
+      "title": "Prediction",
+      "type": "object"
+    },
+    "Source": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "role": {
+          "enum": [
+            "static",
+            "weather",
+            "observation",
+            "truth",
+            "config"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "available_sim_ms": {
+          "title": "Available Sim Ms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "source_id",
+        "role",
+        "available_sim_ms"
+      ],
+      "title": "Source",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "dataset_kind": {
+      "enum": [
+        "historical",
+        "synthetic"
+      ],
+      "title": "Dataset Kind",
+      "type": "string"
+    },
+    "experiment_id": {
+      "minLength": 1,
+      "title": "Experiment Id",
+      "type": "string"
+    },
+    "frozen": {
+      "const": true,
+      "title": "Frozen",
+      "type": "boolean"
+    },
+    "threshold": {
+      "default": 0.5,
+      "exclusiveMaximum": 1,
+      "exclusiveMinimum": 0,
+      "title": "Threshold",
+      "type": "number"
+    },
+    "grid": {
+      "$ref": "#/$defs/Grid"
+    },
+    "incidents": {
+      "items": {
+        "$ref": "#/$defs/Incident"
+      },
+      "minItems": 1,
+      "title": "Incidents",
+      "type": "array"
+    },
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/Source"
+      },
+      "minItems": 1,
+      "title": "Sources",
+      "type": "array"
+    },
+    "cases": {
+      "items": {
+        "$ref": "#/$defs/Case"
+      },
+      "minItems": 1,
+      "title": "Cases",
+      "type": "array"
+    }
+  },
+  "required": [
+    "schema_version",
+    "dataset_kind",
+    "experiment_id",
+    "frozen",
+    "grid",
+    "incidents",
+    "sources",
+    "cases"
+  ],
+  "title": "Experiment",
+  "type": "object"
+}

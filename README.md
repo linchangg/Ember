@@ -66,3 +66,8 @@ python3 -m http.server 8787 --bind 127.0.0.1 --directory /tmp/emberline-rust-dem
 Open `http://127.0.0.1:8787/demo.html` for the complete offline Rust fixture. This
 verification viewer is separate from the existing dashboard design. Choose a new
 output directory on subsequent runs.
+
+Scientific follow-up tools: [calibration equations and experiments](docs/SCIENTIFIC_CALIBRATION.md),
+[frozen-artifact historical evaluation](docs/HISTORICAL_VALIDATION.md), and
+[Phase A fixture hosting / approval boundary](docs/DASHBOARD_PHASE_A.md).
+The example scorer uses synthetic data; it does not establish historical forecast skill.

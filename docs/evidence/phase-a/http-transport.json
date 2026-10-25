@@ -1,0 +1,7 @@
+{
+  "transport": "passed",
+  "cors_origin": "http://localhost:5173",
+  "read_only": true,
+  "missing_asset_is_error": true,
+  "forecast_validation": "run check_hazard_frontend separately"
+}

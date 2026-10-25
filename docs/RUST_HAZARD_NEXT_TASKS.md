@@ -189,3 +189,13 @@ latency and missing-sensor robustness. Export a versioned ONNX model only after 
 measured benefit; add Rust/Python inference parity, feature normalization metadata,
 an out-of-distribution fallback and model-file checksum. Do not describe this as a
 current engine capability or require it to unblock the working fixture.
+
+## Phase-gated follow-up (2026-10-24)
+
+A frozen-artifact historical scorer and opt-in heat/location likelihood candidate are
+now available; see `HISTORICAL_VALIDATION.md` and `SCIENTIFIC_CALIBRATION.md`.
+The default model is unchanged and real historical evaluation still requires independent
+incident inputs and causal replay artifacts. Dashboard Phase A generation/HTTP hosting
+is complete. The owner requires direct confirmation before each remaining phase:
+stop before FileSource/store/hooks work (Phase B), then stop again before rendering.
+See `DASHBOARD_PHASE_A.md` for the exact boundary and restart commands.
