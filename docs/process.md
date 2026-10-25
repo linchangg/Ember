@@ -35,3 +35,6 @@ Format: `Sat 13:05 · Cody · C0 contracts + fixture merged (PR #3) · Cursor ag
 - Sun 01:30 · Cody · VIIRS 375 m from NOAA EFIRE S3: 4 night passes, 649 px, available at file creation 41-93 min after the pass; only N21 10:41Z (available 03:25 PST) is clearly west of Lake · Claude agent
 - Sun 01:30 · Cody · Documented reports (23:49, 02:18 PST) as ground_report obs behind use_documented_reports; precompute --sensors and --reports per branch, folded into run_hash · Claude agent
 - Sun 01:45 · Cody · Inputs frozen for the demo precompute: branches main (satellites + reports), satellites-only (no reports, the honest lead-time number), openloop; 16 members on 3 RunPod CPU pods · Claude
+- Sun 02:30 · Cody · Official per-zone Eaton alert times (AAR App.10, checked against Citygate) in truth/zone_orders.json; lead_times.py compares each branch's first warn/order per zone (+ = earlier, reported even when negative) · Claude agent
+- Sun 02:30 · Cody · call_cards.py writes per-branch duty-officer call cards (calls.json) from cached alerts via the real Cartesia request builder, for file-mode replay · Claude agent
+- Sun 02:30 · Cody · Alerts whose act-by is already past say "act now" with the time the evacuation window closed; KIN-KINNELOA named "Kinneloa" · Claude
