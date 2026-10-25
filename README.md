@@ -1,73 +1,41 @@
-# Legendary Fire Project · Ember
+# Ember: Satellite-powered global wildfire prediction
 
-Wildfire command dashboard for Cal Hacks, with satellite-data tooling and an experimental Rust fire-spread backend. The current globe and dashboard use labeled prototype overlays; they are not yet connected to the Rust forecasts.
+Ember replays a real fire night, the January 2025 Eaton Fire in Los Angeles, through a live-style system built at Cal Hacks 13.0:
 
-## Web UI
+1. Satellite fire detections (GOES every 5 minutes, VIIRS passes) arrive in time order.
+2. A physics-based ensemble forecast re-fits itself to each new observation.
+3. The forecast becomes a ranked list of which zones are in the way and when each must act.
+4. A human approves the alert and a duty-officer call card is produced.
 
-The Ember command dashboard lives in [`web/`](./web).
+![Ember cover](design/ember-cover.jpg)
 
-```bash
-cd web
-npm install
-npm run dev
-```
+## Try it at <https://linchangg.github.io/Ember/>!
 
-Open the printed local URL (default `http://localhost:5173`).
+- `/` is the globe. Click the Eaton Fire marker (or press **Take the guided tour**) to open the replay.
+- Inside the replay, use the two sliders (actual time and forecast lead), the branch switcher (`main` with satellites and ground reports, `satellites-only`, `openloop`), the zones and alerts panel, and the "How early" tab, which compares each branch's first warning against the official evacuation times.
 
-### Routes
+## What is in this repository
 
 | Path | What |
-|------|------|
-| `/` | Globe home page: terrain, labels, simulated Eaton spread + forecast (`/?focus=eaton`) |
-| `/dashboard` | Earlier command dashboard (mock Sierra Vista scene) |
-| `/compare` | Globe pattern bake-off hub |
-| `/compare/cesium` | **Pattern 1** — Cesium only + Esri WorldElevation3D |
-| `/compare/maplibre-three` | **Pattern 2** — MapLibre + AWS Terrarium DEM + Three.js fire layer |
-| `/compare/hybrid` | **Pattern 3** — MapLibre world → handoff to existing incident canvas |
+|---|---|
+| `web/` | The React + deck.gl front end: globe, replay dashboard, comparison pages |
+| `engine/ember/` | Python engine: data ingestion (`data/`), the replay runtime, risk and alerts, notifications, AI briefings, and the `hazard/` ensemble and particle-filter adapter |
+| `physics/surface_v1/` | Rust surface fire-spread solver used by the hazard adapter |
+| `stdb/` | SpacetimeDB hub module (shared replay state) |
+| `data/`, `fixtures/`, `config/` | Eaton scenario inputs, test fixtures, alert rules |
+| `tools/`, `scripts/` | Checks and fixture builders |
+| `SPEC.md`, `spec/`, `research/`, `docs/` | Build spec, shared contracts, research notes, phase reports and evidence |
+| `design/` | Dashboard mockup and the cover image |
 
-Fire footprints are synthetic. Elevation/imagery are real (Esri / AWS Terrarium). Use the on-screen FPS meter while orbiting/zooming to compare smoothness.
+## Developing
 
-Design reference (exported mockup) is in [`design/command-dashboard-mockup/`](./design/command-dashboard-mockup).
+You only need to run these commands if you want to change the code! Use Python 3.12 with `uv`, Node 22, and the Rust toolchain pinned in `physics/surface_v1/rust-toolchain.toml`.
 
-## Roadmap
+```bash
+# front end
+cd web && npm install && npm run dev
 
-- Choose a globe stack from the bake-off and wire live satellite / FireSat + physics-ML forecasts
-- Zoomed-out interactive **world topographic globe**, drill-down into regional terrain
-- Live satellite / FireSat feeds and real physics-ML forecasts
-
-## Engine build plan
-
-See [Engine Build Plan](ENGINE_BUILD_PLAN.md) for the proposed Rust physics engine, equations, input/output contracts, implementation milestones, and runnable reference fixtures. It is a research proposal alongside the current Ember demo specifications.
-
-## Rust HazardModel and research tools
-
-The Rust engine lives in [`physics/surface_v1/`](physics/surface_v1/README.md).
-The operational Python adapter is [`engine/ember/hazard/`](engine/ember/hazard/),
-including ensemble inference, delayed observations, reanchoring and checkpoints.
-The separate [`physics/surface_v1/adapter/`](physics/surface_v1/adapter/README.md)
-preserves the research CLI conversions and smoke tests; it does not select a backend.
-
-See the [build and integration guide](docs/RUST_HAZARD_BACKEND.md),
-[measured acceptance gaps](docs/evidence/rust-hazard/README.md), and
-[ordered next tasks](docs/RUST_HAZARD_NEXT_TASKS.md). The owner-approved solver
-decision preserves the shared HazardModel/wire contracts. Historical accuracy,
-parameter recovery and the 0.5-second latency target remain unfinished.
-
-From the repository root, with Python 3.12, uv and the pinned Rust toolchain:
-
-```sh
-uv sync --project engine --locked
-cargo build --manifest-path physics/surface_v1/Cargo.toml -p fire-bridge --release --locked
-uv run --project engine python -m ember.hazard.demo --out /tmp/ember-rust-demo --members 16
-node tools/check_hazard_frontend.mjs /tmp/ember-rust-demo
-python3 -m http.server 8787 --bind 127.0.0.1 --directory /tmp/ember-rust-demo
+# engine tests
+uv sync --project engine --locked && uv run --project engine pytest
 ```
 
-Open `http://127.0.0.1:8787/demo.html` for the complete offline Rust fixture. This
-verification viewer is separate from the existing dashboard design. Choose a new
-output directory on subsequent runs.
-
-Scientific follow-up tools: [calibration equations and experiments](docs/SCIENTIFIC_CALIBRATION.md),
-[frozen-artifact historical evaluation](docs/HISTORICAL_VALIDATION.md), and
-[Phase A fixture hosting / approval boundary](docs/DASHBOARD_PHASE_A.md).
-The example scorer uses synthetic data; it does not establish historical forecast skill.
