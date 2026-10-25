@@ -40,3 +40,5 @@ Format: `Sat 13:05 · Cody · C0 contracts + fixture merged (PR #3) · Cursor ag
 - Sun Oct 25 · Abby · E3 scores matched persistence, none, reinit, and pf from one frozen synthetic observation stream; raw-arrival Brier, Dice, IoU, and area errors stay paired by seed and lead; recorded 128-member parameter and report gates stay failed; no solver tuning and no historical-skill claim · Cursor
 
 - Sun Oct 25 · Abby · E3 smoke synthetic-matched-smoke-v1 checked the four-mode runner at 2 members, seed 11, issues 20/25/30; pipeline verification passed in 0.689 s and the frozen 32-member candidate was not run; not forecast-skill evidence · Cursor
+
+- Sun Oct 25 · Abby · E4 restores one checkpoint for the control, the no-report twin, and the treatment; the legacy 300 m report gate stays labeled as a different experiment; 9 control tests passed, including a 2-member seed-11 parity check; the seeds 7/8/9 matrix was not run and movement is not a success criterion · Cursor

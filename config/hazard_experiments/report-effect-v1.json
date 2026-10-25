@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "experiment": "report_effect",
+  "run_id": "report-effect-v1",
+  "purpose": "matched_checkpoint_controls",
+  "evidence_class": "synthetic_self_consistency",
+  "full_matrix_run": "not_executed",
+  "parent_issue_min": 55,
+  "injection_issue_min": 60,
+  "seeds": [7, 8, 9],
+  "trust": [0.1, 0.25, 0.5, 1.0],
+  "timings": [
+    {"name": "on_time", "observed_min": 60, "available_min": 60},
+    {"name": "delayed", "observed_min": 50, "available_min": 60}
+  ],
+  "leads_min": [30, 60, 120],
+  "offset_m_east": 1000,
+  "radius_m": 150,
+  "geometry": "point_radius",
+  "kind": "ground_report",
+  "report_kind": "fire",
+  "provenance": "simulated",
+  "probability_difference_threshold": 0.1,
+  "burned_threshold": 0.5,
+  "boundary": {"erosion": "4-connected", "border_value": 0},
+  "movement_is_success_criterion": false,
+  "trust_monotonicity_required": false,
+  "legacy_gate": {
+    "name": "trust_0.25_q50_boundary_shift",
+    "threshold_m": 300,
+    "comparable_to_matched_checkpoint": false,
+    "success_criterion_for_this_experiment": false
+  },
+  "note": "The seed matrix was not executed. A large boundary movement is not a success criterion, and these numbers are not the legacy none-versus-pf gate."
+}
