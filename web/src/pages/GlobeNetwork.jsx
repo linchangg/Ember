@@ -292,7 +292,7 @@ export default function GlobeNetwork() {
   const [hover, setHover] = useState(null)
   const scnId = new URLSearchParams(window.location.search).get('scn') || import.meta.env.VITE_SCENARIO_ID || 'fixture'
   // Abby's validated data layer: local replay clock, forecast cycles, observations, zones
-  const source = useMemo(() => new FileSource({ assetBase: import.meta.env.VITE_ASSET_BASE ?? '/', scenario: scnId, pageUrl: window.location.href }), [scnId])
+  const source = useMemo(() => new FileSource({ assetBase: import.meta.env.VITE_ASSET_BASE ?? import.meta.env.BASE_URL, scenario: scnId, pageUrl: window.location.href }), [scnId])
   useEffect(() => acquireSource(source), [source])
   const snap = useSyncExternalStore(source.subscribe, source.getSnapshot)
   const [extras, setExtras] = useState(null)
@@ -323,6 +323,96 @@ export default function GlobeNetwork() {
     if (dragT != null && !seekTimer.current && Math.abs(snap.view.viewTime - dragT) < 1000) setDragT(null)
   }, [snap, dragT])
   const homeRef = useRef(null)
+
+  // Guided tour: one button replays the story (open Eaton, sweep the forecast, move time, alert, zones, arrival time).
+  // Any drag, scroll or the Stop button ends it, and every step reads the same data the sliders do.
+  const [tour, setTour] = useState(null)
+  const tourRef = useRef(null)
+  const snapRef = useRef(snap)
+  const stopTourRef = useRef(null)
+  const stopTour = () => {
+    if (tourRef.current) tourRef.current.cancelled = true
+    tourRef.current = null
+    setTour(null)
+  }
+  const runTour = async () => {
+    const eaton = events?.find((e) => /eaton/i.test(e.title))
+    const sc = scnRef.current
+    if (!eaton || !sc || tourRef.current) return
+    const me = { cancelled: false }
+    tourRef.current = me
+    const wait = (ms) => new Promise((res, rej) => setTimeout(() => (me.cancelled ? rej(new Error('stopped')) : res()), ms))
+    const say = (title, text) => setTour({ title, text })
+    const m = sc.manifest
+    const center = (f) => {
+      const ring = (f.geometry.type === 'Polygon' ? f.geometry.coordinates : f.geometry.coordinates[0])[0]
+      return { lon: ring.reduce((s, p) => s + p[0], 0) / ring.length, lat: ring.reduce((s, p) => s + p[1], 0) / ring.length }
+    }
+    try {
+      setPick(null); setProbe(null); setSelZone(null); setCompare(true); setLead(120); setTab('zones')
+      homeRef.current?.()
+      say('Emberline', 'A wildfire forecast that re-fits every time a satellite looks. We replay the Eaton Fire night, Jan 7–8, 2025.')
+      await wait(4500)
+      const t0 = Math.min(m.replay_end_sim_ms, m.t_ignition_sim_ms + 45 * 60000)
+      await act(source.actions.seek(t0))
+      setPick(eaton)
+      fitRef.current(eaton)
+      say('The Eaton Fire', 'Altadena, California. Dark red is burned area; the colors are the forecast: how likely the fire has arrived.')
+      await wait(9000)
+      say('Forecast: the next six hours', 'The forecast slider reaches up to six hours past the moment the forecast was issued.')
+      setLead(0)
+      for (let l = 0; l <= m.horizon_min; l += 10) {
+        setLead(l)
+        await wait(110)
+      }
+      await wait(1500)
+      setLead(90)
+      say('Time moves, the forecast re-fits', 'Every five minutes a new forecast. Blue squares are the satellite observations it just absorbed; the dashed line is the previous forecast.')
+      // rewind to just after ignition, then let time run until the engine proposes its first alert
+      const start = Math.min(m.replay_end_sim_ms, m.t_ignition_sim_ms + 10 * 60000)
+      await act(source.actions.seek(start))
+      await wait(900)
+      const known = new Set(snapRef.current.alerts.map((a) => a.alert_id))
+      const cap = Math.min(m.replay_end_sim_ms, m.t_ignition_sim_ms + 4 * 3600000)
+      const step = Math.max(5 * 60000, Math.round((cap - start) / 40 / 60000) * 60000)
+      for (let t = start; t <= cap; t += step) {
+        await act(source.actions.seek(t))
+        await wait(300)
+        if (snapRef.current.alerts.some((a) => a.state === 'proposed' && !known.has(a.alert_id))) break
+      }
+      await wait(1200)
+      setTab('alerts')
+      say('A zone crosses a rule', 'The engine proposes an alert with a briefing whose every number is checked. A person approves; nothing is sent in this replay.')
+      await wait(7500)
+      setTab('zones')
+      const top = [...snapRef.current.zoneRisk].filter((r) => r.status !== 'clear').sort((a, b) => a.rank - b.rank)[0]
+      const feat = top && sc.zones.features.find((f) => f.properties.zone_id === top.zone_id)
+      if (feat) {
+        const c = center(feat)
+        setSelZone(top.zone_id)
+        flyRef.current?.(c.lon, c.lat, 3500)
+        say('Who is in the way', 'Zones ranked by risk, each with an act-by time: the moment to start evacuating.')
+        await wait(7500)
+        setSelZone(null)
+        fitRef.current(eaton)
+        await wait(5000)
+        const cell = sc.cellAt(c.lon, c.lat)
+        if (cell != null) {
+          setProbe({ lon: c.lon, lat: c.lat, cell, x: Math.max(40, (window.innerWidth - 340) / 2 - 190), y: window.innerHeight / 2 - 40 })
+          say('Click anywhere for an arrival time', 'Five quantiles from the ensemble: when the fire may reach a spot, and how uncertain that is.')
+          await wait(8000)
+        }
+      }
+      setProbe(null)
+      say('Your turn', 'Drag the actual-time and forecast sliders, click a zone, or click the map.')
+      await wait(6000)
+    } catch {
+      /* stopped by the user */
+    } finally {
+      if (tourRef.current === me) tourRef.current = null
+      setTour(null)
+    }
+  }
   const [lead, setLead] = useState(60) // forecast slider: minutes after the forecast's issue time
   const leadRef = useRef(60)
   const [compare, setCompare] = useState(true) // draw the previous forecast for comparison
@@ -344,7 +434,9 @@ export default function GlobeNetwork() {
     compareRef.current = compare
     probeRef.current = probe
     selZoneRef.current = selZone
-  }, [pick, scenario, showTime, lead, compare, probe, selZone])
+    snapRef.current = snap
+    stopTourRef.current = stopTour
+  }, [pick, scenario, showTime, lead, compare, probe, selZone, snap])
 
   // static extras the snapshot does not carry, then open the replay shortly after ignition so the fire is on screen
   const manifest = snap.manifest
@@ -386,7 +478,7 @@ export default function GlobeNetwork() {
     const ctx = cv.getContext('2d')
     let alive = true
     let rings = []
-    fetch('/data/countries.geojson')
+    fetch(`${import.meta.env.BASE_URL}data/countries.geojson`)
       .then((r) => r.json())
       .then((g) => {
         countryLabels = g.features.map((f) => {
@@ -478,7 +570,7 @@ export default function GlobeNetwork() {
     const lineCv = document.createElement('canvas')
     const labelQ = []
     let base = null
-    fetch('/data/basemap_eaton.json').then((r) => r.json()).then((d) => { base = prepBasemap(d) }).catch(() => {})
+    fetch(`${import.meta.env.BASE_URL}data/basemap_eaton.json`).then((r) => r.json()).then((d) => { base = prepBasemap(d) }).catch(() => {})
     const small = [document.createElement('canvas'), document.createElement('canvas')]
     const SCALE = [6, 14]
 
@@ -1535,6 +1627,7 @@ export default function GlobeNetwork() {
 
     // interaction
     const onDown = (e) => {
+      stopTourRef.current?.()
       view.spin = 0
       view.auto = false
       view.lastInteract = performance.now()
@@ -1624,6 +1717,7 @@ export default function GlobeNetwork() {
     // zoom about the cursor: keep the point under the pointer fixed on screen
     const onWheel = (e) => {
       e.preventDefault()
+      stopTourRef.current?.()
       view.lastInteract = performance.now()
       view.target = null
       const rect = cv.getBoundingClientRect()
@@ -1705,6 +1799,18 @@ export default function GlobeNetwork() {
         {error ? <span role="status">Event feed unavailable. Map remains available.</span> : null}
       </header>
       <div className="gn__credit">Roads, places, water: US Census TIGERweb · USGS · Terrain: AWS Terrain Tiles · Events: NASA EONET</div>
+      {scenario && !tour && !pick ? (
+        <button className="gn__tourbtn" onClick={runTour}>▶ Take the guided tour</button>
+      ) : null}
+      {tour ? (
+        <>
+          <div className="gn__tour">
+            <b>{tour.title}</b>
+            <span>{tour.text}</span>
+          </div>
+          <button className="gn__tourstop" onClick={stopTour}>■ Stop tour</button>
+        </>
+      ) : null}
       {snap.status === 'error' ? <div className="gn__err">{/doctype|Unexpected token/i.test(snap.error ?? '') ? `No forecast files for scenario "${scnId}" yet: the engine has not written cache/${scnId}/main/ (index.json is missing).` : `Scenario data problem: ${snap.error}`}</div> : null}
       {hover && !pick ? <div className="gn__tip" style={{ left: hover.x + 14, top: hover.y + 14 }}>{hover.title}</div> : null}
       {hover && pick && hover.title !== pick.title ? <div className="gn__tip" style={{ left: hover.x + 14, top: hover.y + 14 }}>{hover.title}</div> : null}

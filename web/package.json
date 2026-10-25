@@ -10,7 +10,8 @@
     "test": "node --test src/lib/globeData.test.js src/data/*.test.ts",
     "preview": "vite preview",
     "fetch:basemap": "node scripts/fetch_basemap.mjs",
-    "typecheck": "tsc --project tsconfig.data.json"
+    "typecheck": "tsc --project tsconfig.data.json",
+    "build:pages": "vite build && node scripts/pages_assets.mjs"
   },
   "dependencies": {
     "cesium": "^1.146.0",
