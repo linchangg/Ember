@@ -13,6 +13,7 @@ from .api import Grid, Landscape, Weather, ModelConfig, Ignition
 from .bridge import BackendOptions
 from .export import write_json
 from .likelihoods import SatelliteLikelihood
+from .experiments import apply_synthetic_truth_override
 from .model import RustHazardModel
 
 
@@ -86,7 +87,15 @@ def twin(members, workers):
     truth = model_for(
         (*values[:2], replace(values[2], n_members=1), values[3]), "none", workers
     )
-    truth._theta[0] = [np.log(1.6), 0, np.deg2rad(20), np.log(0.04), np.log(2.0)]
+    apply_synthetic_truth_override(
+        truth,
+        ros_mult=1.6,
+        wind_speed_mult=1.0,
+        wind_dir_bias_deg=20.0,
+        dfm_1h=0.04,
+        urban_ros=2.0,
+        member=0,
+    )
     truth._ignition_xy[:] = values[3].points_xy
     truth.step(0, [])
     actual = truth._arrivals.copy()

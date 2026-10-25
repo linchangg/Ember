@@ -28,3 +28,5 @@ Format: `Sat 13:05 · Cody · C0 contracts + fixture merged (PR #3) · Cursor ag
 - Sat 19:45 · Cody · T10 on Abby's Rust HazardModel: factory-only model, dev (N=16, labelled)/target profiles, weather_from_hrrr forcing with per-cycle audit, evidence/identity/catalog/forcing cache keys, lineage-bound checkpoints, live loop survives physics errors; native tests run in CI only · Claude workflow
 
 - Sat Oct 24 · Abby · Prepared deep learning research framework for review: compared candidate architectures, selected bounded U-Net spread corrections through the Rust solver, specified Python training/ONNX-to-Rust inference, contract compatibility, human-impact evaluation and latency gates; documentation only, no learned model activated · Codex
+
+- Sat Oct 24 · Abby · E0 local experiment contracts, atomic run directories, and prediction snapshots; 8 focused tests passed and wire schema stayed 2; no forecast-skill or performance claim · Cursor
