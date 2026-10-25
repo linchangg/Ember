@@ -52,6 +52,9 @@ def main() -> None:
                     help="target = scenario.yaml n_members (reported run); dev = 16 members, labelled +dev-n16")
     ap.add_argument("--workers", type=int, default=2, help="Rust worker threads (BackendOptions)")
     ap.add_argument("--timeout-s", type=float, default=120.0, help="per Rust forecast (BackendOptions)")
+    # fire-bridge silently caps workers at (budget - arrivals) / (cells * (640 + 56 * weather frames)) bytes,
+    # ~0.2-0.4 GB per worker on Eaton, so the 1 GB default runs only 2-4 workers whatever --workers says.
+    ap.add_argument("--memory-gb", type=float, default=1.0, help="Rust memory budget (BackendOptions)")
     ap.add_argument("--no-briefings", action="store_true",
                     help="skip awaiting one Claude briefing per cycle with a new alert (spec/03 §5 default: await)")
     ap.add_argument("--cache-root", type=Path, default=cache.DEFAULT_ROOT)
@@ -64,7 +67,8 @@ def main() -> None:
     land = landscape(ctx)  # stops naming Abby's missing statics; never a fabricated landscape
     source = ReplaySource(scn_dir, ctx.scenario_id, ctx.cfg["assimilate_sensors"])
     forcing = NcForcing(scn_dir / "forcing", model_grid(ctx))
-    make, identity = rust_backend(BackendOptions(workers=a.workers, timeout_s=a.timeout_s))
+    make, identity = rust_backend(BackendOptions(workers=a.workers, timeout_s=a.timeout_s,
+                                                 memory_budget_bytes=int(a.memory_gb * 1024**3)))
     t0 = time.perf_counter()
     loop = asyncio.run(precompute(ctx, source, forcing, make, land, a.cache_root, a.branch, a.filter,
                                   briefings=not a.no_briefings, members_profile=a.members_profile, identity=identity))
