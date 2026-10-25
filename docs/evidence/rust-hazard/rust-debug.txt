@@ -1,0 +1,186 @@
+   Compiling fire-types v0.1.0 (/private/tmp/legendary-fire-integration/physics/surface_v1/crates/fire-types)
+   Compiling fire-bridge v0.1.0 (/private/tmp/legendary-fire-integration/physics/surface_v1/crates/fire-bridge)
+   Compiling fire-behavior v0.1.0 (/private/tmp/legendary-fire-integration/physics/surface_v1/crates/fire-behavior)
+   Compiling fire-io v0.1.0 (/private/tmp/legendary-fire-integration/physics/surface_v1/crates/fire-io)
+   Compiling fire-propagation v0.1.0 (/private/tmp/legendary-fire-integration/physics/surface_v1/crates/fire-propagation)
+   Compiling fire-eval v0.1.0 (/private/tmp/legendary-fire-integration/physics/surface_v1/crates/fire-eval)
+   Compiling fire-ensemble v0.1.0 (/private/tmp/legendary-fire-integration/physics/surface_v1/crates/fire-ensemble)
+   Compiling fire-state v0.1.0 (/private/tmp/legendary-fire-integration/physics/surface_v1/crates/fire-state)
+   Compiling fire-cli v0.1.0 (/private/tmp/legendary-fire-integration/physics/surface_v1/crates/fire-cli)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.73s
+     Running unittests src/lib.rs (target/debug/deps/fire_behavior-534c4181458bd55a)
+
+running 8 tests
+test ellipse::tests::identities_and_normal_vs_radial ... ok
+test ellipse::tests::terrain_projection_isotropic ... ok
+test ellipse::tests::zero_ellipse ... ok
+test fuel::tests::curing_endpoints_and_mass ... ok
+test wind::tests::terrain_basis_example ... ok
+test fuel::tests::catalog_loads_required_ids ... ok
+test tests::appendix_a_fm1_fm2_fm4 ... ok
+test tests::extinction_zero ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/behave_oracle.rs (target/debug/deps/behave_oracle-c6d4e2b460e3cbdc)
+
+running 5 tests
+test project_wind_cap_is_explicit_and_preserves_heading ... ok
+test documented_behave_curing_rounding_difference ... ok
+test independent_usfs_behave_reference ... ok
+test all_forty_sb40_models_have_finite_behavior ... ok
+test independent_usfs_behave_all_sb40_models ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/invariants.rs (target/debug/deps/invariants-4ca600fda544ade5)
+
+running 2 tests
+test nonfinite_local_inputs_rejected_even_when_extinct ... ok
+test terrain_and_wind_rotation_preserve_physical_rates ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/fire_bridge-70c6e68d6101cda6)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (target/debug/deps/fire_cli-d19c7803733d513d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/workflow.rs (target/debug/deps/workflow-2fa3ff878ee0e489)
+
+running 3 tests
+test evaluation_checks_grid_lengths_and_metric_area ... ok
+test checkpoint_resume_and_cli_correction_use_saved_state ... ok
+test ensemble_exports_arrays_and_is_worker_deterministic ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.89s
+
+     Running unittests src/lib.rs (target/debug/deps/fire_ensemble-87bb4da1ebc80fa0)
+
+running 4 tests
+test aggregate::tests::invalid_cells_are_missing_not_zero_probability ... ok
+test aggregate::tests::probabilities_and_conditional_quantiles_have_distinct_denominators ... ok
+test sampling::tests::seeds_independent_of_draw_order_across_members ... ok
+test aggregate::tests::mixed_invalid_coverage_and_inconsistent_members_rejected_or_missing ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/fire_eval-e5129024f9b87d8d)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/metrics.rs (target/debug/deps/metrics-d1f0f61cf6331f9a)
+
+running 3 tests
+test false_area_uses_metric_cell_area ... ok
+test probability_and_arrival_metrics_validate_shapes ... ok
+test missing_masks_are_errors_and_empty_coverage_is_missing ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (target/debug/deps/fire_io-3b8acd042609e80a)
+
+running 2 tests
+test tests::corrupt_length_rejected ... ok
+test tests::fixture_roundtrip_validation ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running unittests src/lib.rs (target/debug/deps/fire_propagation-f7ccad748386aa3c)
+
+running 1 test
+test timestep::tests::cfl_example ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/geometry.rs (target/debug/deps/geometry-551a6cde6371715e)
+
+running 13 tests
+test nonfinite_configuration_and_future_weather_rejected ... ok
+test duplicate_horizons_rejected ... ok
+test affine_planar_front ... ok
+test planar_arrival_interpolation_and_irreversibility ... ok
+test physics_extinction_wall_blocks_without_lf_leak ... ok
+test zero_speed_wall_no_lf_leak ... ok
+test walls_block_and_gap_allows ... ok
+test runtime_surface_multiplier_and_urban_rate_match_planar_solution ... ok
+test weather_frame_changes_physical_speed_at_exact_event ... ok
+test stationary_front ... ok
+test changing_conditions ... ok
+test isotropic_disk_gates ... ok
+test homothetic_ellipse_refinement ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 29.09s
+
+     Running unittests src/lib.rs (target/debug/deps/fire_state-52b151cfc8a47b24)
+
+running 4 tests
+test checkpoint::regressions::changed_input_artifact_and_corrupt_state_rejected ... ok
+test checkpoint::regressions::zero_step_checkpoint_roundtrip_and_immutable_publication ... ok
+test checkpoint::tests::resume_matches_continuous ... ok
+test checkpoint::regressions::correction_preserves_origin_and_changes_resumed_state ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running unittests src/lib.rs (target/debug/deps/fire_types-2cb743fa81da0e5a)
+
+running 5 tests
+test units::tests::one_ft_min_is_si ... ok
+test grid::tests::cell_center ... ok
+test grid::tests::index_overflow_rejected ... ok
+test time::tests::utc_calendar ... ok
+test units::tests::wind_from_north ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests fire_behavior
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests fire_ensemble
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests fire_eval
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests fire_io
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests fire_propagation
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests fire_state
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests fire_types
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
+    "test": "node --test src/lib/globeData.test.js",
     "preview": "vite preview",
     "fetch:firms": "node scripts/fetch_firms.mjs",
     "make:synthetic": "node scripts/make_synthetic_spread.mjs"

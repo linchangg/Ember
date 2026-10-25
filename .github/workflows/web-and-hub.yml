@@ -1,0 +1,35 @@
+name: Dashboard and hub checks
+on:
+  push:
+    paths: ['web/**', 'stdb/**', '.github/workflows/web-and-hub.yml']
+  pull_request:
+    paths: ['web/**', 'stdb/**', '.github/workflows/web-and-hub.yml']
+permissions:
+  contents: read
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --ignore-scripts
+      - run: npm run lint -- --deny-warnings
+      - run: npm test
+      - run: npm run build
+  hub-types:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: stdb
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --ignore-scripts
+      - run: npm exec -- tsc --noEmit

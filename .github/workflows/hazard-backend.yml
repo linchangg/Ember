@@ -1,0 +1,44 @@
+name: Rust HazardModel integration
+on:
+  push:
+    paths: ['engine/**', 'physics/surface_v1/**', 'web/src/contracts.ts', 'spec/00_contracts.md', 'tools/check_hazard_frontend*.mjs', '.github/workflows/hazard-backend.yml']
+  pull_request:
+    paths: ['engine/**', 'physics/surface_v1/**', 'web/src/contracts.ts', 'spec/00_contracts.md', 'tools/check_hazard_frontend*.mjs', '.github/workflows/hazard-backend.yml']
+permissions:
+  contents: read
+jobs:
+  fixture:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned tools and locked Python dependencies
+        run: |
+          python -m pip install uv==0.13.5
+          uv sync --project engine --locked
+          rustup toolchain install 1.99.1 --profile minimal
+      - name: Build native backend
+        run: cargo build --manifest-path physics/surface_v1/Cargo.toml -p fire-bridge --release --locked
+      - name: Frozen API and all Python tests
+        run: |
+          uv run --project engine python -m emberline.hazard.compatibility
+          uv run --project engine pytest engine/tests
+      - name: Complete synthetic fixture and frontend decoder
+        run: |
+          node --test tools/check_hazard_frontend.test.mjs
+          uv run --project engine python -m emberline.scripts.make_fixture
+          uv run --project engine python -m emberline.hazard.demo --out "$RUNNER_TEMP/rust-hazard-demo" --members 16
+          node tools/check_hazard_frontend.mjs "$RUNNER_TEMP/rust-hazard-demo"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rust-hazard-demo-${{ matrix.os }}
+          path: ${{ runner.temp }}/rust-hazard-demo/verification.json

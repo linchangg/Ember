@@ -319,6 +319,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "fire-bridge"
+version = "0.1.0"
+dependencies = [
+ "fire-behavior",
+ "fire-io",
+ "fire-propagation",
+ "fire-types",
+ "rayon",
+ "serde",
+ "serde_json",
+ "sha2",
+]
+
+[[package]]
 name = "fire-cli"
 version = "0.1.0"
 dependencies = [

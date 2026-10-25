@@ -19,7 +19,8 @@ Input contract (wave-2 T8/T13 must write exactly these columns; paths relative t
 - `obs/viirs.parquet` (spec/01 §4): pass_id, sensor_id, row, t_obs_ms, available_ms, lon,
   lat, ring, trust, confidence, frp_mw.
 
-ForcingProvider (step 6 of the T7 brief) is blocked on A0 (`hazard/api.py`).
+ForcingProvider (step 6 of the T7 brief) remains to be assembled. The HazardModel
+API and hazard.integration.weather_from_hrrr availability adapter are now available.
 """
 
 from __future__ import annotations

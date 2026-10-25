@@ -1,0 +1,18 @@
+{
+  "scenario": "rust-fixture",
+  "forecast_cycles": 36,
+  "preignition_cycles": 3,
+  "observations": 111,
+  "alerts": 7,
+  "raster_bytes": 72000,
+  "frontend_contract": "passed",
+  "transports": [
+    "filesystem",
+    "HTTP"
+  ],
+  "browser": {
+    "cycle_controls": "first and last verified",
+    "lead_controls": "0 and 360 min verified",
+    "console_errors": 0
+  }
+}
