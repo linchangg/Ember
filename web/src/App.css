@@ -629,6 +629,8 @@ a:hover {
 .gn__lead { display: block; width: 100%; accent-color: #ff9626; margin: 2px 0 6px; }
 .gn__meta { display: flex; flex-direction: column; gap: 2px; font-size: 10.5px; color: #8fb0e0; margin: 4px 0 2px; }
 .gn__meta span:last-child { color: #a9c6ee; }
+.gn__meta { transition: opacity 0.15s; }
+.gn__meta.is-updating { opacity: 0.55; }
 .gn__probe { z-index: 7; position: absolute; width: 380px; padding: 12px 14px; background: #070d1af2; border: 1px solid #3b82f666; border-radius: 10px; font-size: 12px; color: #dbe8fb; }
 .gn__probe b { display: block; margin-bottom: 2px; font-size: 13px; }
 .gn__probe-sub { display: block; color: #7f9cc8; font-size: 10.5px; margin-bottom: 8px; }

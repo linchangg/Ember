@@ -57,7 +57,9 @@ function harness(
       data: Uint8Array
     ) => Uint8Array | Promise<Uint8Array>
     before?: (relative: string) => Promise<void>
+    resolve?: (relative: string) => string
     branches?: Branch[]
+    prefetch?: boolean
   } = {}
 ) {
   let wall = 1000000
@@ -69,7 +71,8 @@ function harness(
     calls.push(relative)
     await options.before?.(relative)
     try {
-      let bytes = new Uint8Array(await readFile(path.join(root, relative)))
+      const file = options.resolve?.(relative) ?? relative
+      let bytes = new Uint8Array(await readFile(path.join(root, file)))
       if (options.edit) bytes = await options.edit(relative, bytes)
       return new Response(bytes, { status: 200 })
     } catch (error) {
@@ -85,6 +88,7 @@ function harness(
     now: () => wall,
     autoTick: false,
     branches: options.branches,
+    prefetch: options.prefetch ?? false,
   })
   return {
     source,
@@ -569,24 +573,95 @@ test('missing assets and invalid quantile byte values fail visibly', async () =>
   altered.source.dispose()
 })
 
-test('epoch changes invalidate metadata as well as binary caches', async () => {
-  let version = 'original'
-  const { source } = harness({
+test('seeks keep cached bundles but pick up a republished index entry', async () => {
+  let republished = false
+  const moved = firstForecast.bundle.replace(/bundle\.json$/, 'v2/bundle.json')
+  const { source, calls } = harness({
+    resolve: (relative) => relative.replace('/v2/', '/'),
     edit: (relative, bytes) => {
-      if (!relative.endsWith('bundle.json')) return bytes
+      if (relative.endsWith('/index.json') && republished) {
+        const index = JSON.parse(new TextDecoder().decode(bytes))
+        for (const c of index.cycles)
+          if (c.bundle === firstForecast.bundle) c.bundle = moved
+        return new TextEncoder().encode(JSON.stringify(index))
+      }
+      if (relative !== moved) return bytes
       const b = JSON.parse(new TextDecoder().decode(bytes))
-      if (b.cycle) b.cycle.model_version = version
+      b.cycle.model_version = 'republished'
       return new TextEncoder().encode(JSON.stringify(b))
     },
   })
   await source.initialize()
   await source.actions.seek(firstForecast.knowledge_sim_ms)
   const previous = source.getSnapshot()
-  assert.equal(previous.cycle!.model_version, 'original')
-  version = 'new-epoch'
+  assert.notEqual(previous.cycle!.model_version, 'republished')
+  const count = calls.length
   await source.actions.seek(firstForecast.knowledge_sim_ms)
-  assert.equal(source.getSnapshot().cycle!.model_version, 'new-epoch')
-  assert.equal(previous.cycle!.model_version, 'original')
+  assert.deepEqual(
+    calls.slice(count).filter((c) => c.endsWith('bundle.json')),
+    []
+  )
+  republished = true
+  await source.actions.seek(firstForecast.knowledge_sim_ms)
+  assert.equal(source.getSnapshot().cycle!.model_version, 'republished')
+  assert.notEqual(previous.cycle!.model_version, 'republished')
+  source.dispose()
+})
+test('a backward seek refetches no bundle and never shows the later forecast', async () => {
+  const entered = gate(),
+    release = gate()
+  const target = (await readBundle(firstForecast)).cycle.assets.arrival_q
+  const { source, calls } = harness({
+    before: async (relative) => {
+      if (relative === target) {
+        entered.release()
+        await release.promise
+      }
+    },
+  })
+  await source.initialize()
+  await source.actions.seek(last.knowledge_sim_ms)
+  const count = calls.length
+  const seen: (number | null)[] = []
+  source.subscribe(() => {
+    seen.push(source.getSnapshot().cycle?.knowledge_sim_ms ?? null)
+  })
+  const back = source.actions.seek(firstForecast.knowledge_sim_ms)
+  await entered.promise
+  const loading = source.getSnapshot()
+  assert.equal(loading.status, 'loading')
+  assert.equal(loading.cycle!.knowledge_sim_ms, firstForecast.knowledge_sim_ms)
+  assert.equal(loading.mapAssets, null)
+  release.release()
+  await back
+  assert.equal(source.getSnapshot().status, 'ready')
+  assert(seen.every((k) => k === null || k <= firstForecast.knowledge_sim_ms))
+  assert.deepEqual(
+    calls.slice(count).filter((c) => c.endsWith('bundle.json')),
+    []
+  )
+  source.dispose()
+})
+test('prefetch loads every bundle with bounded concurrency so seeks fetch none', async () => {
+  let active = 0,
+    peak = 0
+  const { source, calls } = harness({
+    prefetch: true,
+    before: async (relative) => {
+      if (!relative.endsWith('bundle.json')) return
+      peak = Math.max(peak, ++active)
+      await new Promise((ok) => setTimeout(ok, 1))
+      active--
+    },
+  })
+  await source.initialize()
+  const bundles = () => calls.filter((c) => c.endsWith('bundle.json')).length
+  while (bundles() < entries.length || active)
+    await new Promise((ok) => setTimeout(ok, 5))
+  assert(peak <= 8, `peak ${peak}`)
+  const count = bundles()
+  await source.actions.seek(last.knowledge_sim_ms)
+  assert.equal(bundles(), count)
   source.dispose()
 })
 test('bad initial index rejects initialization and exposes a recoverable error snapshot', async () => {

@@ -21,12 +21,8 @@ export class ArrivalGridCache {
   get size() {
     return this.cache.size
   }
-  async load(
-    cycle: Cycle,
-    manifest: ScenarioManifest,
-    signal: AbortSignal
-  ): Promise<MapAssets> {
-    const key = JSON.stringify([
+  private key(cycle: Cycle, manifest: ScenarioManifest) {
+    return JSON.stringify([
       cycle.scenario_id,
       cycle.branch_id,
       cycle.cycle_id,
@@ -35,6 +31,16 @@ export class ArrivalGridCache {
       cycle.assets,
       manifest.grid,
     ])
+  }
+  has(cycle: Cycle, manifest: ScenarioManifest) {
+    return this.cache.has(this.key(cycle, manifest))
+  }
+  async load(
+    cycle: Cycle,
+    manifest: ScenarioManifest,
+    signal: AbortSignal
+  ): Promise<MapAssets> {
+    const key = this.key(cycle, manifest)
     const cached = this.cache.get(key)
     signal.throwIfAborted()
     if (cached) {

@@ -20,8 +20,10 @@ clock selection and validated asset loading. Stop before Phase C map rendering.
   This validates the wire encoding; probability-mask rendering remains Phase C.
 - `fileSource.ts`: loads manifest/index/bundles, publishes consistent snapshots and
   uses AbortController plus request generations to reject obsolete work. Errors clear
-  forecast/risk selection. Disposal cancels requests and timers. Epoch/branch changes
-  invalidate both metadata and binary caches.
+  forecast/risk selection. Disposal cancels requests and timers. Seeks re-read the
+  index but keep bundles (keyed by index entry) and grids; branch changes invalidate
+  both. Bundles load 8 at a time and the active branch is prefetched in the background.
+  While an earlier time loads, a later forecast is never left on screen.
 - `store.ts`: explicit environment-based selection and source lifecycle leases,
   including React StrictMode cleanup/reacquire and disposal when a source changes.
 - `hooks.ts`: prepared provider and hooks for manifest, clock, view, selected cycle,
