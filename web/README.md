@@ -17,3 +17,10 @@ The full Rust fixture and integration instructions are in
 
 Run `npm test`, `npm run lint -- --deny-warnings` and `npm run build` before merging
 UI changes. Comparison map engines load only when their route is opened.
+
+Phase B provides the typed `src/data/` FileSource/store/hooks and validated assets.
+Run `npm run typecheck` and `npm test` (Node 22.18+ or Node 24). Tests use the canonical
+fixture by default; `EMBERLINE_FIXTURE_DIR` plus `EMBERLINE_SCENARIO_ID` select a
+separately generated Rust fixture. See [Phase B details](../docs/DASHBOARD_PHASE_B.md).
+The environment selection factory is prepared, but existing map/panel mock values
+are not connected yet; Phase C requires direct owner confirmation.
