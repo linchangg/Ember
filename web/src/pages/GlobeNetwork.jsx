@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
+import { Link } from 'react-router-dom'
 import { CITIES, LOCAL, STATES } from '../labels.js'
 import { newHeli } from '../lib/globeData.js'
 import { FileSource } from '../data/fileSource.ts'
@@ -333,7 +334,9 @@ export default function GlobeNetwork() {
   const flyRef = useRef(null)
   const [probe, setProbe] = useState(null) // clicked spot for the arrival-time estimate
   const probeRef = useRef(null)
-  const showTime = !!pick && !!scenario && /eaton/i.test(pick.title)
+  const syntheticFixture = !!snap.manifest?.is_fixture
+  const syntheticRef = useRef(false)
+  const showTime = !!pick && !!scenario && /eaton/i.test(pick.title) && !syntheticFixture
   const timeRef = useRef(false)
   useEffect(() => {
     selRef.current = !!pick
@@ -344,7 +347,8 @@ export default function GlobeNetwork() {
     compareRef.current = compare
     probeRef.current = probe
     selZoneRef.current = selZone
-  }, [pick, scenario, showTime, lead, compare, probe, selZone])
+    syntheticRef.current = syntheticFixture
+  }, [pick, scenario, showTime, lead, compare, probe, selZone, syntheticFixture])
 
   // static extras the snapshot does not carry, then open the replay shortly after ignition so the fire is on screen
   const manifest = snap.manifest
@@ -1349,7 +1353,11 @@ export default function GlobeNetwork() {
         const w1 = ctx.measureText(fe.label).width
         ctx.letterSpacing = '0.5px'
         ctx.font = f2
-        const w2 = ctx.measureText(`▸ ${fe.sub}`).width
+        const sub =
+          syntheticRef.current && fe.re.test('eaton')
+            ? 'NASA event · not the synthetic forecast'
+            : fe.sub
+        const w2 = ctx.measureText(`▸ ${sub}`).width
         const bw = Math.max(w1, w2) + 30
         const bh = compact ? 34 : 44
         const bx = Math.max(8, Math.min(W - view.cxo * 2 - bw - 8, px - bw / 2))
@@ -1382,7 +1390,7 @@ export default function GlobeNetwork() {
         ctx.letterSpacing = '0.5px'
         ctx.font = f2
         ctx.fillStyle = rgba(fe.color, fade)
-        ctx.fillText(`▸ ${fe.sub}`, bx + 15, by + bh * 0.72)
+        ctx.fillText(`▸ ${sub}`, bx + 15, by + bh * 0.72)
         placed.push([bx - 4, by - 4, bx + bw + 4, by + bh + 4], [px - 22, py - 22, px + 22, py + 22])
         beaconHits.push({ ev, x0: bx, y0: by, x1: bx + bw, y1: by + bh }, { ev, x0: px - 16, y0: py - 16, x1: px + 16, y1: py + 16 })
       }
@@ -1702,6 +1710,8 @@ export default function GlobeNetwork() {
       <canvas ref={canvasRef} className="gn__map" />
       <header className="gn__bar">
         <span className="gn__title">EMBERLINE</span>
+        {syntheticFixture ? <span className="gn__sub">NASA world events</span> : null}
+        {syntheticFixture ? <Link to="/judge" className="gn__back">Synthetic forecast dashboard</Link> : null}
         {error ? <span role="status">Event feed unavailable. Map remains available.</span> : null}
       </header>
       <div className="gn__credit">Roads, places, water: US Census TIGERweb · USGS · Terrain: AWS Terrain Tiles · Events: NASA EONET</div>
@@ -1796,6 +1806,7 @@ export default function GlobeNetwork() {
         <aside className="gn__side">
           <button className="gn__close" onClick={() => { setPick(null); setProbe(null); setSelZone(null); homeRef.current?.() }} aria-label="Close">×</button>
           <h2>{pick.title}</h2>
+          {syntheticFixture && /eaton/i.test(pick.title) ? <p>NASA EONET world event. This is not the synthetic forecast. The cached replay is on the synthetic forecast dashboard.</p> : null}
           <button className="gn__fit" onClick={() => fitRef.current?.(pick)}>Fit to fire</button>
           {showTime ? (
             <div className="gn__tabs">

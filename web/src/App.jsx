@@ -50,6 +50,20 @@ function Dashboard() {
   )
 }
 
+function JudgeEntry() {
+  const ready =
+    DATA_MODE === 'file' && import.meta.env.VITE_SCENARIO_ID === 'rust-fixture'
+  if (!ready)
+    return (
+      <div className="app" role="status">
+        This URL is the synthetic rust-fixture dashboard. Start it with
+        VITE_DATA_SOURCE=file and VITE_SCENARIO_ID=rust-fixture. The globe at /
+        is a separate NASA world-event display and is not this forecast.
+      </div>
+    )
+  return <FileDashboard judging />
+}
+
 export default function App() {
   return (
     <Suspense
@@ -65,6 +79,7 @@ export default function App() {
           path="/dashboard"
           element={DATA_MODE === 'mock' ? <Dashboard /> : <FileDashboard />}
         />
+        <Route path="/judge" element={<JudgeEntry />} />
         <Route path="/compare" element={<Compare />} />
         <Route path="/compare/cesium" element={<PatternCesium />} />
         <Route

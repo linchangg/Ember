@@ -20,6 +20,7 @@ import {
 } from '../data/hooks.ts'
 import ForecastMap from './ForecastMap.tsx'
 import IncidentPanels from './IncidentPanels.tsx'
+import { createTimelineSelection } from './latestSelection.ts'
 import { panelModel } from './panelModel.ts'
 import { useBranchComparison } from '../data/comparison.ts'
 import type { DataSource } from '../data/source.ts'
@@ -41,7 +42,7 @@ function configureSource() {
     }
   }
 }
-export default function FileDashboard() {
+export default function FileDashboard({ judging = false }: { judging?: boolean }) {
   const [configured, setConfigured] = useState(configureSource)
   const retired = useSyncExternalStore(
     configured.source?.subscribe ?? noopSubscribe,
@@ -72,11 +73,17 @@ export default function FileDashboard() {
     )
   return (
     <DataSourceProvider source={configured.source}>
-      <ConnectedDashboard source={configured.source} />
+      <ConnectedDashboard judging={judging} source={configured.source} />
     </DataSourceProvider>
   )
 }
-function ConnectedDashboard({ source }: { source: DataSource }) {
+function ConnectedDashboard({
+  judging,
+  source,
+}: {
+  judging: boolean
+  source: DataSource
+}) {
   const hub = source instanceof SpacetimeSource
   const [operatorPin, setOperatorPin] = useState('')
   const panelSnapshot = usePanelSnapshot()
@@ -93,7 +100,45 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
     [lead, setLead] = useState(hub ? 0 : 120)
   const [actionError, setActionError] = useState<string | null>(null)
   const [actionBusy, setActionBusy] = useState(false)
+  const [requestedIssue, setRequestedIssue] = useState<number | null>(null)
   const actionPending = useRef(false)
+  const actionsRef = useRef(actions)
+  const leadRef = useRef(lead)
+  const timelineActive = useRef(0)
+  const timeline = useRef<ReturnType<typeof createTimelineSelection> | null>(
+    null
+  )
+  useEffect(() => {
+    actionsRef.current = actions
+    leadRef.current = lead
+    timeline.current ??= createTimelineSelection(
+      async (request, stillCurrent) => {
+        const release = () =>
+          setRequestedIssue((current) =>
+            current === request.issue ? null : current
+          )
+        timelineActive.current += 1
+        try {
+          await actionsRef.current.pause()
+          await actionsRef.current.seek(request.issue)
+          if (!stillCurrent()) return
+          await actionsRef.current.setScrub(
+            request.issue + request.leadMin * 60000
+          )
+          if (!stillCurrent()) return
+          release()
+        } catch (error) {
+          if (!stillCurrent()) return
+          setActionError(
+            error instanceof Error ? error.message : String(error)
+          )
+          release()
+        } finally {
+          timelineActive.current -= 1
+        }
+      }
+    )
+  })
   const format = useMemo(
     () =>
       new Intl.DateTimeFormat('en-US', {
@@ -106,8 +151,13 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
       }),
     [manifest?.tz]
   )
+  const selectIssue = (issue: number, leadMin = leadRef.current) => {
+    setRequestedIssue(issue)
+    setActionError(null)
+    timeline.current?.request({ issue, leadMin })
+  }
   const run = (task: () => Promise<void>) => {
-    if (actionPending.current) return
+    if (actionPending.current || timelineActive.current > 0) return
     actionPending.current = true
     setActionBusy(true)
     setActionError(null)
@@ -120,12 +170,6 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
         setActionBusy(false)
       })
   }
-  const selectIssue = (issue: number) =>
-    run(async () => {
-      await actions.pause()
-      await actions.seek(issue)
-      await actions.setScrub(issue + lead * 60000)
-    })
   const available =
     status.status === 'ready' &&
     status.forecastStatus === 'available' &&
@@ -149,7 +193,10 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
     <div className="app">
       <header className="header">
         <div className="header__left">
-          <Link to="/" className="header__brand">
+          <Link
+            to={judging || manifest?.is_fixture ? '/judge' : '/'}
+            className="header__brand"
+          >
             Emberline
           </Link>
           <span className="header__incident">
@@ -162,6 +209,11 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
           </span>
         </div>
         <div className="header__right">
+          {judging || manifest?.is_fixture ? (
+            <Link to="/" className="header__link">
+              World events globe · not this forecast
+            </Link>
+          ) : null}
           <Link to="/compare" className="header__link">
             Globe bake-off
           </Link>
@@ -257,16 +309,14 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
                 <select
                   aria-label="Forecast lead"
                   value={lead}
-                  disabled={!manifest || actionBusy}
+                  disabled={!manifest}
                   onChange={(event) => {
                     const next = Number(event.target.value)
                     setLead(next)
-                    run(async () => {
-                      if (!hub) await actions.pause()
-                      await actions.setScrub(
-                        (cycle?.knowledge_sim_ms ?? simTime) + next * 60000
-                      )
-                    })
+                    selectIssue(
+                      requestedIssue ?? cycle?.knowledge_sim_ms ?? simTime,
+                      next
+                    )
                   }}
                 >
                   {LEADS.filter(
@@ -295,7 +345,7 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
                 {clock?.playing ? 'Pause' : 'Play'}
               </button>
               <button
-                disabled={!clock || actionBusy}
+                disabled={!clock}
                 onClick={() => selectIssue(clock!.max_sim_ms)}
               >
                 Latest forecast
@@ -309,8 +359,8 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
               min={clock?.min_sim_ms ?? 0}
               max={clock?.max_sim_ms ?? 0}
               step={300000}
-              value={simTime}
-              disabled={!clock || actionBusy}
+              value={requestedIssue ?? simTime}
+              disabled={!clock}
               onChange={(event) => selectIssue(Number(event.target.value))}
             />
             <div className="time-slider__ticks">

@@ -43,7 +43,9 @@ VITE_ASSET_BASE=http://127.0.0.1:8791/ \
 npm --prefix web run dev -- --host 127.0.0.1 --port 5175
 ```
 
-Open `http://127.0.0.1:5175/dashboard`, then select **Latest forecast**.
+Open the judging page `http://127.0.0.1:5175/judge`. That route is the synthetic rust-fixture dashboard. `/` is the NASA world-event globe; its Eaton marker is not this forecast. Startup, the 90-second script, and shutdown are in [JUDGING_DEMO.md](../docs/JUDGING_DEMO.md).
+
+`/dashboard` remains the Sierra Vista mock unless file mode is set. In file mode it shows the same forecast dashboard.
 The initial replay position is pre-ignition and correctly has no forecast.
 Use Display for probability classes or q10/q30/q50/q70/q90, Lead for the future
 view, and Replay issue time for causal backward/forward selection. Play returns
