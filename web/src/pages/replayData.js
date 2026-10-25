@@ -18,6 +18,8 @@ export const branchDescriptors = (scn) =>
   BRANCHES.map((b) => ({ scenario_id: scn, branch_id: b.id, parent_id: null, fork_sim_ms: null, reason: b.label, created_wall_ms: 0 }))
 
 const root = () => assetRoot(import.meta.env.VITE_ASSET_BASE ?? import.meta.env.BASE_URL, window.location.href)
+/** Absolute URL of a replay file given relative to the asset root (e.g. a call's audio clip). */
+export const replayUrl = (rel) => assetUrl(root(), rel)
 const cache = new Map()
 /** JSON file under the asset root, or null if it is missing or not JSON (the dev server answers unknown paths with index.html). */
 function fetchJson(rel) {

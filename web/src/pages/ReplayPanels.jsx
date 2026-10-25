@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { BRANCHES, useReplayJson } from './replayData.js'
+import { BRANCHES, replayUrl, useReplayJson } from './replayData.js'
 import './ReplayPanels.css'
 
 // Replay-only panels: which precomputed run is shown and the duty-officer call placed on approval.
@@ -43,12 +43,21 @@ function CallCard({ call, onClose }) {
   const lines = call.transcript ?? NO_LINES
   const [shown, setShown] = useState(0)
   useEffect(() => {
-    if (shown >= lines.length) return undefined
-    // ring first, then each line after a pause that grows with the previous line's length
-    const prev = shown ? lines[shown - 1].text.length : 0
-    const id = setTimeout(() => setShown((n) => n + 1), shown ? Math.min(4500, 700 + prev * 12) : 1400)
-    return () => clearTimeout(id)
-  }, [shown, lines])
+    // ring first, then each line; a line with audio (call_audio.py) holds the next one until it finishes speaking,
+    // otherwise the pause grows with the line's length
+    const last = shown >= lines.length
+    const src = shown ? lines[shown - 1].audio : call.ring_audio
+    const next = () => !last && setShown((n) => n + 1)
+    const pause = shown ? Math.min(4500, 700 + lines[shown - 1].text.length * 12) : 1400
+    let id
+    let audio = null
+    if (src) {
+      audio = new Audio(replayUrl(src))
+      audio.onended = () => { id = setTimeout(next, 250) }
+      audio.play().catch(() => { id = setTimeout(next, pause) }) // blocked or missing: fall back to the timer
+    } else if (!last) id = setTimeout(next, pause)
+    return () => { audio?.pause(); clearTimeout(id) }
+  }, [shown, lines, call.ring_audio])
   const done = shown >= lines.length
   const passed = call.act_by_sim_ms != null && call.act_by_sim_ms < call.trigger_sim_ms
   const b = call.briefing

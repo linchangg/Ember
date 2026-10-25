@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url'
 //   /static/{scn}/{file} -> fixtures/static/{scn}/{file}  or  data/scenarios/{scn}/web/{file}
 //   /cache/{scn}/{branch}/{k}/{file} -> fixtures/cache/{scn}/main/...  or  cache/{scn}/{branch}/...
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
-const MIME = { '.json': 'application/json', '.geojson': 'application/geo+json', '.bin': 'application/octet-stream', '.png': 'image/png', '.jpg': 'image/jpeg' }
+const MIME = { '.json': 'application/json', '.geojson': 'application/geo+json', '.bin': 'application/octet-stream', '.png': 'image/png', '.jpg': 'image/jpeg', '.mp3': 'audio/mpeg' }
 function scenarioFiles() {
   const candidates = (url) => {
     const m = url.match(/^\/(static|cache)\/([^/]+)\/(.+)$/)
