@@ -42,9 +42,41 @@
       "passed": 19
     },
     "typescript_lint_build": "passed",
-    "fresh_native_fixture": "running",
-    "remote_ci": "not_run",
-    "browser_build_credentials": "no_private_service_credentials_found"
+    "fresh_native_fixture": {
+      "status": "passed",
+      "forecast_cycles": 36,
+      "preignition_cycles": 3,
+      "child_forecast_cycles": 13,
+      "observations_used": 110,
+      "parent_unchanged": true,
+      "checkpoint_next_step_parity": true,
+      "independent_decoder": "passed",
+      "native_dashboard_tests": 49,
+      "verification_sha256": "501d744132d1e221cd4035fdb2cee55f6c86d2e7c6915af1a2f2dfa2ba284689"
+    },
+    "remote_ci": {
+      "code_commit": "ca655b81567b41de208e2346398281c18121f6d7",
+      "push_checks": "5 passed",
+      "pull_request_checks": "in_progress",
+      "runs": [
+        40184408238,
+        40184408273,
+        40184408243
+      ],
+      "final_recovery_update": "requires_own_ci"
+    },
+    "browser_build_credentials": "no_private_service_credentials_found",
+    "local_eaton_dashboard": {
+      "hub": "ok",
+      "indexed_issues": 80,
+      "expected_issues": 157,
+      "lead_min": 120
+    },
+    "final_recovery_and_lifecycle": {
+      "passed": 39,
+      "skipped": 1,
+      "seconds": 61.96
+    }
   },
   "open_gates": [
     "complete_eaton_replay",
@@ -62,5 +94,6 @@
       "path": "eaton-perimeter-source-review.json",
       "sha256": "67e73f0a3e80cb717f9c95398ed98b83483a898ba9d00cc8b2ad1dad18114f40"
     }
-  ]
+  ],
+  "pull_request": "https://github.com/linchangg/Legendary-Fire-Project/pull/15"
 }

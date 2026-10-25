@@ -15,7 +15,7 @@ from typing import Any
 
 from emberline.contracts import ActivityEvent, Alert, Report
 from emberline.runtime.loop import Loop
-from emberline.sync.sink import HubSnapshot
+from emberline.sync.sink import HubSnapshot, PublicationUnavailable
 
 log = logging.getLogger(__name__)
 PLAYING_S, PAUSED_S = 0.5, 1.0
@@ -30,6 +30,7 @@ class Poller:
         self.snapshot = HubSnapshot()
         self.handled: list[tuple[str, str]] = []  # (kind, status), for tests and logs
         self._n_ev = 0
+        self._recovered_report_statuses = False
 
     async def run(self) -> None:
         while True:
@@ -45,6 +46,10 @@ class Poller:
         if snap.clock is not None:
             self.clock.update(snap.clock)
         self.snapshot = snap
+        if not self._recovered_report_statuses:
+            from emberline.runtime.branch import BranchManager
+            BranchManager(self.loop).recover_statuses()
+            self._recovered_report_statuses = True
         active = snap.clock.active_branch_id if snap.clock is not None else self.loop.branch
         if active != self.loop.branch and self.loop.host is not None:
             from emberline.runtime.branch import BranchManager
@@ -73,6 +78,11 @@ class Poller:
         try:
             args = json.loads(cmd.get("args_json") or "{}")
             status, result = ("failed", {"reason": f"unknown command {kind}"}) if handler is None else await handler(args, snap)
+        except PublicationUnavailable:
+            # Leave this hub command pending so a lost branch acknowledgement or
+            # parent-publication backlog can be reconciled on the next poll.
+            log.warning("command %s awaiting publication acknowledgement", kind)
+            return
         except Exception as e:
             log.exception("command %s failed", kind)
             status, result = "failed", {"error": f"{type(e).__name__}: {e}"[:200]}

@@ -11,6 +11,7 @@ import numpy as np
 from emberline.contracts import REPORT_HOT, ObservationRecord, Report, ReportStatus
 from emberline.data.grid import lonlat_to_xy
 from emberline.runtime import cache
+from emberline.sync.sink import PublicationUnavailable
 
 
 class BranchSource:
@@ -119,6 +120,13 @@ class BranchManager:
         pending = getattr(self.loop, "report_status_updates", {})
         pending[status.report_id] = status
         self.loop.report_status_updates = pending
+        self.loop.request_republish()
+
+    def recover_statuses(self):
+        """A committed command may have crashed before its status bundle reached the hub."""
+        for record in self.data["reports"].values():
+            if record.get("publication") != "pending":
+                self.queue(ReportStatus.model_validate(record["status"]))
 
     async def restore(self, branch):
         loop = self.loop
@@ -132,6 +140,16 @@ class BranchManager:
         await loop._replay_silently(self.data["branches"][branch]["fork_sim_ms"] + 1)
         loop._pending_publication = None
         loop._last = None
+        changed = False
+        for observation in self.records(branch):
+            record = self.data["reports"].get(observation.source_ref)
+            if record is not None:
+                self.queue(ReportStatus.model_validate(record["status"]))
+                if record.get("publication") == "pending":
+                    record["publication"] = "committed"
+                    changed = True
+        if changed:
+            self.save()
         loop._wake()
 
     async def accept(self, report: Report, sink, clock, all_reports, branches):
@@ -185,7 +203,9 @@ class BranchManager:
             loop.request_republish()
             return result
         if loop._pending_publication is not None:
-            raise RuntimeError("Finish pending parent publication before branching")
+            raise PublicationUnavailable(
+                "Finish pending parent publication before branching"
+            )
         fork = ctx.start_ms + ((now - ctx.start_ms) // ctx.cycle_ms) * ctx.cycle_ms
         following = fork + ctx.cycle_ms
         parent = loop.branch

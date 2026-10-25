@@ -212,6 +212,11 @@ def test_lost_branch_ack_reuses_reserved_branch(tmp_path):
         existing = {
             k: v for k, v in saved.data["branches"]["b1"].items() if k != "observation"
         }
+        # The normal poller can discover the hub's active child after a lost ACK,
+        # without the caller manually submitting the report a second time.
+        await saved.restore("b1")
+        assert loop.report_status_updates[r.report_id].status == "accepted"
+        assert saved.data["reports"][r.report_id]["publication"] == "committed"
         result = await saved.accept(
             r, loop.sink, SimpleNamespace(sim_now=lambda: ctx.k0_ms), [], [existing]
         )
@@ -251,3 +256,27 @@ def test_precompute_cycle_limit_preserves_scenario_and_observer_context(tmp_path
     )
     assert ctx.end_ms == end and len(loop.ks) == 4
     assert seen == [ctx.k0_ms]
+
+
+def test_retryable_report_command_is_not_marked_failed():
+    from emberline.sync.poller import Poller
+    from emberline.sync.sink import HubSnapshot, PublicationUnavailable
+
+    marked = []
+
+    async def mark(*args):
+        marked.append(args)
+
+    loop = SimpleNamespace(ctx=SimpleNamespace(scenario_id="test"))
+    poller = Poller(SimpleNamespace(mark_command=mark), None, loop, profile="offline")
+
+    async def unavailable(*args):
+        raise PublicationUnavailable("lost branch acknowledgement")
+
+    poller._on_report = unavailable
+    asyncio.run(
+        poller.dispatch(
+            dict(command_id="cmd_test", kind="report", args_json="{}"), HubSnapshot()
+        )
+    )
+    assert marked == []

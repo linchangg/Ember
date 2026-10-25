@@ -42,14 +42,15 @@ test established assimilation; the two pieces of evidence are not conflated.
 | Actual published hub contracts, including nested-fork rewind | 15 passed |
 | Actual report command → native PF → child publication/raw export | 1 passed |
 | Repaired report/replay/private-asset checks | 15 passed |
+| Final lost-ack/crash recovery and engine lifecycle regressions | 39 passed, 1 configured skip |
 | Acquisition/import/positive-event diagnostic checks | 18 passed |
 | Benchmark harness, including retained timeout evidence | 7 passed |
 | Release inventory audit regressions | 9 passed |
 | Dashboard unit checks | 48 passed, 1 configured skip |
 | Report/callback/voice-stub/audio checks | 19 passed |
 | TypeScript checks, lint, production build, hub type check | Passed locally |
-| Fresh complete 16-member Rust fixture + report branch | Running; completion and independent decoder pending |
-| Remote CI on this implementation | Pending publication |
+| Fresh complete 16-member Rust fixture + report branch | Passed: 36 forecasts + 3 pre-ignition issues, 13 child forecasts; decoder passed; 49 native dashboard tests passed |
+| Remote CI on this implementation | Draft PR #15; all five push checks passed on ca655b8; final recovery update requires its own CI |
 
 Configured hub tests are skipped in the ordinary suite; they are run separately
 against a disposable published database. Provider tests use stubs. No actual call,
@@ -86,5 +87,7 @@ provider request, deployment or message to a teammate was made.
    response and authorized provider rehearsal remain open. Static GitHub Pages
    cannot run `web/api`; see `RELEASE_SERVICE_SETUP.md` for the hosting boundary.
 
-These limitations belong in the PR description. Publish a draft while integration
-evidence is incomplete; do not represent this as a calibrated production release.
+Draft PR: https://github.com/linchangg/Legendary-Fire-Project/pull/15. These limitations
+are included in its description; this is not a calibrated production release.
+The locally served committed Eaton data also loaded with shared hub status ok and
+a verified +120-minute forecast. Local preview uses 80/157 issues, not a full replay.
