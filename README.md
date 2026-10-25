@@ -1,11 +1,10 @@
 # Ember: Satellite-powered global wildfire prediction
 
-Ember replays a real fire night, the January 2025 Eaton Fire in Los Angeles, through a live-style system built at Cal Hacks 13.0:
+Detecting the presence of a fire isn't the same as predicting where it's most likely to move next and alerting to government officials to send evacuation orders to residents. Ember takes satellite data from GOES and VIIRS and updates its physics-based predictions every five minutes, alerting government officials of high-risk areas up to 2 hours ahead of how they acted during the Eaton fire in Southern California in 2025.
 
-1. Satellite fire detections (GOES every 5 minutes, VIIRS passes) arrive in time order.
-2. A physics-based ensemble forecast re-fits itself to each new observation.
-3. The forecast becomes a ranked list of which zones are in the way and when each must act.
-4. A human approves the alert and a duty-officer call card is produced.
+1. Satellite fire detections (GOES every 5 minutes, VIIRS passes) arrive.
+2. A physics-based ensemble forecast of predictions, each with slightly different parameters, re-fits itself to each new observation and assigns a probability and expected hit time to each region.
+3. The forecast becomes a visual map and a list of alerts letting the human know which areas are at risk.
 
 ![Ember cover](design/ember-cover.jpg)
 
