@@ -1,7 +1,7 @@
 # Release implementation review results
 
 2026-10-25. Plan: `RELEASE_COMPLETION_PLAN.md`. Branch: `release/all-phases`.
-Integrated main through `b408fe2`, including the current globe, guided tour, Pages
+Integrated main through `96ea89b`, including the current globe, guided tour, Pages
 hosting and presentation changes. No frozen table/type/reducer signature changed.
 The existing `rewind` reducer now performs its specified ancestor-seek behavior.
 

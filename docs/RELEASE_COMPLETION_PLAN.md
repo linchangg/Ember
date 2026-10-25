@@ -8,7 +8,8 @@ acceptance and measured latency retain their original gates.
 
 - Work on `release/all-phases`, initially based on `fc61947` and updated to main
   `1d56f83` during review; preserve the existing globe,
-  frozen wire signatures and committed Eaton cache.
+  frozen wire signatures and source inputs. Main `96ea89b` removes the partial Eaton
+  cache from Git; retain the audited release externally rather than recommitting it.
   Also incorporate Cody's subsequent `b408fe2` release-data/Pages update and audit
   its full archive before treating the development replay as complete.
 - Collect the full engine test result and the running Eaton PF/open-loop/reinit

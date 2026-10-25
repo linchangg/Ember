@@ -27,8 +27,8 @@ warm runs and process-tree memory before changing the performance claim.
 
 ## Replay coverage
 
-The committed Eaton main cache contains 80 of 157 replay issues, ending at
-2025-01-08 08:35 UTC. Cody's later main commit `b408fe2` fetches the public
+Main now keeps the Eaton cache out of Git (`96ea89b`); its earlier tracked subset
+contained 80/157 issues. Cody's main commit `b408fe2` fetches the public
 `demo-data-eaton-v1` release for Pages. The release was downloaded with its declared
 SHA256 verified: main, satellites-only and openloop each have **157/157** issues,
 with 462 referenced forecast assets checked per branch and no inventory errors.
