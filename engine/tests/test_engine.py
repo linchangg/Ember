@@ -1,13 +1,16 @@
-"""Engine M1 acceptance tests, spec/03 §14 tests 1–5 (WAVE2 T10).
+"""Engine M1 acceptance tests, spec/03 §14 tests 1–5 (WAVE2 T10), plus the forcing/cache/profile wiring.
 
-SyntheticSource + the FakeHazardModel stand-in + an in-memory fake hub, over a flat
-synthetic scenario written to tmp_path. Test 1 also has a hub-gated variant on scenario
-"synth" (EMBERLINE_HUB_TESTS=1, local `spacetime start`).
+SyntheticSource + the FakeHazardModel double (on the real emberline.hazard.api) + an in-memory
+fake hub, over a flat synthetic scenario written to tmp_path. Test 1 also has a hub-gated variant
+on scenario "synth" (EMBERLINE_HUB_TESTS=1, local `spacetime start`). The same orchestrator on
+Abby's Rust backend is tests/test_engine_native.py (needs a built fire-bridge).
 """
 
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import inspect
 import json
 import os
 import shutil
@@ -21,20 +24,24 @@ import numpy as np
 import pytest
 import rasterio
 import yaml
+from hazard_standin import flat_landscape
 from rasterio.transform import Affine
-
-hazard_standin.install()
 
 from emberline.ai import briefing as brf
 from emberline.contracts import ClockState, CycleBundle, ScanEvent
 from emberline.data import grid as gridlib
+from emberline.hazard.api import MODEL_VERSION, HazardModel, Weather
+from emberline.hazard import bridge, checkpoint
+from emberline.hazard.bridge import sha256_file
 from emberline.runtime import cache, publisher
-from emberline.runtime.clock import SimClock, sim_now_ms
-from emberline.runtime.loop import Loop, WeatherAsOf, load_scenario_dir
-from emberline.runtime.model_host import flat_landscape
+from emberline.runtime import loop as loop_mod
+from emberline.runtime.clock import FastClock, SimClock, sim_now_ms
+from emberline.runtime.loop import Loop, NcForcing, WeatherAsOf, load_scenario_dir, run_hash
+from emberline.runtime.model_host import landscape, make_host, model_config, model_grid, model_version, rust_backend
 from emberline.runtime.publisher import CycleInputs, build_bundle
-from emberline.runtime.sources import SyntheticSource
-from emberline.scripts.precompute import make_host, precompute
+from emberline.runtime.sources import InboxSource, SyntheticSource
+from emberline.scripts.precompute import precompute
+from emberline.sync.cache_sink import CacheSink
 from emberline.sync.poller import Poller
 from emberline.sync.sink import HubSnapshot, apply_alerts
 
@@ -76,12 +83,12 @@ def _tif(path: Path, a: np.ndarray, dtype: str) -> None:
         dst.write(a.astype(dtype), 1)
 
 
-def write_scenario(root: Path) -> Path:
+def write_scenario(root: Path, n_phys: int = N_PHYS) -> Path:
     d = root / SCN
     (d / "web").mkdir(parents=True)
     ign_lon, ign_lat = _centre_lonlat(*IGN_RC)
     t0 = int(np.datetime64(T0.rstrip("Z"), "ms").astype(np.int64))
-    t_ign, end = t0 + 15 * MIN, t0 + 15 * MIN + (N_PHYS - 1) * 5 * MIN
+    t_ign, end = t0 + 15 * MIN, t0 + 15 * MIN + (n_phys - 1) * 5 * MIN
     iso = lambda ms: str(np.datetime64(ms, "ms")) + "Z"
     cfg = {
         "scenario_id": SCN, "title": "SYNTHETIC TEST SCENARIO", "tz": "America/Los_Angeles",
@@ -129,16 +136,37 @@ class FlatForcing:
     """One weather init, uniform 10 m/s wind toward 240° (from the NE), available before replay start."""
 
     def __init__(self, ctx, available_offset_ms: int = -60 * MIN) -> None:
-        api = hazard_standin.install()
         u, v = 10 * np.sin(np.radians(HEAD_DEG)), 10 * np.cos(np.radians(HEAD_DEG))
         shape = (1, G["ny"], G["nx"])
-        self.w = api.Weather(t_min=np.array([0.0], dtype=np.float32), u10=np.full(shape, u, dtype=np.float32),
-                             v10=np.full(shape, v, dtype=np.float32), temp_c=np.array([15.0], dtype=np.float32),
-                             rh=np.array([0.1], dtype=np.float32))
+        self.w = Weather(t_min=np.array([0.0], dtype=np.float32), u10=np.full(shape, u, dtype=np.float32),
+                         v10=np.full(shape, v, dtype=np.float32), temp_c=np.array([15.0], dtype=np.float32),
+                         rh=np.array([0.1], dtype=np.float32))
         self.init_ms, self.avail = ctx.t_ref_ms, ctx.start_ms + available_offset_ms
 
     def weather_as_of(self, t_ms: int) -> WeatherAsOf:
         return WeatherAsOf(weather=self.w, init_ms=self.init_ms, available_ms=self.avail)
+
+
+def write_hrrr(ctx, d: Path) -> list[tuple[int, Path]]:
+    """Two SYNTHETIC HRRR inits in data/hrrr.py's file format, on the scenario grid:
+    A at t_ref, every band out an hour before replay start (toward 240° at 6 m/s);
+    B an hour later (toward 260° at 8 m/s): f00 out at k0+10 min, f01-f02 at k0+40 min
+    (f02 is valid after that issue), f03-f09 never out during the replay."""
+    from emberline.data.hrrr import forcing_dataset, write_forcing
+
+    xs, ys = gridlib.cell_centers(G)
+    k0, never = ctx.k0_ms, ctx.end_ms + 600 * MIN
+    out = []
+    for init, avail, speed, head in [
+        (ctx.t_ref_ms, [ctx.start_ms - 60 * MIN] * 10, 6.0, HEAD_DEG),
+        (ctx.t_ref_ms + 60 * MIN, [k0 + 10 * MIN] + [k0 + 40 * MIN] * 2 + [never] * 7, 8.0, HEAD_DEG + 20),
+    ]:
+        shape = (10, G["ny"], G["nx"])
+        u = np.full(shape, speed * np.sin(np.radians(head)), dtype=np.float32)
+        v = np.full(shape, speed * np.cos(np.radians(head)), dtype=np.float32)
+        ds = forcing_dataset(u, v, np.full(10, 15.0), np.full(10, 0.2), xs, ys, init, avail, "synthetic test forcing")
+        out.append((init, write_forcing(ds, d / f"hrrr_{time.strftime('%Y%m%d%H', time.gmtime(init // 1000))}.nc")))
+    return out
 
 
 def synth_source(ctx) -> SyntheticSource:
@@ -490,7 +518,7 @@ def _key(root: Path, k: int) -> str:
     return json.loads((cache.cycle_dir(root, SCN, "main", k) / "physics.json").read_text(encoding="utf-8"))["key"]
 
 
-def test_2_determinism_and_cache_miss_after_hits(ctx, tmp_path):
+def test_2_determinism_and_cache_miss_after_hits(ctx, tmp_path, monkeypatch):
     a, b = tmp_path / "a", tmp_path / "b"
     run_precompute(ctx, a)
     run_precompute(ctx, b)
@@ -506,10 +534,140 @@ def test_2_determinism_and_cache_miss_after_hits(ctx, tmp_path):
     k25 = ks[25]
     before = _arrival(a, k25)
     shutil.rmtree(cache.cycle_dir(a, SCN, "main", k25))
+    sent: list = []
+    monkeypatch.setattr(hazard_standin.FakeHazardModel, "update_weather", lambda self, w: sent.append(w))
     loop = run_precompute(ctx, a)
-    assert loop.host.restored_from == [ks[24]]  # checkpoint 24, then exactly one step
+    assert loop.host.restored_from == [ks[24]]  # checkpoint 24, then exactly one step (load_state without init)
+    phys = json.loads((cache.cycle_dir(a, SCN, "main", k25) / "physics.json").read_text(encoding="utf-8"))
+    assert phys["identity"] == {"run_hash": loop.config_hash}  # the fake has no code identity
+    assert sent == []  # the checkpoint's own weather is not re-sent (on Rust that adds a weather change)
     assert _arrival(a, k25) == before
     assert _key(a, k25) == _key(b, k25)
+
+
+def test_checkpoint_from_another_lineage_is_never_restored(ctx, tmp_path):
+    """A dev-profile checkpoint sits where the target run would look: the target run must not load it."""
+    root = tmp_path / "cache"
+    run_precompute(ctx, root)
+    ks = physics_ks(ctx)
+    before = _arrival(root, ks[25])
+    shutil.rmtree(cache.cycle_dir(root, SCN, "main", ks[25]))
+    ck = cache.latest_checkpoint(root, SCN, "main", ks[24])
+    assert ck is not None and ck[0] == ks[24]
+    cache.save_checkpoint(root, SCN, "main", ks[24], ck[1], key="other-lineage")
+    loop = run_precompute(ctx, root)
+    assert loop.host.restored_from == [ks[18]]  # skipped 24, rolled forward from 18
+    assert _arrival(root, ks[25]) == before
+
+
+def run_loop(ctx, root: Path, source=None, inbox=None, survive: bool = False) -> Loop:
+    """precompute() with the live engine's knobs: an inbox and survive_physics_errors."""
+    host = make_host(ctx, hazard_standin.FakeHazardModel, flat_landscape(ctx), FlatForcing(ctx), root)
+    loop = Loop(ctx, CacheSink(root, ctx.zones), FastClock(), source or synth_source(ctx), host, root, "main",
+                hazard_standin.MODEL_VERSION, inbox=inbox, stop_at_end=True, survive_physics_errors=survive)
+    asyncio.run(loop.run())
+    return loop
+
+
+def bundle(root: Path, k: int) -> CycleBundle:
+    return CycleBundle.model_validate_json((cache.cycle_dir(root, SCN, "main", k) / "bundle.json").read_text("utf-8"))
+
+
+class DelayedSource:
+    """The replay plus one hot pixel observed at `observed_ms` that only becomes available at `available_ms`."""
+
+    def __init__(self, inner: SyntheticSource, observed_ms: int, available_ms: int) -> None:
+        self.inner = inner
+        o = inner._scan(observed_ms, available_ms, [(*_centre_lonlat(IGN_RC[0] + 1, IGN_RC[1] - 1), True)])[0][0]
+        self.late = o.model_copy(update={"obs_id": "obs_synthetic_goes_late_0", "footprint_key": "synthetic_goes:late:0"})
+
+    def collect(self, a_ms: int, b_ms: int):
+        obs, scans = self.inner.collect(a_ms, b_ms)
+        return (obs + [self.late] if a_ms < self.late.available_sim_ms <= b_ms else obs), scans
+
+
+def check_delayed_report(ctx, base: Path, root: Path, run: Callable[[Path, Any], Any]) -> None:
+    """Observed in cycle 3, available at cycle 6: assimilated at 6; cycles 0-5 identical to the run without it."""
+    ks = physics_ks(ctx)
+    src = DelayedSource(synth_source(ctx), ks[3] - 2 * MIN, ks[6])
+    run(root, src)
+    late = src.late.obs_id
+    for k in ks[:6]:
+        assert _key(root, k) == _key(base, k) and _arrival(root, k) == _arrival(base, k), k
+        assert late not in {o.obs_id for o in bundle(root, k).observations}
+    seen = {o.obs_id: o for o in bundle(root, ks[6]).observations}
+    assert seen[late].status == "assimilated" and seen[late].observed_sim_ms < ks[4]
+    assert _key(root, ks[6]) != _key(base, ks[6])  # the late evidence is in the chain from its availability on
+
+
+def test_delayed_report_lands_in_its_availability_cycle(ctx, tmp_path):
+    run_precompute(ctx, tmp_path / "base")
+    check_delayed_report(ctx, tmp_path / "base", tmp_path / "late", lambda root, src: run_precompute(ctx, root, src))
+
+
+def test_live_loop_survives_a_physics_failure(ctx, tmp_path, monkeypatch):
+    ks = physics_ks(ctx)
+    base = tmp_path / "base"
+    run_precompute(ctx, base)
+    real, failed = hazard_standin.FakeHazardModel.step, []
+
+    def flaky(self, t_now_min, new_obs):  # fails once at ks[3], like a Rust timeout (nothing committed)
+        if t_now_min == (ks[3] - ctx.t_ref_ms) / MIN and not failed:
+            failed.append(t_now_min)
+            raise TimeoutError("Rust forecast exceeded 120.0 seconds; model state was not committed")
+        return real(self, t_now_min, new_obs)
+
+    monkeypatch.setattr(hazard_standin.FakeHazardModel, "step", flaky)
+    with pytest.raises(TimeoutError):
+        run_precompute(ctx, tmp_path / "pre")  # precompute stays fail-fast
+    failed.clear()
+    root = tmp_path / "live"
+    run_loop(ctx, root, survive=True)
+    assert failed
+    b = bundle(root, ks[3])
+    assert b.cycle is None and [e.level for e in b.events if e.actor == "physics"] == ["error"]
+    assert not (cache.cycle_dir(root, SCN, "main", ks[3]) / "physics.json").exists()
+    for k in ks[4:]:  # k4 rolls through k3 again; the chain is the uninterrupted run's
+        assert bundle(root, k).cycle is not None
+        assert _key(root, k) == _key(base, k) and _arrival(root, k) == _arrival(base, k), k
+
+
+def test_roll_forward_replays_inbox_reports(ctx, tmp_path, monkeypatch):
+    """A restore that rolls through a cycle with an injected report steps it WITH the report its key hashes."""
+    ks = physics_ks(ctx)
+    o = synth_source(ctx)._scan(ks[20] - 2 * MIN, ks[20] - MIN, [(*_centre_lonlat(*IGN_RC), True)])[0][0]
+    report = o.model_copy(update={"obs_id": "obs_inbox_report_0", "footprint_key": "inbox:0"})
+    root = tmp_path / "cache"
+
+    def run() -> Loop:
+        inbox = InboxSource()
+        inbox.add(report)
+        return run_loop(ctx, root, inbox=inbox)
+
+    run()
+    shutil.rmtree(cache.cycle_dir(root, SCN, "main", ks[22]))
+    real, stepped = hazard_standin.FakeHazardModel.step, []
+
+    def spy(self, t_now_min, new_obs):
+        stepped.extend(x.obs_id for x in new_obs)
+        return real(self, t_now_min, new_obs)
+
+    monkeypatch.setattr(hazard_standin.FakeHazardModel, "step", spy)
+    loop = run()
+    assert loop.host.restored_from == [ks[18]]  # rolled through k19-k21
+    assert report.obs_id in stepped
+
+
+def test_cache_key_binds_catalog_and_environment(ctx, tmp_path):
+    """The key binds what Abby's checkpoint.load binds, so a catalog/environment change misses the cache."""
+    _, identity = rust_backend()
+    assert identity["catalog_sha256"] == hashlib.sha256(bridge.catalog_text().encode()).hexdigest()
+    assert identity["environment"] == checkpoint.environment()
+    host = make_host(ctx, hazard_standin.FakeHazardModel, flat_landscape(ctx), FlatForcing(ctx), tmp_path,
+                     identity=identity)
+    h = run_hash(ctx, host)
+    host.identity = {**identity, "catalog_sha256": "0" * 64}
+    assert run_hash(ctx, host) != h
 
 
 # ---------------------------------------------------------------- 03 §14 test 3
@@ -533,6 +691,86 @@ def test_3_no_future_data(ctx, tmp_path):
         run_precompute(ctx, tmp_path / "obs", source=DoctoredSource(synth_source(ctx)))
     with pytest.raises(AssertionError, match="future data: weather"):
         run_precompute(ctx, tmp_path / "wx", forcing=FlatForcing(ctx, available_offset_ms=10**9))
+
+
+# ---------------------------------------------------------------- HRRR forcing, profiles, statics
+
+
+def test_forcing_takes_released_bands_of_the_newest_init(ctx, tmp_path, monkeypatch):
+    (a_init, a_path), (b_init, b_path) = write_hrrr(ctx, tmp_path / "forcing")
+    forcing = NcForcing(tmp_path / "forcing", model_grid(ctx))
+    k0 = ctx.k0_ms
+    w = forcing.weather_as_of(k0)  # B has nothing out yet: fall back to A
+    assert (w.audit["init_ms"], w.audit["selected_fxx"], w.audit["file"]) == (a_init, list(range(10)), a_path.name)
+    assert w.audit["sha256"] == sha256_file(a_path)
+    k = k0 + 40 * MIN
+    w = forcing.weather_as_of(k)  # B f00-f02 out; f03+ not yet
+    assert (w.audit["init_ms"], w.audit["selected_fxx"], w.audit["file"]) == (b_init, [0, 1, 2], b_path.name)
+    assert max(w.audit["available_ms_by_fxx"]) == w.available_ms <= k  # available after the issue: never
+    assert w.audit["valid_min_range"][1] > (k - ctx.t_ref_ms) / MIN  # valid after the issue: a forecast, legal
+    assert w.weather.u10.shape == (3, G["ny"], G["nx"])
+
+    real = loop_mod.weather_from_hrrr
+
+    def doctored(ds, grid, issue_ms):
+        weather, audit = real(ds, grid, issue_ms)
+        return weather, {**audit, "available_ms_by_fxx": [issue_ms + MIN]}
+
+    monkeypatch.setattr(loop_mod, "weather_from_hrrr", doctored)
+    with pytest.raises(AssertionError, match="future data: weather"):
+        NcForcing(tmp_path / "forcing", model_grid(ctx)).weather_as_of(k)
+
+
+def test_hrrr_forcing_audit_cache_and_restore_across_a_weather_change(ctx, tmp_path, monkeypatch):
+    """The orchestrator on real forcing files: audit in physics.json, weather updates, byte-identical restore."""
+    write_hrrr(ctx, ctx.scn_dir / "forcing")
+    root = tmp_path / "cache"
+
+    def run():
+        return run_precompute(ctx, root, forcing=NcForcing(ctx.scn_dir / "forcing", model_grid(ctx)))
+
+    run()
+    ks = physics_ks(ctx)
+    phys = {k: json.loads((cache.cycle_dir(root, SCN, "main", k) / "physics.json").read_text(encoding="utf-8"))
+            for k in ks[:10]}
+    files = [phys[k]["forcing"]["file"] for k in ks[:10]]
+    assert files[0] == files[1] != files[2] == files[9]  # B's f00 is out from k0+10 min
+    assert [phys[k]["forcing"]["selected_fxx"] for k in ks[7:9]] == [[0], [0, 1, 2]]
+    assert all(max(p["forcing"]["available_ms_by_fxx"]) <= k for k, p in phys.items())
+
+    before = _arrival(root, ks[9])
+    shutil.rmtree(cache.cycle_dir(root, SCN, "main", ks[9]))
+    sent: list = []
+    original = hazard_standin.FakeHazardModel.update_weather
+
+    def spy(self, w):
+        sent.append(len(w.t_min))
+        original(self, w)
+
+    monkeypatch.setattr(hazard_standin.FakeHazardModel, "update_weather", spy)
+    loop = run()
+    assert loop.host.restored_from == [ks[6]]  # checkpoint at k6 (B f00), rolled through k7, k8
+    assert sent == [3]  # only the real change at k8 (B f00 -> f00-f02); the checkpoint's weather is not re-sent
+    assert _arrival(root, ks[9]) == before
+
+
+def test_members_profiles_and_spotting_off(ctx):
+    ctx.cfg["n_members"] = 128
+    dev, target = model_config(ctx, None, "dev"), model_config(ctx, None, "target")
+    assert (dev.n_members, target.n_members) == (16, 128)
+    assert not dev.spotting and not target.spotting
+    assert model_version("target") == MODEL_VERSION and model_version("dev") == MODEL_VERSION + "+dev-n16"
+
+
+def test_real_physics_stops_without_abby_statics(ctx):
+    with pytest.raises(SystemExit, match=r"missing static/dem\.tif, static/fbfm40\.tif"):
+        landscape(ctx)
+
+
+def test_fake_model_keeps_the_real_hazard_protocol():
+    for name in ("init", "update_weather", "step", "region_arrivals", "save_state", "load_state"):
+        want = list(inspect.signature(getattr(HazardModel, name)).parameters)
+        assert list(inspect.signature(getattr(hazard_standin.FakeHazardModel, name)).parameters) == want, name
 
 
 # ---------------------------------------------------------------- 03 §14 test 4 (publisher level)

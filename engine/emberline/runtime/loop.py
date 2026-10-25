@@ -10,7 +10,11 @@ people are re-derived from live hub state at publish time (`publisher.build_bund
 from __future__ import annotations
 
 import asyncio
+import dataclasses
+import functools
+import hashlib
 import json
+import logging
 import math
 import time
 from dataclasses import dataclass, field
@@ -25,6 +29,8 @@ import yaml
 from emberline.ai import briefing as brf
 from emberline.contracts import LEADS_MIN, ActivityEvent, Alert, CycleBundle, ObservationRecord, ScanEvent, SensorInfo
 from emberline.data.config import utc_ms
+from emberline.hazard.bridge import sha256_file
+from emberline.hazard.integration import weather_from_hrrr
 from emberline.risk import alerts as alerts_mod
 from emberline.risk import risk
 from emberline.runtime import cache, publisher, summarize
@@ -32,6 +38,7 @@ from emberline.runtime.model_host import ModelHost, burnable
 from emberline.runtime.publisher import CycleInputs, build_bundle
 from emberline.sync.sink import HubSnapshot, apply_alerts
 
+log = logging.getLogger(__name__)
 REPO = Path(__file__).resolve().parents[3]
 MAX_BATCH = 10
 NEVER = -(2**62)
@@ -145,44 +152,55 @@ def load_scenario_dir(scn_dir: Path, rules_path: Path = REPO / "config" / "alert
 class WeatherAsOf:
     weather: Any  # hazard.api.Weather
     init_ms: int
-    available_ms: int
+    available_ms: int  # newest release time among the selected bands (<= the issue)
+    audit: dict | None = None  # NcForcing: file, sha256 + weather_from_hrrr's release-time audit
+
+    @property
+    def key(self) -> tuple:
+        """Same key = the model already has this weather (no update_weather)."""
+        a = self.audit or {}
+        return self.init_ms, self.available_ms, a.get("sha256"), tuple(a.get("selected_fxx", ()))
+
+
+@functools.lru_cache(maxsize=2)
+def _hrrr(path: Path) -> xr.Dataset:
+    return xr.load_dataset(path)
+
+
+@functools.lru_cache(maxsize=64)
+def _sha256(path: Path) -> str:
+    return sha256_file(path)
 
 
 class NcForcing:
-    """ForcingProvider over `forcing/hrrr_*.nc` (data/hrrr.py's format).
+    """ForcingProvider over `forcing/hrrr_*.nc` (data/hrrr.py's format) via hazard.integration.weather_from_hrrr.
 
-    weather_as_of(t): the newest init whose f00 is available by t, with only the fxx bands
-    already available by t (no future data). Band start = init + fxx hours.
+    weather_as_of(t): the newest init with any fxx band released by t (older inits are the fallback),
+    keeping only the released bands. A band may be valid after t (a forecast); none is available after t.
     """
 
-    def __init__(self, forcing_dir: Path, t_ref_ms: int) -> None:
-        self.t_ref_ms = t_ref_ms
-        self.inits: list[tuple[int, list[int], Path]] = []
+    def __init__(self, forcing_dir: Path, grid: Any) -> None:
+        self.grid = grid  # hazard.api.Grid
+        self.inits: list[tuple[int, np.ndarray, Path]] = []
         for p in sorted(Path(forcing_dir).glob("hrrr_*.nc")):
             with xr.open_dataset(p) as ds:
-                av = [int(a) for a in np.atleast_1d(ds.attrs["available_ms_by_fxx"])]
+                av = np.atleast_1d(ds.attrs["available_ms_by_fxx"]).astype(np.int64)
                 self.inits.append((int(ds.attrs["init_ms"]), av, p))
         assert self.inits, f"no hrrr_*.nc in {forcing_dir}"
-        self._loaded: dict[Path, xr.Dataset] = {}
+        self._last: tuple[int, WeatherAsOf] | None = None  # the loop asks twice per cycle (key, then step)
 
     def weather_as_of(self, t_ms: int) -> WeatherAsOf:
-        from emberline.hazard.api import Weather  # lazy: A0
-
-        ready = [x for x in self.inits if x[1][0] <= t_ms]
-        assert ready, f"no HRRR init available by {t_ms}"
-        init_ms, av, path = max(ready, key=lambda x: x[0])
-        # Contiguous prefix only: per-fxx availability is not monotone, and Weather.t_min must be hourly.
-        n = next((f for f, a in enumerate(av) if a > t_ms), len(av))
-        bands = list(range(n))
-        if path not in self._loaded:
-            self._loaded[path] = xr.load_dataset(path)
-        ds = self._loaded[path].isel(fxx=bands)
-        w = Weather(
-            t_min=np.array([(init_ms + f * 3_600_000 - self.t_ref_ms) / 60_000 for f in bands], dtype=np.float32),
-            u10=ds["u10"].values.astype(np.float32), v10=ds["v10"].values.astype(np.float32),
-            temp_c=ds["temp_c"].values.astype(np.float32), rh=ds["rh"].values.astype(np.float32),
-        )
-        return WeatherAsOf(weather=w, init_ms=init_ms, available_ms=max(av[f] for f in bands))
+        if self._last is not None and self._last[0] == t_ms:
+            return self._last[1]
+        ready = [x for x in self.inits if x[0] <= t_ms and (x[1] <= t_ms).any()]
+        assert ready, f"no HRRR band available by {t_ms}"
+        init_ms, _, path = max(ready, key=lambda x: x[0])
+        weather, audit = weather_from_hrrr(_hrrr(path), self.grid, int(t_ms))
+        newest = max(audit["available_ms_by_fxx"])
+        assert newest <= t_ms, f"future data: weather band available {newest} > k {t_ms}"
+        w = WeatherAsOf(weather, init_ms, newest, {"file": path.name, "sha256": _sha256(path), **audit})
+        self._last = (t_ms, w)
+        return w
 
 
 # ---------------------------------------------------------------- loop
@@ -192,9 +210,24 @@ class NcForcing:
 class LineageState:
     prev_key: str | None = None
     prev_burned_ha: float | None = None
+    prev_burned_k: int | None = None  # the cycle prev_burned_ha is from (a failed cycle leaves a gap)
     prev_p120: dict[str, float] | None = None
     data_through: int | None = None
     scans: list[ScanEvent] = field(default_factory=list)
+    keys: dict[int, str] = field(default_factory=dict)  # k -> cycle key on this lineage (checkpoint matching)
+    obs: dict[int, list[ObservationRecord]] = field(default_factory=dict)  # k -> the exact evidence keys[k] hashes
+
+
+LAND_FIELDS = ("fuel", "slope", "aspect", "elev", "canopy_cover", "canopy_height", "building_frac")
+
+
+def run_hash(ctx: Scenario, host: ModelHost) -> str:
+    """The cache key's scenario/config hash: scenario.yaml, ModelConfig, model code identity, landscape, frozen masks."""
+    h = hashlib.sha256(json.dumps([ctx.cfg, dataclasses.asdict(host.cfg), host.identity], sort_keys=True,
+                                  default=str).encode())
+    for a in [getattr(host.land, f) for f in LAND_FIELDS] + [ctx.zone_index, ctx.area_index]:
+        h.update(b"none" if a is None else f"{a.dtype}{a.shape}".encode() + np.ascontiguousarray(a).tobytes())
+    return h.hexdigest()
 
 
 def assert_no_future(obs: list[ObservationRecord], scans: list[ScanEvent], k_ms: int) -> None:
@@ -220,12 +253,15 @@ class Loop:
     def __init__(self, ctx: Scenario, sink: Any, clock: Any, source: Any, host: ModelHost | None,
                  cache_root: Path, branch: str = "main", model_version: str = "unknown",
                  filter_mode: str | None = None, briefings: str = "off", inbox: Any = None,
-                 stop_at_end: bool = False) -> None:
+                 stop_at_end: bool = False, survive_physics_errors: bool = False) -> None:
         assert briefings in ("off", "background", "await")
         self.ctx, self.sink, self.clock, self.source, self.host = ctx, sink, clock, source, host
         self.root, self.branch, self.model_version = Path(cache_root), branch, model_version
         self.filter_mode = filter_mode or ctx.cfg.get("filter", "pf")
+        self.config_hash = run_hash(ctx, host) if host is not None else ctx.cfg.get("config_hash")
         self.briefings, self.inbox, self.stop_at_end = briefings, inbox, stop_at_end
+        self.survive_physics_errors = survive_physics_errors  # live engine: a failed forecast is an error event
+        self._physics_error: str | None = None  # set by _advance for the cycle it just built
         self.lock = asyncio.Lock()
         self.ks = self._cycle_ks()
         self.i = 0  # index into ks of the next cycle to publish
@@ -350,12 +386,13 @@ class Loop:
         return list(obs), list(scans)
 
     def _obs_for(self, k: int) -> list[ObservationRecord]:
-        # ponytail: roll-forward re-collects the replay source; injected reports (wave 3) need their own log.
-        return self._window(k)[0]
+        """Roll-forward evidence: what _advance hashed into keys[k], inbox reports included."""
+        return self.state.obs[k]
 
     async def _advance(self, k: int) -> CycleInputs:
         """Collect cycle k's new data, then load or compute its physics; updates the lineage state."""
         ctx, st = self.ctx, self.state
+        self._physics_error = None
         obs, scans = self._window(k)
         if self.inbox is not None and k >= ctx.k0_ms:
             obs += self.inbox.drain(k)
@@ -367,13 +404,28 @@ class Loop:
         st.data_through = max(seen, default=None)
         phys = None
         if k >= ctx.t_ign_ms:
-            key = cache.cycle_key(st.prev_key, [o.obs_id for o in obs], self.model_version,
-                                  ctx.cfg.get("config_hash"), int(ctx.cfg.get("seed", 7)), self.filter_mode)
+            wx = self.host.weather(k) if self.host is not None else None  # asserts no future forcing, hit or miss
+            key = cache.cycle_key(st.prev_key, [cache.evidence_hash(o) for o in obs], self.model_version,
+                                  self.config_hash, int(ctx.cfg.get("seed", 7)), self.filter_mode,
+                                  wx.audit if wx is not None else None)
+            st.keys[k], st.obs[k] = key, obs
             phys = cache.load_cycle(self.root, ctx.scenario_id, self.branch, k, key)
             if phys is None:
-                phys = await asyncio.to_thread(self._physics_cycle, k, obs, scans, key)
-            st.prev_key, st.prev_burned_ha = key, phys.cycle["burned_ha"]
-            st.prev_p120 = p120(phys, ctx)
+                try:
+                    phys = await asyncio.to_thread(self._physics_cycle, k, obs, scans, key)
+                except AssertionError:
+                    raise  # future data / broken invariants always stop the engine
+                except Exception as e:  # Rust timeout, native failure, rejected evidence
+                    if not self.survive_physics_errors:
+                        raise
+                    log.exception("physics failed at %s; publishing the cycle without a forecast", k)
+                    self._physics_error = f"Forecast failed ({type(e).__name__}); no new forecast this cycle"
+            # The key hashes inputs, not outputs: after a failure the next miss rolls through k again
+            # with st.obs[k] (Abby's step is transactional, so the model is still at its last commit).
+            st.prev_key = key
+            if phys is not None:
+                st.prev_burned_ha, st.prev_burned_k = phys.cycle["burned_ha"], k
+                st.prev_p120 = p120(phys, ctx)
         return CycleInputs(k_ms=k, phys=phys, new_obs=obs, scans=scans, scans_so_far=list(st.scans),
                            prev_p120=prev_p120)
 
@@ -382,13 +434,14 @@ class Loop:
         assert self.host is not None, f"cache miss at {k} and no model (fixture/bundle replay?)"
         ctx, host, st = self.ctx, self.host, self.state
         t0 = time.perf_counter()
-        host.ensure_state(self.branch, k - ctx.cycle_ms, self._obs_for)
-        arrays = host.step(self.branch, k, obs)
+        host.ensure_state(self.branch, k - ctx.cycle_ms, self._obs_for, st.keys.get)
+        arrays = host.step(self.branch, k, obs, key)
         rel = f"cache/{ctx.scenario_id}/{self.branch}/{k}"
         out_dir = cache.cycle_dir(self.root, ctx.scenario_id, self.branch, k)
         is_new = not (out_dir / "physics.json").exists()  # a stale key is already counted in coverage
+        since_min = (k - st.prev_burned_k) // 60_000 if st.prev_burned_k is not None else ctx.cycle_ms // 60_000
         assets, danger, stats = summarize.write_assets(arrays, out_dir, rel, ctx.grid, burnable(host.land),
-                                                       st.prev_burned_ha, ctx.cycle_ms // 60_000)
+                                                       st.prev_burned_ha, since_min)
         zone_arr = np.asarray(host.model.region_arrivals(ctx.zone_index, len(ctx.zones)), dtype=np.float32)
         area_arr = np.asarray(host.model.region_arrivals(ctx.area_index, 1), dtype=np.float32)
         used = {u["obs_id"]: u for u in arrays.obs_used}
@@ -428,7 +481,9 @@ class Loop:
         ]
         out = cache.PhysicsOutput(cycle=cycle, zone_arr=zone_arr, area_arr=area_arr,
                                   weights=np.asarray(arrays.weights, dtype=np.float64), obs_status=obs_status,
-                                  scans=[s.model_dump(mode="json") for s in scans], events=events, key=key)
+                                  scans=[s.model_dump(mode="json") for s in scans], events=events, key=key,
+                                  forcing=host.weather(k).audit,
+                                  identity={"run_hash": self.config_hash, **host.identity})
         cache.save_cycle(self.root, ctx.scenario_id, self.branch, k, out)
         self.status["physics_ms"] = duration_ms
         self._n_cached += is_new
@@ -446,7 +501,13 @@ class Loop:
     async def _build(self, k: int, snap: HubSnapshot, mirror: dict[str, Alert]) -> CycleBundle | None:
         inp = await self._advance(k)
         self._last = inp
-        return build_bundle(self.ctx, self.branch, inp, snap, list(mirror.values()), self.root)
+        b = build_bundle(self.ctx, self.branch, inp, snap, list(mirror.values()), self.root)
+        if self._physics_error is None:
+            return b
+        err = ActivityEvent(event_id=f"ev_{b.bundle_id}_physics", scenario_id=self.ctx.scenario_id,
+                            branch_id=self.branch, sim_ms=k, wall_ms=int(time.time() * 1000), stage="forecast",
+                            actor="physics", level="error", message=self._physics_error[:140])
+        return b.model_copy(update={"events": [*b.events, err]})
 
     async def _rebuild_last(self, snap: HubSnapshot, mirror: dict[str, Alert]) -> CycleBundle | None:
         """The current cycle again with fresh hub state (evac_min edit, person joined)."""

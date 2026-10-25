@@ -1,114 +1,39 @@
-"""Tests-only stand-in for `emberline.hazard.api` (WAVE2 §1.3) until Abby's A0 lands.
+"""Tests-only HazardModel double: FakeHazardModel (spec/02 §1) on the REAL `emberline.hazard.api` dataclasses.
 
-`install()` registers this module as `emberline.hazard` / `emberline.hazard.api` in
-`sys.modules`, but only if the real import fails. When A0 lands, the real module wins.
-The dataclasses are spec/00 §6 verbatim; `FakeHazardModel` follows spec/02 §1, except
-`filter_mode = "none"` (the Cycle contract only allows pf | reinit | none).
+The no-native stand-in for Abby's RustHazardModel (CI builds fire-bridge, laptops may not; the
+native path is tests/test_engine_native.py). It keeps the Rust model's call rules, so orchestration
+bugs fail here too: spotting must be off, steps are strictly increasing cycle multiples at/after
+ignition, no observation from the future, region arrivals only after a step, and save_state /
+load_state round-trip bit-exactly, weather included. 16 members, analytic ellipse, uniform
+weights, `filter_mode = "none"`.
 """
 
 from __future__ import annotations
 
-import importlib
+import dataclasses
 import io
+import json
 import math
-import sys
 import time
-import types
-from dataclasses import dataclass, field
-from typing import Literal, Protocol
 
 import numpy as np
 
+from emberline.hazard.api import ForecastArrays, Landscape, ModelConfig, Weather
+
 MODEL_VERSION = "fake-standin-1"
+WEATHER = ("t_min", "u10", "v10", "temp_c", "rh")
+STATIC = ("dist", "bearing", "base", "offset")  # init-derived arrays, saved so load_state needs no init
 
 
-# ---------------------------------------------------------------- spec/00 §6, verbatim
+def flat_landscape(ctx) -> Landscape:
+    """Flat all-GR2 landscape on a synthetic test scenario's grid. Tests only: Eaton never gets one."""
+    from emberline.runtime.model_host import model_grid
 
-
-@dataclass(frozen=True)
-class Grid:
-    crs: str; x0: float; y0: float; cell_m: float; H: int; W: int   # row 0 = north; x0,y0 = upper-left
-    t_ref_s: int                                                    # model time = float32 minutes since t_ref
-
-
-@dataclass
-class Landscape:                     # built by data.load_landscape(scn) (01 §6); Abby may call it directly
-    grid: Grid
-    fuel: np.ndarray                 # (H,W) int16 FBFM40 code (91 = NB1 urban; 92/93/98/99 non-burnable)
-    slope: np.ndarray                # (H,W) float32 RISE/RUN (= tan of slope angle). phiS uses slope**2.
-    aspect: np.ndarray               # (H,W) float32 deg cw from N, DOWNSLOPE direction
-    elev: np.ndarray                 # (H,W) float32 m
-    canopy_cover: np.ndarray | None = None
-    canopy_height: np.ndarray | None = None
-    building_frac: np.ndarray | None = None
-
-
-@dataclass
-class Weather:                       # from ForcingProvider.weather_as_of() (03 §3); earth-relative winds
-    t_min: np.ndarray                # (B,) float32 band start, minutes since t_ref, hourly, ascending
-    u10: np.ndarray                  # (B,H,W) float32 m/s eastward
-    v10: np.ndarray                  # (B,H,W) float32 m/s northward
-    temp_c: np.ndarray               # (B,)
-    rh: np.ndarray                   # (B,) 0–1
-    # Times after the last band use the last band; times before the first use the first.
-
-
-@dataclass
-class Ignition:
-    t_min: float; points_xy: np.ndarray; radius_m: float = 300.0   # grid-CRS metres, (K,2)
-
-
-@dataclass
-class ModelConfig:
-    n_members: int = 128; horizon_min: int = 360; out_step_min: int = 30; cycle_min: int = 5
-    filter: Literal["pf", "reinit", "none"] = "pf"
-    ess_target: float = 0.5; jitter_a: float = 0.97; reseed_frac: float = 0.25
-    spotting: bool = True; urban: bool = True; seed: int = 7
-    history_min: int = 720           # physics keeps its own observation history this long (in state)
-    quantiles: tuple[float, ...] = (0.1, 0.3, 0.5, 0.7, 0.9)
-
-
-@dataclass
-class ForecastArrays:
-    t_issue_min: float
-    t_q: np.ndarray                  # (5,H,W) float32 minutes AFTER issue; NaN = beyond horizon; 0 = burned at issue
-    p_burned_now: np.ndarray         # (H,W) float32
-    weights: np.ndarray              # (N,) float64 normalized
-    ess: float; tempering_alpha: float; resampled: bool; filter_mode: str
-    params_summary: dict
-    obs_used: list[dict] = field(default_factory=list)   # [{obs_id, used: bool, ll_spread: float}] -> status/influence
-    duration_ms: int = 0
-
-
-class HazardModel(Protocol):
-    def init(self, land: Landscape, weather: Weather, cfg: ModelConfig, ign: Ignition) -> None: ...
-    def update_weather(self, weather: Weather) -> None: ...
-    def step(self, t_now_min: float, new_obs: list) -> ForecastArrays: ...
-    def region_arrivals(self, index: np.ndarray, n_regions: int) -> np.ndarray: ...
-    def save_state(self) -> bytes: ...
-    def load_state(self, blob: bytes) -> None: ...
-
-
-# ---------------------------------------------------------------- install
-
-
-def install() -> types.ModuleType:
-    """Return the real `emberline.hazard.api` if importable, else register this module as it."""
-    try:
-        return importlib.import_module("emberline.hazard.api")
-    except ImportError:
-        pass
-    pkg = types.ModuleType("emberline.hazard")
-    pkg.__path__ = []  # a package, so `emberline.hazard.api` resolves from sys.modules
-    pkg.MODEL_VERSION = MODEL_VERSION
-    pkg.api = sys.modules[__name__]
-    sys.modules["emberline.hazard"] = pkg
-    sys.modules["emberline.hazard.api"] = sys.modules[__name__]
-    return sys.modules[__name__]
-
-
-def _api():
-    return importlib.import_module("emberline.hazard.api")
+    g = ctx.grid
+    shape = (int(g["ny"]), int(g["nx"]))
+    zeros = np.zeros(shape, dtype=np.float32)
+    return Landscape(grid=model_grid(ctx), fuel=np.full(shape, 102, dtype=np.int16), slope=zeros,
+                     aspect=zeros.copy(), elev=zeros.copy())
 
 
 # ---------------------------------------------------------------- FakeHazardModel (spec/02 §1)
@@ -125,16 +50,18 @@ WALK_SD = 0.005  # per-cycle log random walk on ROS, so the state carries histor
 class FakeHazardModel:
     """16 members, analytic focus-anchored ellipse heading downwind, uniform weights.
 
-    State: per-member ROS multipliers plus the earliest-arrival field T (N,H,W) float32,
-    minutes since t_ref. Each step draws from default_rng([seed, cycle_index]), so a
-    restored checkpoint rolled forward reproduces the original run bit for bit.
+    State: per-member ROS multipliers, the earliest-arrival field T (N,H,W) float32 minutes since
+    t_ref, the weather in force and the last issue. Each step draws from default_rng([seed,
+    cycle_index]), so a restored checkpoint rolled forward reproduces the original run bit for bit.
     """
 
     def init(self, land, weather, cfg, ign) -> None:
+        if cfg.spotting:
+            raise ValueError("the Rust surface backend does not implement spotting; set spotting=False")
         g = land.grid
-        self.cfg = cfg
-        self.weather = weather
+        self.cfg, self.weather, self.t_ref_s = cfg, weather, g.t_ref_s
         self.t_ign = np.float32(ign.t_min)
+        self.last: float | None = None
         self.radius = float(ign.radius_m)
         cx, cy = np.asarray(ign.points_xy, dtype=np.float64).reshape(-1, 2).mean(axis=0)
         xs = g.x0 + g.cell_m * (np.arange(g.W) + 0.5)
@@ -159,6 +86,12 @@ class FakeHazardModel:
     def step(self, t_now_min: float, new_obs: list) -> ForecastArrays:
         t0 = time.perf_counter()
         cfg = self.cfg
+        if (t_now_min < self.t_ign or (self.last is not None and t_now_min <= self.last)
+                or abs(t_now_min / cfg.cycle_min - round(t_now_min / cfg.cycle_min)) > 1e-5):
+            raise ValueError("step must be a strictly increasing configured cycle at/after ignition")
+        now_ms = round((self.t_ref_s + t_now_min * 60) * 1000)
+        if any(o.available_sim_ms > now_ms for o in new_obs):
+            raise ValueError("an observation was unavailable at issue")
         rng = np.random.default_rng([cfg.seed, round(t_now_min / cfg.cycle_min)])
         self.mult = (self.mult * np.exp(WALK_SD * rng.standard_normal(N_FAKE))).astype(np.float32)
         heading = self._heading(t_now_min)
@@ -166,16 +99,17 @@ class FakeHazardModel:
         ros = (self.base * self.mult).astype(np.float64)[:, None, None]
         cand = self.t_ign + self.dist[None] * (1 - ECC * np.cos(theta)) / (ros * (1 - ECC))
         self.T = np.minimum(self.T, cand.astype(np.float32))
+        self.last = float(t_now_min)
         return self._arrays(np.float32(t_now_min), new_obs, int((time.perf_counter() - t0) * 1000))
 
-    def _arrays(self, t_now: np.float32, new_obs: list, duration_ms: int):
+    def _arrays(self, t_now: np.float32, new_obs: list, duration_ms: int) -> ForecastArrays:
         cfg = self.cfg
         srt = np.sort(self.T, axis=0)
         idx = [math.ceil(q * N_FAKE - 1e-9) - 1 for q in cfg.quantiles]
         t_q = (srt[idx] - t_now).astype(np.float32)
         t_q[t_q < 0] = 0.0
         t_q[t_q > cfg.horizon_min] = np.nan
-        return _api().ForecastArrays(
+        return ForecastArrays(
             t_issue_min=float(t_now),
             t_q=t_q,
             p_burned_now=(self.T <= t_now).mean(axis=0).astype(np.float32),
@@ -190,6 +124,8 @@ class FakeHazardModel:
         )
 
     def region_arrivals(self, index: np.ndarray, n_regions: int) -> np.ndarray:
+        if self.last is None:
+            raise RuntimeError("step before requesting region arrivals")
         out = np.full((N_FAKE, n_regions), np.inf, dtype=np.float32)
         for r in range(n_regions):
             mask = index == r
@@ -198,10 +134,22 @@ class FakeHazardModel:
         return out
 
     def save_state(self) -> bytes:
+        """Self-contained like Abby's checkpoint: load_state needs no init."""
         buf = io.BytesIO()
-        np.savez_compressed(buf, mult=self.mult, T=self.T)
+        last = np.nan if self.last is None else self.last
+        cfg = np.frombuffer(json.dumps(dataclasses.asdict(self.cfg)).encode(), dtype=np.uint8)
+        np.savez_compressed(buf, mult=self.mult, T=self.T, last=np.float64(last), cfg=cfg, t_ign=self.t_ign,
+                            t_ref_s=np.int64(self.t_ref_s), **{n: getattr(self, n) for n in STATIC},
+                            **{f"wx_{n}": getattr(self.weather, n) for n in WEATHER})
         return buf.getvalue()
 
     def load_state(self, blob: bytes) -> None:
         with np.load(io.BytesIO(blob)) as z:
+            c = json.loads(z["cfg"].tobytes())
+            self.cfg = ModelConfig(**{**c, "quantiles": tuple(c["quantiles"])})
+            self.t_ign, self.t_ref_s = np.float32(z["t_ign"]), int(z["t_ref_s"])
+            for n in STATIC:
+                setattr(self, n, z[n].copy())
             self.mult, self.T = z["mult"].copy(), z["T"].copy()
+            self.last = None if np.isnan(z["last"]) else float(z["last"])
+            self.weather = Weather(*(z[f"wx_{n}"].copy() for n in WEATHER))

@@ -25,3 +25,4 @@ Format: `Sat 13:05 · Cody · C0 contracts + fixture merged (PR #3) · Cursor ag
 - Sat 18:30 · Cody · Wave 2 T8: GOES-18 pixel table (21,026 rows), scan events, replay manifest · Claude workflow
 - Sat 18:30 · Cody · Wave 2 T9a/T9b: 131 LA County zones (event snapshot, disclosed), exposure, assets, spawn points; terrain, manifest, sensors, timeline · Claude workflow
 - Sat 18:30 · Cody · Wave 2 T10/T11/T12: engine loop, publisher, sinks, poller, run.py; Cartesia dry run; local API :8787; 03 §14 tests 1-5 on a hazard stand-in · Claude workflow
+- Sat 19:45 · Cody · T10 on Abby's Rust HazardModel: factory-only model, dev (N=16, labelled)/target profiles, weather_from_hrrr forcing with per-cycle audit, evidence/identity/catalog/forcing cache keys, lineage-bound checkpoints, live loop survives physics errors; native tests run in CI only · Claude workflow

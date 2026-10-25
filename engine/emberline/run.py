@@ -1,11 +1,13 @@
 """Engine entrypoint. spec/03 §1, §13.
 
-    uv run python -m emberline.run --scenario eaton --profile online
+    uv run python -m emberline.run --scenario eaton --profile online [--members-profile dev|target]
     uv run python -m emberline.run --profile offline --fixtures      # replay the committed fixture, no physics
 
 Loads engine/.env, calls load_scenario on the hub, then runs the poller, the cycle loop
-and the local API (:8787, T12) until interrupted. Real physics needs `emberline.hazard`
-(A0); without it this exits with a clear message unless --fixtures is given.
+and the local API (:8787, T12) until interrupted. Physics (cache misses) is Abby's Rust
+HazardModel on her statics; without static/dem.tif + static/fbfm40.tif + data.statics
+this exits naming what is missing, unless --fixtures is given. `--members-profile` must
+match the precompute's `--profile` for its cache to hit (default target).
 """
 
 from __future__ import annotations
@@ -27,6 +29,7 @@ from emberline.risk import alerts as alerts_mod
 from emberline.runtime import cache
 from emberline.runtime.clock import SimClock
 from emberline.runtime.loop import BundleReplayLoop, Loop, NcForcing, Scenario, load_scenario_dir
+from emberline.runtime.model_host import PROFILES, landscape, make_host, model_grid, model_version, rust_backend
 from emberline.sync.poller import Poller
 from emberline.sync.stdb_http import StdbHttp
 from emberline.sync.stdb_sink import StdbSink
@@ -77,26 +80,18 @@ def build_loop(a: argparse.Namespace, sink: StdbSink, clock: SimClock) -> tuple[
             raise SystemExit(f"--fixtures: no {static_dir} (the committed fixture is --scenario fixture)")
         return BundleReplayLoop(fixture_scenario(static_dir), sink, clock, None, None, FIXTURES / "cache"), static_dir
 
-    from emberline.runtime.model_host import (
-        ModelHost,
-        hazard_api,
-        hazard_version,
-        ignition,
-        landscape,
-        make_model,
-        model_config,
-    )
     from emberline.runtime.sources import InboxSource, ReplaySource
 
-    hazard_api()  # clear SystemExit if A0 has not landed
     scn_dir = scenario_dir(a.scenario)
     ctx = load_scenario_dir(scn_dir)
-    forcing = NcForcing(scn_dir / "forcing", ctx.t_ref_ms)
-    host = ModelHost(make_model(a.model), landscape(ctx, a.model), model_config(ctx), ignition(ctx), forcing,
-                     cache.DEFAULT_ROOT, ctx.scenario_id, ctx.t_ref_ms, ctx.k0_ms, ctx.cycle_ms)
+    land = landscape(ctx)  # stops naming Abby's missing statics; never a fabricated landscape
+    make, identity = rust_backend()
+    host = make_host(ctx, make, land, NcForcing(scn_dir / "forcing", model_grid(ctx)), cache.DEFAULT_ROOT,
+                     members_profile=a.members_profile, identity=identity)
     loop = Loop(ctx, sink, clock, ReplaySource(scn_dir, ctx.scenario_id, ctx.cfg["assimilate_sensors"]), host,
-                cache.DEFAULT_ROOT, "main", hazard_version(a.model), briefings="background" if a.profile == "online" else "off",
-                inbox=InboxSource())
+                cache.DEFAULT_ROOT, "main", model_version(a.members_profile),
+                briefings="background" if a.profile == "online" else "off", inbox=InboxSource(),
+                survive_physics_errors=True)
     return loop, ctx.web_dir
 
 
@@ -141,7 +136,8 @@ def main() -> None:
     ap.add_argument("--scenario", default=os.environ.get("SCENARIO_ID", "eaton"))
     ap.add_argument("--profile", choices=["online", "offline"], default=os.environ.get("EMBERLINE_PROFILE", "online"))
     ap.add_argument("--fixtures", action="store_true", help="replay fixtures/cache bundles as committed (no physics)")
-    ap.add_argument("--model", choices=["mtt", "fake"], default="mtt")
+    ap.add_argument("--members-profile", choices=PROFILES, default="target",
+                    help="target = scenario.yaml n_members (reported run); dev = 16 members, labelled +dev-n16")
     ap.add_argument("--port", type=int, default=int(os.environ.get("ASSET_PORT", "8787")))
     a = ap.parse_args()
     if a.fixtures and a.scenario == "eaton":
