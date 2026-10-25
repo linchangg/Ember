@@ -63,3 +63,4 @@ Latest data-integrated engine suite: 311 passed, 18 skipped (44.66 s); one previ
 
 2026-10-25: Added six-phase release implementation framework, evidence worksheet and read-only replay audit with nine regression gates/CI. Baseline inventory: 80/157 Eaton issues, 231 assets, no local validation errors; incomplete replay correctly fails acceptance. Future phases await direct approval.
 - Sun 02:30 · Cody · Presentation: removed "simulated/synthetic/demo replay/REAL INPUTS" labels from the dashboard, briefings, call scripts and cached bundles; AGENTS.md + SPEC D12 say not to add them back · Claude
+- Sun 03:15 · Cody · Dashboard: branch switcher (main / satellites-only / openloop), duty-officer call card from calls.json on approval, "How early" lead-time tab from lead_times.json (satellites-only wins first, full record one click away); fit-to-fire frames the current fire; Pages ships all branches from the demo-data-eaton-v1 release asset · Claude agent
