@@ -20,5 +20,11 @@ Format: `Sat 13:05 · Cody · C0 contracts + fixture merged (PR #3) · Cursor ag
 - Sat Oct 24 · Abby · Project owner approved Rust as the HazardModel backend; added versioned Python/Rust adapter, observation assimilation, checkpoint/contract tests and full synthetic fixture verification against current main; decision and remaining scientific/performance gates in docs/RUST_HAZARD_BACKEND.md and docs/RUST_HAZARD_NEXT_TASKS.md · Codex
 
 2026-10-24 — Reviewed main 9e00a67 and Cursor/research branches; combined research adapter 8e4055b with Rust HazardModel, fixed globe empty-feed/lifecycle errors, split lazy comparison bundles, refreshed hub dev dependency and added web/hub CI. Combined local evidence: 148 engine + 38 research + 50 Rust release tests; 39-cycle synthetic fixture with checkpoint parity. See docs/MAIN_INTEGRATION_REVIEW.md; live UI/runtime assembly, scientific and performance gates remain open.
+- Sat 18:30 · Cody · Wave 2 F0: fixture judges R2 on integer-ms act-by; alerts unchanged (18/20/30/32), cross-check exact · Claude workflow
+- Sat 18:30 · Cody · Wave 2 T4L: briefings via OpenRouter, prompt v2; live c18/c20/c30 validated ($0.05) · Claude workflow
+- Sat 18:30 · Cody · Wave 2 T8: GOES-18 pixel table (21,026 rows), scan events, replay manifest · Claude workflow
+- Sat 18:30 · Cody · Wave 2 T9a/T9b: 131 LA County zones (event snapshot, disclosed), exposure, assets, spawn points; terrain, manifest, sensors, timeline · Claude workflow
+- Sat 18:30 · Cody · Wave 2 T10/T11/T12: engine loop, publisher, sinks, poller, run.py; Cartesia dry run; local API :8787; 03 §14 tests 1-5 on a hazard stand-in · Claude workflow
+- Sat 19:45 · Cody · T10 on Abby's Rust HazardModel: factory-only model, dev (N=16, labelled)/target profiles, weather_from_hrrr forcing with per-cycle audit, evidence/identity/catalog/forcing cache keys, lineage-bound checkpoints, live loop survives physics errors; native tests run in CI only · Claude workflow
 
 - Sat Oct 24 · Abby · Prepared deep learning research framework for review: compared candidate architectures, selected bounded U-Net spread corrections through the Rust solver, specified Python training/ONNX-to-Rust inference, contract compatibility, human-impact evaluation and latency gates; documentation only, no learned model activated · Codex
