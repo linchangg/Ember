@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-25",
+  "base_main": "2fbe729",
+  "integration_code": "c398c90",
+  "engine_tests": {
+    "passed": 310,
+    "skipped": 19,
+    "warning": "existing rioxarray deprecation"
+  },
+  "web_tests": {
+    "passed": 48,
+    "skipped": 1
+  },
+  "typecheck": "passed",
+  "lint": "passed --deny-warnings",
+  "build": "passed; existing large map chunk warning",
+  "homepage_globe_diff_against_base_main": "none",
+  "forcing_available": false,
+  "independent_time_resolved_perimeter_truth_available": false,
+  "outbound_calls_sent": 0
+}
