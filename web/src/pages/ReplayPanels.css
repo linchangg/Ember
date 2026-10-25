@@ -1,0 +1,54 @@
+/* Replay panels (branch switcher, duty-officer call, how-early tab); same look as the gn__ panels in App.css */
+
+/* the page never scrolls; clip also stops focus/scrollIntoView from shifting the map and panels sideways */
+div.gn { overflow: clip; }
+
+.rp-branch { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 0; font-size: 9px; color: #6f89b8; text-transform: uppercase; letter-spacing: 0.08em; }
+.gn__time .rp-branch button { width: auto; height: 24px; padding: 0 10px; border-radius: 6px; font-size: 9px; text-transform: none; letter-spacing: 0.02em; }
+.gn__time .rp-branch button.on { background: #1b3768; border-color: #5b8def; color: #e6eefc; }
+
+.rp-call { z-index: 7; position: absolute; left: 22px; top: 54px; width: 380px; max-height: calc(100% - 330px); min-height: 160px; overflow-y: auto; padding: 12px 14px; background: #060d1cf2; border: 1px solid #4ade8088; border-radius: 10px; box-shadow: 0 0 22px #4ade8022; font-family: Michroma, 'Eurostile', 'Orbitron', sans-serif; font-size: 9.5px; letter-spacing: 0.02em; color: #dbe8fb; }
+.rp-x { position: absolute; top: 6px; right: 8px; background: none; border: 0; color: #8fb0e0; font-size: 18px; cursor: pointer; }
+.rp-call-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.rp-call-head b { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #b9f5cf; }
+.rp-dot { width: 8px; height: 8px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 8px #4ade80; animation: rp-pulse 1.1s ease-in-out infinite; }
+.rp-dot.end { background: #6f89b8; box-shadow: none; animation: none; }
+@keyframes rp-pulse { 50% { opacity: 0.3; } }
+.rp-call-grid { display: grid; grid-template-columns: 72px 1fr; gap: 3px 10px; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid #3b82f633; }
+.rp-call-grid span:nth-child(odd) { color: #6f89b8; font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.08em; }
+.rp-call-grid .late { color: #ff8a70; }
+.rp-transcript { display: flex; flex-direction: column; gap: 6px; }
+.rp-line { line-height: 1.55; animation: rp-in 0.35s ease-out; }
+.rp-line b { display: block; font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1px; }
+.rp-line.us b { color: #ffd7a1; }
+.rp-line.them b { color: #b9f5cf; }
+.rp-line.tool { color: #7f9cc8; font-size: 8.5px; }
+.rp-line.wait { color: #7f9cc8; }
+@keyframes rp-in { from { opacity: 0; transform: translateY(3px); } }
+.rp-brief { margin-top: 10px; padding-top: 8px; border-top: 1px solid #3b82f633; animation: rp-in 0.35s ease-out; }
+.rp-brief b { display: block; font-size: 9.5px; margin-bottom: 4px; }
+.rp-brief ul { margin: 0 0 0 14px; padding: 0; color: #a9c6ee; }
+.rp-brief li { margin: 2px 0; }
+
+.rp-lead { font-size: 9.5px; }
+.rp-lead-hero { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; margin-bottom: 10px; background: #0a1428; border: 1px solid #3b82f633; border-left: 4px solid #4ade80; border-radius: 6px; }
+.rp-lead-hero b { font-size: 14px; color: #b9f5cf; letter-spacing: 0.04em; }
+.rp-lead-hero span { line-height: 1.5; color: #dbe8fb; }
+.rp-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+.rp-table th { text-align: left; font-weight: 400; font-size: 8px; color: #6f89b8; text-transform: uppercase; letter-spacing: 0.08em; padding: 0 4px 4px 0; }
+.rp-table td { padding: 4px 4px 4px 0; border-top: 1px solid #3b82f61f; font-size: 9px; vertical-align: top; white-space: nowrap; }
+.rp-table td:first-child { white-space: normal; color: #dbe8fb; }
+.rp-table td:last-child { text-align: right; padding-right: 0; }
+.rp-table td.ours { color: #ffd7a1; }
+.rp-table .gain { color: #4ade80; }
+.rp-table .loss { color: #ff8a70; }
+.rp-w { font-style: normal; margin-left: 5px; padding: 0 4px; border: 1px solid #e8d36a88; border-radius: 3px; color: #e8d36a; font-size: 7.5px; }
+.rp-contrast { margin: 4px 0 6px; padding: 8px 10px; background: #0a1428; border-left: 3px solid #6f89b8; border-radius: 4px; color: #a9c6ee; line-height: 1.5; }
+.rp-all { margin-top: 6px; }
+.rp-runs { display: flex; gap: 4px; margin-bottom: 6px; }
+.rp-runs button { flex: 1; padding: 5px 4px; background: #0a1428; color: #8fb0e0; border: 1px solid #3b82f633; border-radius: 6px; font-size: 8.5px; cursor: pointer; }
+.rp-runs button.on { background: #1b3768; color: #e6eefc; border-color: #5b8def; }
+.rp-group { margin: 10px 0 4px; font-size: 8.5px; color: #8fb0e0; text-transform: uppercase; letter-spacing: 0.08em; }
+.rp-small, .rp-src { color: #6f89b8; font-size: 8px; line-height: 1.55; margin: 6px 0; }
+.rp-src { margin-top: 12px; }
+.rp-src a { color: #8fb0e0; }

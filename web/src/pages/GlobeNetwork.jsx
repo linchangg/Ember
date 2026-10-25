@@ -5,6 +5,8 @@ import { FileSource } from '../data/fileSource.ts'
 import { acquireSource } from '../data/store.ts'
 import { compareWithOfficial, createGlobeView, loadExtras } from '../lib/globeView.js'
 import { AlertsTab, ZonesTab } from './GlobePanels.jsx'
+import { BranchSwitcher, DutyOfficerCall, LeadTimesTab } from './ReplayPanels.jsx'
+import { branchDescriptors, leadRows, useAvailableBranches, useReplayJson } from './replayData.js'
 
 const EONET = 'https://eonet.gsfc.nasa.gov/api/v3/events?status=all&start=2025-01-05&end=2025-01-09&limit=500'
 const FOCUS_MS = Date.parse('2025-01-07T12:00:00Z')
@@ -294,10 +296,12 @@ export default function GlobeNetwork() {
   const [hover, setHover] = useState(null)
   const scnId = new URLSearchParams(window.location.search).get('scn') || import.meta.env.VITE_SCENARIO_ID || 'fixture'
   // Abby's validated data layer: local replay clock, forecast cycles, observations, zones
-  const source = useMemo(() => new FileSource({ assetBase: import.meta.env.VITE_ASSET_BASE ?? import.meta.env.BASE_URL, scenario: scnId, pageUrl: window.location.href }), [scnId])
+  const source = useMemo(() => new FileSource({ assetBase: import.meta.env.VITE_ASSET_BASE ?? import.meta.env.BASE_URL, scenario: scnId, pageUrl: window.location.href, branches: branchDescriptors(scnId) }), [scnId])
   useEffect(() => acquireSource(source), [source])
   const snap = useSyncExternalStore(source.subscribe, source.getSnapshot)
   const [extras, setExtras] = useState(null)
+  const branchIds = useAvailableBranches(scnId) // precomputed runs with their own index.json
+  const leadTimes = useReplayJson(`cache/${scnId}/lead_times.json`) // how early vs the official orders; null when absent
   const scenario = useMemo(() => (snap.manifest ? createGlobeView(snap, extras) : null), [snap, extras])
   const scnRef = useRef(null)
   const act = (promise) => promise.catch((e) => console.warn(e.message))
@@ -385,11 +389,11 @@ export default function GlobeNetwork() {
       await wait(1200)
       setTab('alerts')
       // the first alert already has a lead over the county's first order; say so with the real numbers
-      const early = [...compareWithOfficial(snapRef.current.alerts, sc.official).values()].filter((v) => v.lead_min > 0).sort((a, b) => a.engine_t - b.engine_t)[0]
-      const earlyName = early && (sc.zones.features.find((f) => f.properties.zone_id === early.zone_id)?.properties.name ?? early.zone_id)
-      if (early) setSelZone(early.zone_id)
-      say('A zone crosses a rule', `The engine proposes an alert with a briefing whose every number is checked. A person approves; nothing is sent in this replay.${early ? ` This first one, for ${earlyName} at ${fmtHM(early.engine_t)} PT, is ${early.lead_min} minutes before the county's first ${early.official_level === 'order' ? 'evacuation order' : 'evacuation warning'} for that zone (${fmtHM(early.official_t)} PT).` : ''}`)
-      await wait(early ? 11000 : 7500)
+      const firstLead = [...compareWithOfficial(snapRef.current.alerts, sc.official).values()].filter((v) => v.lead_min > 0).sort((a, b) => a.engine_t - b.engine_t)[0]
+      const firstLeadName = firstLead && (sc.zones.features.find((f) => f.properties.zone_id === firstLead.zone_id)?.properties.name ?? firstLead.zone_id)
+      if (firstLead) setSelZone(firstLead.zone_id)
+      say('A zone crosses a rule', `The engine proposes an alert with a briefing whose every number is checked. A person approves; nothing is sent in this replay.${firstLead ? ` This first one, for ${firstLeadName} at ${fmtHM(firstLead.engine_t)} PT, is ${firstLead.lead_min} minutes before the county's first ${firstLead.official_level === 'order' ? 'evacuation order' : 'evacuation warning'} for that zone (${fmtHM(firstLead.official_t)} PT).` : ''}`)
+      await wait(firstLead ? 11000 : 7500)
       setSelZone(null)
 
       // ---- racing the county: stops at zones where Emberline's alert came before the official one ----
@@ -450,6 +454,13 @@ export default function GlobeNetwork() {
         }
       }
       setProbe(null)
+      const names = new Map(sc.zones.features.map((f) => [f.properties.zone_id, f.properties.name]))
+      const early = leadTimes?.branches ? leadRows(leadTimes, 'satellites-only', names).filter((r) => r.kind === 'order' && r.lead > 0) : []
+      if (early.length) {
+        setTab('lead')
+        say('How early', `Using satellite data only, Emberline recommended an evacuation order before the official order in ${early.length} zone${early.length === 1 ? '' : 's'}; ${early[0].name} came ${early[0].lead} minutes earlier.`)
+        await wait(8000)
+      }
       say('Your turn', 'Drag the actual-time and forecast sliders, click a zone, or click the map.')
       await wait(6000)
     } catch {
@@ -706,7 +717,9 @@ export default function GlobeNetwork() {
         view.lon += dl * 0.08
         view.lat += (tg.lat - view.lat) * 0.08
         view.zoom *= (tg.zoom / view.zoom) ** 0.08
-        if (Math.abs(dl) < 0.05 && Math.abs(tg.lat - view.lat) < 0.05 && Math.abs(Math.log(tg.zoom / view.zoom)) < 0.005) view.target = null
+        // stop once the remaining offset is under a pixel (a fixed 0.05° left the view kilometres short up close)
+        const pxPerDeg = R * D2R
+        if (Math.abs(dl) * pxPerDeg < 0.5 && Math.abs(tg.lat - view.lat) * pxPerDeg < 0.5 && Math.abs(Math.log(tg.zoom / view.zoom)) < 0.005) view.target = null
       } else if (!view.drag) view.lon += view.spin
       view.cxo += ((selRef.current ? 170 : 0) - view.cxo) * 0.1
       view.lon = ((view.lon + 540) % 360) - 180
@@ -1637,21 +1650,61 @@ export default function GlobeNetwork() {
     document.fonts?.load('10px Michroma').then(() => { frame.widths = null })
     let raf = requestAnimationFrame(frame)
 
+    // the fire as the current forecast sees it: burned cells plus every cell its q10 reaches within the horizon, as [lon, lat] pairs
+    const firePoints = (sc) => {
+      const a = sc.entry(sc.cycleAt())?.arrival
+      const n = sc.manifest.grid.nx * sc.manifest.grid.ny
+      if (!a || a.length < n) return null
+      const pts = []
+      for (let i = 0; i < n; i++) if (a[i] !== 255) pts.push([sc.cellLonLat[i * 2], sc.cellLonLat[i * 2 + 1]])
+      return pts.length ? pts : null
+    }
     fitRef.current = (ev) => {
       view.spin = 0
       let zoom = 700
       let lon = ev.lon
       let lat = ev.lat
-      // frame the largest forecast footprint (the widest, lowest-probability class at the last forecast), so it fills the window
-      const bb = scnRef.current?.footprint ?? scnRef.current?.manifest.aoi_bbox
-      if (bb && /eaton/i.test(ev.title)) {
-        const [x0, y0, x1, y1] = bb
-        lon = (x0 + x1) / 2
-        lat = (y0 + y1) / 2
-        const dx = (x1 - x0) * 111320 * Math.cos(lat * D2R)
-        const dy = (y1 - y0) * 110574
-        const mpp = Math.max(dx / ((W - 340) * 0.9), dy / (H * 0.78))
+      const sc = scnRef.current
+      // the current fire, else the whole night's footprint, else the scenario box
+      const bb = sc?.footprint ?? sc?.manifest.aoi_bbox
+      const pts = sc ? firePoints(sc) ?? (bb ? [[bb[0], bb[1]], [bb[2], bb[3]], [bb[0], bb[3]], [bb[2], bb[1]]] : null) : null
+      if (pts && /eaton/i.test(ev.title)) {
+        // fit inside the part of the map nothing covers: left of the side panel, below the title bar, above the time panel
+        const top = 56
+        const bottom = (wrapRef.current?.querySelector('.gn__time')?.offsetHeight ?? 240) + 36
+        const freeW = W - 340
+        const freeH = Math.max(120, H - top - bottom)
+        const up = H / 2 - (top + freeH / 2) // px the fire's centre must sit above the screen centre
+        const lon0 = pts.reduce((s2, p) => s2 + p[0], 0) / pts.length
+        const lat0 = pts.reduce((s2, p) => s2 + p[1], 0) / pts.length
+        const kx = 111320 * Math.cos(lat0 * D2R)
+        const elev = pts.map((p) => sampleRaw(p[0], p[1]) ?? 0)
+        const half = (sc.manifest.grid.cell_m ?? 0) / 2
+        // screen extent in px at a given scale; the frame draws ground at y - elevation * lift, so relief stretches and raises the fire
+        const extent = (mpp) => {
+          const lift1 = Math.min(0.06, (1.6 * (6371008 / mpp)) / 6371000)
+          const e = [Infinity, Infinity, -Infinity, -Infinity]
+          pts.forEach((p, i) => {
+            const x = ((p[0] - lon0) * kx) / mpp
+            const y = (-(p[1] - lat0) * 110574) / mpp - elev[i] * lift1
+            e[0] = Math.min(e[0], x)
+            e[1] = Math.min(e[1], y)
+            e[2] = Math.max(e[2], x)
+            e[3] = Math.max(e[3], y)
+          })
+          const h = half / mpp
+          return [e[0] - h, e[1] - h, e[2] + h, e[3] + h]
+        }
+        let mpp = 20
+        for (let it = 0; it < 4; it++) {
+          const e = extent(mpp)
+          mpp *= Math.max((e[2] - e[0]) / (freeW * 0.85), (e[3] - e[1]) / (freeH * 0.85), 1500 / mpp / freeW) // at least 1.5 km across
+        }
         zoom = Math.max(20, Math.min(40000, 6371008 / mpp / (0.34 * Math.min(W, H))))
+        mpp = 6371008 / (0.34 * Math.min(W, H) * zoom)
+        const e = extent(mpp)
+        lon = lon0 + (((e[0] + e[2]) / 2) * mpp) / kx
+        lat = lat0 - (((e[1] + e[3]) / 2 + up) * mpp) / 110574
       }
       view.target = { lon, lat, zoom }
     }
@@ -1861,7 +1914,8 @@ export default function GlobeNetwork() {
           <button className="gn__tourstop" onClick={stopTour}>■ Stop tour</button>
         </>
       ) : null}
-      {snap.status === 'error' ? <div className="gn__err">{/doctype|Unexpected token/i.test(snap.error ?? '') ? `No forecast files for scenario "${scnId}" yet: the engine has not written cache/${scnId}/main/ (index.json is missing).` : `Scenario data problem: ${snap.error}`}</div> : null}
+      {showTime ? <DutyOfficerCall scn={scnId} branch={snap.clock?.active_branch_id} alerts={snap.alerts} /> : null}
+      {snap.status === 'error' ? <div className="gn__err">{/doctype|Unexpected token/i.test(snap.error ?? '') ? `No forecast files for scenario "${scnId}" yet: the engine has not written cache/${scnId}/${snap.clock?.active_branch_id ?? 'main'}/ (index.json is missing).` : `Scenario data problem: ${snap.error}`}</div> : null}
       {hover && !pick ? <div className="gn__tip" style={{ left: hover.x + 14, top: hover.y + 14 }}>{hover.title}</div> : null}
       {hover && pick && hover.title !== pick.title ? <div className="gn__tip" style={{ left: hover.x + 14, top: hover.y + 14 }}>{hover.title}</div> : null}
       {scenario && probe ? (() => {
@@ -1949,7 +2003,7 @@ export default function GlobeNetwork() {
                   <>
                     <span>{cyc.model_version} · {cyc.n_members} runs · {cyc.filter_mode} filter · ESS {Number(cyc.ess).toFixed(1)}{cyc.resampled ? ' · resampled' : ''}</span>
                     <span>Issued {fmtHM(K)} PT · data through {fmtHM(cyc.data_through_sim_ms)} PT · source: {cyc.source}</span>
-                    <span>{obsKinds ? `This update assimilated ${obsKinds}.` : 'No new observations this update.'}{prev ? ` Since the previous forecast: burned ${cyc.burned_ha - prev.burned_ha >= 0 ? '+' : ''}${(cyc.burned_ha - prev.burned_ha).toFixed(1)} ha, front ${cyc.front_km - prev.front_km >= 0 ? '+' : ''}${(cyc.front_km - prev.front_km).toFixed(2)} km.` : ''}</span>
+                    <span>{obsKinds ? (cyc.filter_mode === 'none' ? `No live data used: ${obsKinds} seen but not assimilated.` : `This update assimilated ${obsKinds}.`) : 'No new observations this update.'}{prev ? ` Since the previous forecast: burned ${cyc.burned_ha - prev.burned_ha >= 0 ? '+' : ''}${(cyc.burned_ha - prev.burned_ha).toFixed(1)} ha, front ${cyc.front_km - prev.front_km >= 0 ? '+' : ''}${(cyc.front_km - prev.front_km).toFixed(2)} km.` : ''}</span>
                   </>
                 ) : <span>Before the first forecast (the fire starts at {fmtHM(m.t_ignition_sim_ms)} PT).</span>}
               </div>
@@ -1957,6 +2011,7 @@ export default function GlobeNetwork() {
                 <button className={compare ? 'on' : ''} onClick={() => setCompare((c) => !c)} title="Dashed line = the previous forecast, so you can see how new observations moved it">Compare to previous forecast</button>
                 {snap.pending ? <span className="gn__warn">loading forecast…</span> : null}
               </div>
+              <BranchSwitcher available={branchIds} active={snap.clock?.active_branch_id} onSwitch={(id) => act(source.actions.switchBranch(id))} />
             </div>
           </div>
         )
@@ -1968,13 +2023,14 @@ export default function GlobeNetwork() {
           <button className="gn__fit" onClick={() => fitRef.current?.(pick)}>Fit to fire</button>
           {showTime ? (
             <div className="gn__tabs">
-              {[['zones', 'Zones'], ['alerts', `Alerts${scenario.alerts.filter((a) => a.state === 'proposed').length ? ` (${scenario.alerts.filter((a) => a.state === 'proposed').length} new)` : ''}`], ['event', 'Event']].map(([id, label]) => (
+              {[['zones', 'Zones'], ['alerts', `Alerts${scenario.alerts.filter((a) => a.state === 'proposed').length ? ` (${scenario.alerts.filter((a) => a.state === 'proposed').length} new)` : ''}`], ...(leadTimes?.branches ? [['lead', 'How early']] : []), ['event', 'Event']].map(([id, label]) => (
                 <button key={id} className={tab === id ? 'on' : ''} onClick={() => setTab(id)}>{label}</button>
               ))}
             </div>
           ) : null}
           {showTime && tab === 'zones' ? <ZonesTab scenario={scenario} selZone={selZone} onSelect={(z) => { setSelZone(z.id); flyRef.current?.(z.lon, z.lat, 3500) }} /> : null}
           {showTime && tab === 'alerts' ? <AlertsTab scenario={scenario} actions={source.actions} act={act} focusZone={selZone} /> : null}
+          {showTime && tab === 'lead' && leadTimes?.branches ? <LeadTimesTab lead={leadTimes} zones={scenario.zones.features} /> : null}
           {!showTime || tab === 'event' ? (
             <dl>
               <dt>Type</dt><dd>{pick.kind}</dd>
