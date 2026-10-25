@@ -12,6 +12,7 @@ import type {
   Collections,
   DataSource,
   IndexEntry,
+  MapAssets,
   ScenarioManifest,
   Snapshot,
 } from './source.ts'
@@ -34,6 +35,8 @@ export interface FileSourceOptions {
   now?: () => number
   branches?: Branch[]
   autoTick?: boolean
+  /** Fetch every bundle of the active branch in the background once its index loads. */
+  prefetch?: boolean
 }
 type Intent = { clock: ClockState; mode: 'live' | 'scrub'; scrub: number }
 function freeze<T>(value: T): T {
@@ -47,6 +50,23 @@ function freeze<T>(value: T): T {
     Object.freeze(value)
   }
   return value
+}
+/** Runs `run(0..n-1)` with at most `limit` in flight; stops starting work once `signal` aborts. */
+async function pool(
+  n: number,
+  limit: number,
+  run: (k: number) => Promise<void>,
+  signal: AbortSignal
+) {
+  let next = 0
+  await Promise.all(
+    Array.from({ length: Math.min(limit, n) }, async () => {
+      while (next < n) {
+        signal.throwIfAborted()
+        await run(next++)
+      }
+    })
+  )
 }
 function latest<T>(rows: T[], key: (row: T) => string): T[] {
   return [...new Map(rows.map((row) => [key(row), row])).values()]
@@ -62,7 +82,12 @@ export class FileSource implements DataSource {
   private readonly grids: ArrivalGridCache
   private readonly branches: Branch[]
   private indices = new Map<string, IndexEntry[]>()
+  // Bundles are keyed by their whole index entry (content-hashed path), so they survive
+  // seeks; a republished index points at new entries and those are fetched afresh.
   private bundles = new Map<string, CycleBundle>()
+  private inflight = new Map<string, Promise<CycleBundle>>()
+  private branchController = new AbortController()
+  private prefetchSignal: AbortSignal | null = null
   private manifest: ScenarioManifest | null = null
   private zones: ZoneFeature[] = []
   private intent: Intent | null = null
@@ -356,14 +381,53 @@ export class FileSource implements DataSource {
       playing: reset ? false : i.clock.playing,
     }
     i.mode = 'live'
-    this.invalidateCaches()
+    // Re-read the index so a republished one is picked up; bundles and grids stay cached.
+    this.indices.clear()
     await this.refresh()
   }
   private invalidateCaches() {
+    this.branchController.abort()
+    this.branchController = new AbortController()
     this.grids.clear()
     this.indices.clear()
     this.bundles.clear()
+    this.inflight.clear()
     this.committedKey = ''
+  }
+  /** One shared, validated fetch per index entry; refresh and prefetch both use it. */
+  private bundle(entry: IndexEntry): Promise<CycleBundle> {
+    const key = JSON.stringify(entry),
+      done = this.bundles.get(key)
+    if (done) return Promise.resolve(done)
+    let p = this.inflight.get(key)
+    if (!p) {
+      const m = this.manifest!
+      p = this.json(entry.bundle, this.branchController.signal)
+        .then((raw) => {
+          const b = freeze(validateBundle(raw, entry, m, this.base))
+          if (this.inflight.get(key) === p) this.bundles.set(key, b)
+          return b
+        })
+        .finally(() => {
+          if (this.inflight.get(key) === p) this.inflight.delete(key)
+        })
+      this.inflight.set(key, p)
+    }
+    return p
+  }
+  private async prefetch(all: IndexEntry[], signal: AbortSignal) {
+    // ponytail: once per branch; entries from a later republished index load on demand.
+    const todo = all.filter((e) => !this.bundles.has(JSON.stringify(e)))
+    try {
+      await pool(
+        todo.length,
+        8,
+        (k) => this.bundle(todo[k]).then(() => {}),
+        signal
+      )
+    } catch {
+      /* a bundle that fails here is refetched, and its error shown, when a refresh needs it */
+    }
   }
   private async entries(branch: string, signal: AbortSignal) {
     const path = this.lineage(branch),
@@ -515,30 +579,45 @@ export class FileSource implements DataSource {
         }
       }
       if (this.disposed || generation !== this.generation) return
-      this.publish({
-        ...this.state,
-        status: 'loading',
-        error: null,
-        pending: { simTime, viewTime },
-      })
-      const staged: CycleBundle[] = []
-      for (const entry of eligible) {
-        const cacheKey = JSON.stringify(entry)
-        let b = this.bundles.get(cacheKey)
-        if (!b) {
-          b = freeze(
-            validateBundle(
-              await this.json(entry.bundle, controller.signal),
-              entry,
-              m,
-              this.base
-            )
-          )
-          controller.signal.throwIfAborted()
-          this.bundles.set(cacheKey, b)
-        }
-        staged.push(b)
+      const pending = { simTime, viewTime }
+      // Never leave a later forecast on screen while an earlier time loads.
+      const shown = this.state.cycle,
+        hide = !!shown && shown.knowledge_sim_ms > Math.min(simTime, viewTime)
+      let announced = false
+      if (eligible.some((e) => !this.bundles.has(JSON.stringify(e)))) {
+        announced = true
+        this.publish(
+          hide
+            ? {
+                ...initialSnapshot(),
+                manifest: m,
+                clock,
+                simTime,
+                view: { mode, viewTime },
+                branches: this.branches,
+                zones: this.zones,
+                evacOverrides: this.overrides,
+                status: 'loading',
+                pending,
+              }
+            : { ...this.state, status: 'loading', error: null, pending }
+        )
       }
+      const staged: CycleBundle[] = new Array(eligible.length)
+      await pool(
+        eligible.length,
+        8,
+        async (k) => {
+          staged[k] = await this.bundle(eligible[k])
+        },
+        controller.signal
+      )
+      if (
+        this.disposed ||
+        generation !== this.generation ||
+        controller.signal.aborted
+      )
+        return
       const limits = this.lineageLimits(clock.active_branch_id)
       const bundle =
           staged.findLast(
@@ -547,30 +626,13 @@ export class FileSource implements DataSource {
         cycle = bundle?.cycle ?? null
       const beyond =
         !!cycle && viewTime > cycle.knowledge_sim_ms + cycle.horizon_min * 60000
-      const mapAssets =
-        cycle && !beyond
-          ? await this.grids.load(cycle, m, controller.signal)
-          : null
-      if (
-        this.disposed ||
-        generation !== this.generation ||
-        controller.signal.aborted
-      )
-        return
       const collections = this.collect(staged, limits, bundle ?? undefined)
       const newProposal = collections.alerts.some(
         (a) =>
           a.state === 'proposed' &&
           !this.state.alerts.some((old) => old.alert_id === a.alert_id)
       )
-      if (clock.pause_on_proposal && newProposal && clock.playing) {
-        clock.playing = false
-        clock.anchor_sim_ms = simTime
-        clock.anchor_wall_ms = wall
-        i.clock = clock
-      }
-      this.committedKey = key
-      this.publish({
+      const snapshot = (mapAssets: MapAssets | null): Snapshot => ({
         ...collections,
         status: 'ready',
         error: null,
@@ -591,6 +653,41 @@ export class FileSource implements DataSource {
         zones: this.zones,
         evacOverrides: this.overrides,
       })
+      let mapAssets: MapAssets | null = null
+      if (cycle && !beyond) {
+        if (!this.grids.has(cycle, m)) {
+          // A later forecast must not stay up: show the new issue's data while its grid loads.
+          if (hide)
+            this.publish({ ...snapshot(null), status: 'loading', pending })
+          else if (!announced)
+            this.publish({
+              ...this.state,
+              status: 'loading',
+              error: null,
+              pending,
+            })
+        }
+        mapAssets = await this.grids.load(cycle, m, controller.signal)
+        if (
+          this.disposed ||
+          generation !== this.generation ||
+          controller.signal.aborted
+        )
+          return
+      }
+      if (clock.pause_on_proposal && newProposal && clock.playing) {
+        clock.playing = false
+        clock.anchor_sim_ms = simTime
+        clock.anchor_wall_ms = wall
+        i.clock = clock
+      }
+      this.committedKey = key
+      this.publish(snapshot(mapAssets))
+      const signal = this.branchController.signal
+      if (this.options.prefetch !== false && this.prefetchSignal !== signal) {
+        this.prefetchSignal = signal
+        void this.prefetch(all, signal)
+      }
     } catch (error) {
       if (
         this.disposed ||
@@ -693,11 +790,13 @@ export class FileSource implements DataSource {
   dispose() {
     if (this.disposed) return
     this.controller?.abort()
+    this.branchController.abort()
     ++this.generation
     if (this.timer) clearInterval(this.timer)
     this.grids.clear()
     this.indices.clear()
     this.bundles.clear()
+    this.inflight.clear()
     this.decisions.clear()
     this.state = freeze({ ...initialSnapshot(), status: 'disposed' })
     for (const listener of this.listeners) listener()

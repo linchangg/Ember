@@ -1988,17 +1988,17 @@ export default function GlobeNetwork() {
               </div>
               <div className="gn__time-row">
                 <b>Forecast</b>
-                <span>{K != null ? `issued ${fmtHM(K)} · showing ${lead === 0 ? 'the fire now' : `+${Math.floor(lead / 60)}h ${String(lead % 60).padStart(2, '0')}m → ${fmtHM(K + lead * 60000)}`}` : 'no forecast yet'}</span>
+                <span>{K != null ? `issued ${fmtHM(K)} · showing ${lead === 0 ? 'the fire now' : `+${Math.floor(lead / 60)}h ${String(lead % 60).padStart(2, '0')}m → ${fmtHM(K + lead * 60000)}`}` : snap.pending ? 'updating…' : 'no forecast yet'}</span>
               </div>
               <input className="gn__lead" type="range" min={0} max={m.horizon_min} step={5} value={lead} disabled={K == null} onChange={(e) => setLead(+e.target.value)} />
-              <div className="gn__meta">
+              <div className={`gn__meta${snap.pending && !snap.mapAssets ? ' is-updating' : ''}`}>
                 {cyc ? (
                   <>
                     <span>{cyc.model_version} · {cyc.n_members} runs · {cyc.filter_mode} filter · ESS {Number(cyc.ess).toFixed(1)}{cyc.resampled ? ' · resampled' : ''}</span>
                     <span>Issued {fmtHM(K)} PT · data through {fmtHM(cyc.data_through_sim_ms)} PT · source: {cyc.source}</span>
                     <span>{obsKinds ? (cyc.filter_mode === 'none' ? `No live data used: ${obsKinds} seen but not assimilated.` : `This update assimilated ${obsKinds}.`) : 'No new observations this update.'}{prev ? ` Since the previous forecast: burned ${cyc.burned_ha - prev.burned_ha >= 0 ? '+' : ''}${(cyc.burned_ha - prev.burned_ha).toFixed(1)} ha, front ${cyc.front_km - prev.front_km >= 0 ? '+' : ''}${(cyc.front_km - prev.front_km).toFixed(2)} km.` : ''}</span>
                   </>
-                ) : <span>Before the first forecast (the fire starts at {fmtHM(m.t_ignition_sim_ms)} PT).</span>}
+                ) : snap.pending ? <span>Updating forecast…</span> : <span>Before the first forecast (the fire starts at {fmtHM(m.t_ignition_sim_ms)} PT).</span>}
               </div>
               <div className="gn__time-row gn__time-ctl">
                 <button className={compare ? 'on' : ''} onClick={() => setCompare((c) => !c)} title="Dashed line = the previous forecast, so you can see how new observations moved it">Compare to previous forecast</button>
