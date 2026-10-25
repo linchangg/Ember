@@ -1,0 +1,139 @@
+{
+  "date": "2026-10-25",
+  "branch": "release/all-phases",
+  "integrated_main": "c4cd811",
+  "scientific_acceptance": "not_established",
+  "outbound_delivery": "not_attempted",
+  "deployment": "not_attempted",
+  "checks": {
+    "initial_full_engine": {
+      "passed": 353,
+      "skipped": 18
+    },
+    "integrated_full_engine": {
+      "passed": 357,
+      "skipped": 19,
+      "seconds": 692.59,
+      "note": "Later-added bounded-pilot/timeout cases passed in focused checks"
+    },
+    "published_contracts": {
+      "passed": 15
+    },
+    "native_report_hub": {
+      "passed": 1
+    },
+    "report_runtime_fixes": {
+      "passed": 15
+    },
+    "perimeter_truth_event_checks": {
+      "passed": 18
+    },
+    "benchmark_harness": {
+      "passed": 7
+    },
+    "inventory_audit": {
+      "passed": 9
+    },
+    "dashboard_units": {
+      "passed": 49,
+      "skipped": 1
+    },
+    "service_audio": {
+      "passed": 19
+    },
+    "typescript_lint_build": "passed",
+    "fresh_native_fixture": {
+      "status": "passed",
+      "forecast_cycles": 36,
+      "preignition_cycles": 3,
+      "child_forecast_cycles": 13,
+      "observations_used": 110,
+      "parent_unchanged": true,
+      "checkpoint_next_step_parity": true,
+      "independent_decoder": "passed",
+      "native_dashboard_tests": 49,
+      "verification_sha256": "501d744132d1e221cd4035fdb2cee55f6c86d2e7c6915af1a2f2dfa2ba284689"
+    },
+    "remote_ci": {
+      "code_commit": "ca655b81567b41de208e2346398281c18121f6d7",
+      "push_checks": "5 passed",
+      "pull_request_checks": "in_progress",
+      "runs": [
+        40184408238,
+        40184408273,
+        40184408243
+      ],
+      "final_recovery_update": {
+        "commit": "92352dcd69c44788f943a2980416027d11fe1b3b",
+        "checks": "8 passed",
+        "packaging_update": "requires_own_ci"
+      }
+    },
+    "browser_build_credentials": "no_private_service_credentials_found",
+    "local_eaton_dashboard": {
+      "hub": "ok",
+      "indexed_issues": 157,
+      "expected_issues": 157,
+      "lead_min": 120
+    },
+    "final_recovery_and_lifecycle": {
+      "passed": 39,
+      "skipped": 1,
+      "seconds": 61.96
+    },
+    "pages_packaging": {
+      "passed": 4,
+      "full_copy_smoke": "471/471 indexed bundles present",
+      "private_runtime_state": "excluded"
+    },
+    "published_eaton": {
+      "branches": [
+        "main",
+        "satellites-only",
+        "openloop"
+      ],
+      "issues_per_branch": 157,
+      "expected_per_branch": 157,
+      "assets_checked": 1386,
+      "errors": 0,
+      "members": 16,
+      "immutable_bundle_copies_restored": 471
+    },
+    "post_ember_rename_engine": {
+      "passed": 360,
+      "skipped": 20,
+      "seconds": 270.96
+    },
+    "post_ember_rename_native_report_hub": {
+      "passed": 1,
+      "seconds": 31.6
+    },
+    "post_ember_rename_contracts": {
+      "passed": 15,
+      "seconds": 9.22
+    },
+    "post_ember_rename_web_services_packaging_types_lint_build": "passed"
+  },
+  "open_gates": [
+    "target_and_matched_reinit_replay",
+    "independent_historical_skill",
+    "scientific_calibration",
+    "target_latency",
+    "full_phone_and_provider_rehearsal"
+  ],
+  "artifacts": [
+    {
+      "path": "release-contended-benchmark.json",
+      "sha256": "03aa60d2235a6cf10aa15c1160cb5315effde07f217e6f79dd9b9dbfd6772462"
+    },
+    {
+      "path": "eaton-perimeter-source-review.json",
+      "sha256": "67e73f0a3e80cb717f9c95398ed98b83483a898ba9d00cc8b2ad1dad18114f40"
+    },
+    {
+      "path": "published-eaton-release.json",
+      "sha256": "4ce3d2064125146c5e3f8ea3000ca5f1eace07d3d6a0788ee2e4dbda0adc932f"
+    }
+  ],
+  "pull_request": "https://github.com/linchangg/Legendary-Fire-Project/pull/15"
+}

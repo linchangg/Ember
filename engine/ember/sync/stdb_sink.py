@@ -67,13 +67,15 @@ class StdbSink:
                 raise PublicationUnavailable("Hub did not acknowledge batch publication")
 
     async def rewind(self, scn: str, branch: str, sim_ms: int) -> None:
-        await self._safe("rewind", lambda: self.hub.rewind(scn, branch, sim_ms))
+        if not await self._safe("rewind", lambda: self.hub.rewind(scn, branch, sim_ms)):
+            raise PublicationUnavailable("Hub did not acknowledge rewind")
 
     async def set_clock_status(self, scn: str, status: str) -> None:
         await self._safe("set_clock_status", lambda: self.hub.set_clock_status(scn, status))
 
     async def create_branch(self, branch: dict) -> None:
-        await self._safe("create_branch", lambda: self.hub.create_branch(branch))
+        if not await self._safe("create_branch", lambda: self.hub.create_branch(branch)):
+            raise PublicationUnavailable("Hub did not acknowledge branch creation")
 
     async def upsert_alert_draft(self, alert_id: str, text: str, voice: str, source: str, briefing: Briefing) -> None:
         await self._safe("upsert_alert_draft", lambda: self.hub.upsert_alert_draft(alert_id, text, voice, source, briefing))

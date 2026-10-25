@@ -37,12 +37,17 @@ from ember.sync.cache_sink import CacheSink
 
 async def precompute(ctx: Scenario, source: Any, forcing: Any, make: Any, land: Any, root: Path,
                      branch: str = "main", filter_mode: str | None = None, model_version: str | None = None,
-                     briefings: bool = False, members_profile: str = "target", identity: dict | None = None) -> Loop:
+                     briefings: bool = False, members_profile: str = "target", identity: dict | None = None, max_cycles: int | None = None, physics_observer: Any = None) -> Loop:
     """Run every cycle of the replay through FastClock + CacheSink. Returns the finished loop."""
     host = make_host(ctx, make, land, forcing, root, filter_mode, members_profile, identity)
     loop = Loop(ctx, CacheSink(root, ctx.zones), FastClock(), source, host, root, branch,
                 model_version or model_host.model_version(members_profile), filter_mode,
                 "await" if briefings else "off", stop_at_end=True)
+    if max_cycles is not None:
+        if max_cycles < 1:
+            raise ValueError("max_cycles must be positive")
+        loop.ks = loop.ks[:max_cycles]
+    loop.physics_observer = physics_observer
     await loop.run()
     return loop
 
@@ -70,6 +75,7 @@ def main() -> None:
     ap.add_argument("--no-briefings", action="store_true",
                     help="skip awaiting one Claude briefing per cycle with a new alert (spec/03 §5 default: await)")
     ap.add_argument("--cache-root", type=Path, default=cache.DEFAULT_ROOT)
+    ap.add_argument("--max-cycles", type=int, help="bounded pilot; output remains explicitly partial")
     ap.add_argument("--sensors", default=None, help="comma list overriding assimilate_sensors (default: scenario.yaml)")
     ap.add_argument("--reports", action=argparse.BooleanOptionalAction, default=None,
                     help="override use_documented_reports (default: scenario.yaml)")
@@ -91,7 +97,7 @@ def main() -> None:
                                                  memory_budget_bytes=int(a.memory_gb * 1024**3)))
     t0 = time.perf_counter()
     loop = asyncio.run(precompute(ctx, source, forcing, make, land, a.cache_root, a.branch, a.filter,
-                                  briefings=not a.no_briefings, members_profile=a.members_profile, identity=identity))
+                                  briefings=not a.no_briefings, members_profile=a.members_profile, identity=identity, max_cycles=a.max_cycles))
     sink: CacheSink = loop.sink
     print(f"{ctx.scenario_id}/{a.branch} [{loop.model_version}]: {len(sink.written)} bundles, {len(loop.ks)} cycles, "
           f"coverage {loop.status['cache_coverage']:.0%}, restores {loop.host.restored_from}, "

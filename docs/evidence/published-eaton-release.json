@@ -1,0 +1,68 @@
+{
+  "tag": "demo-data-eaton-v1",
+  "release_id": 423321060,
+  "asset_id": 674742512,
+  "url": "https://github.com/linchangg/Legendary-Fire-Project/releases/download/demo-data-eaton-v1/eaton-demo-data.tar.gz",
+  "retrieved_utc": "2026-10-25T10:43:15.305809+00:00",
+  "sha256": "b20586307d8548ea2d48707a652f9e974edb31d2b6beaeae935d5635a6a86078",
+  "declared_digest": "sha256:b20586307d8548ea2d48707a652f9e974edb31d2b6beaeae935d5635a6a86078",
+  "expanded_bytes": 321845164,
+  "immutable_bundle_copies_restored": 471,
+  "science_limit": "Forecast outputs, not independent observed fire-perimeter truth",
+  "branches": {
+    "main": {
+      "indexed_cycles": 157,
+      "expected_cycles": 157,
+      "replay_complete": true,
+      "observed_profiles": [
+        [
+          16,
+          "rust-levelset-pf-1+dev-n16",
+          "pf"
+        ]
+      ],
+      "index_sha256": "8200cddabec01da6cca720fd258ea7b4aa31c0b0241326feb1b3fdefebbc710d",
+      "scientific_acceptance": "not_assessed",
+      "errors": 0,
+      "assets_checked": 462,
+      "audit_sha256": "1a50a1bf587d30adff47b1ebbbcb2ae478d3409f99f0ea3493d5323746649033",
+      "index_unchanged": true
+    },
+    "satellites-only": {
+      "indexed_cycles": 157,
+      "expected_cycles": 157,
+      "replay_complete": true,
+      "observed_profiles": [
+        [
+          16,
+          "rust-levelset-pf-1+dev-n16",
+          "pf"
+        ]
+      ],
+      "index_sha256": "327640a46ae346158bdf76dad4386aae35b61ddf24c21e238c082248ff3b9707",
+      "scientific_acceptance": "not_assessed",
+      "errors": 0,
+      "assets_checked": 462,
+      "audit_sha256": "e81a44f39d99e7304550eba3cf670d78870d6cf45fd4a587d1e11ced185f9011",
+      "index_unchanged": true
+    },
+    "openloop": {
+      "indexed_cycles": 157,
+      "expected_cycles": 157,
+      "replay_complete": true,
+      "observed_profiles": [
+        [
+          16,
+          "rust-levelset-pf-1+dev-n16",
+          "none"
+        ]
+      ],
+      "index_sha256": "9f285fcc95c9a6d498330d24632bccf0ddcd5728738c82d9f737255b39f9ab30",
+      "scientific_acceptance": "not_assessed",
+      "errors": 0,
+      "assets_checked": 462,
+      "audit_sha256": "5ace9d2ab6b2ec1d9427149a6579337a5e66016f79154eabc28aae0f8755f70e",
+      "index_unchanged": true
+    }
+  }
+}
