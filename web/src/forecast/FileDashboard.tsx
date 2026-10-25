@@ -156,8 +156,9 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
             {manifest?.title ?? 'Loading scenario'}
           </span>
           <span className="header__meta">
-            {manifest?.is_fixture ? 'Synthetic replay' : 'Historical replay'} ·
-            experimental Rust forecast
+            {manifest?.is_fixture
+              ? 'Synthetic scenario · cached replay · forecast skill unproven · experimental Rust forecast'
+              : 'Historical replay · experimental Rust forecast'}
           </span>
         </div>
         <div className="header__right">

@@ -32,9 +32,8 @@ export default function IncidentPanels({
         <div className="sidebar__label">Published forecast</div>
         <h2 className="sidebar__rec-title">
           {model.manifest?.is_fixture
-            ? 'Synthetic replay'
-            : 'Historical replay'}{' '}
-          · experimental model
+            ? 'Synthetic scenario · cached replay · forecast skill unproven · experimental model'
+            : 'Historical replay · experimental model'}
         </h2>
         <p className="sidebar__rec-body">
           Scientific calibration, historical skill and performance acceptance

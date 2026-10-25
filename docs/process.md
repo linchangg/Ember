@@ -78,3 +78,5 @@ Latest data-integrated engine suite: 311 passed, 18 skipped (44.66 s); one previ
 2026-10-25: Reconciled dashboard plan, Phase E status, Rust next tasks and release readiness after PR #11/main 0308ba8. Marked A–E complete, recorded data/CI evidence and partial Eaton cache, and retained independent-truth, calibration, latency and service gates. Documentation only.
 
 2026-10-25: Added six-phase release implementation framework, evidence worksheet and read-only replay audit with nine regression gates/CI. Baseline inventory: 80/157 Eaton issues, 231 assets, no local validation errors; incomplete replay correctly fails acceptance. Future phases await direct approval.
+
+2026-10-25: Validated merge 1c5b16e against the synthetic handoff forecast. File dashboard loads pre-ignition and forecast cycles from the cached replay; a missing arrival raster shows HTTP 404 and clears the forecast. Header and panel now say synthetic scenario, cached replay, and forecast skill unproven. Focused engine suite 53 passed (13.49 s); package verify matched 220 files with forecast_skill false. Not an Eaton historical forecast.
