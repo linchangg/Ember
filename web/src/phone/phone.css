@@ -1,0 +1,53 @@
+.phone-report {
+  min-height: 100vh;
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 1.25rem;
+  background: #10191b;
+  color: #edf4ef;
+  font-family: system-ui, sans-serif;
+}
+.phone-report header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.85rem;
+}
+.phone-report a {
+  color: #a2dac6;
+  text-decoration: none;
+}
+.phone-report h1 {
+  margin-top: 2rem;
+  font-size: 1.8rem;
+}
+.phone-report p {
+  line-height: 1.6;
+}
+.phone-report section {
+  padding: 1rem 0;
+}
+.phone-report button {
+  min-height: 3rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid #659585;
+  border-radius: 0.5rem;
+  background: #214b40;
+  color: #fff;
+  font: inherit;
+  margin: 0.4rem 0;
+  cursor: pointer;
+}
+.phone-report button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.phone-report__choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+  margin: 1rem 0;
+}
+.phone-report .phone-report__leave {
+  background: transparent;
+}

@@ -79,8 +79,8 @@ def sorensen(a, b):
     return 1.0 if total == 0 else float(2 * np.sum(a & b) / total)
 
 
-def twin(members, workers):
-    values = inputs(members)
+def twin(members, workers, seed=7):
+    values = inputs(members, seed)
     pf = model_for(values, workers=workers)
     baseline = model_for(values, "none", workers)
     truth = model_for(
@@ -256,14 +256,17 @@ def main():
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--members", type=int, default=32)
     parser.add_argument("--workers", type=int, default=2)
+    parser.add_argument("--seed", type=int, default=7)
+    parser.add_argument("--report-seeds", type=int, nargs="+", default=[7, 8, 9])
     args = parser.parse_args()
     if args.out.exists():
         raise FileExistsError(args.out)
     started = time.perf_counter()
     result = {
         "synthetic": True,
-        "twin": twin(args.members, args.workers),
-        "report_effect": report_effect(args.members, args.workers),
+        "seed": args.seed,
+        "twin": twin(args.members, args.workers, args.seed),
+        "report_effect": report_effect(args.members, args.workers, tuple(args.report_seeds)),
     }
     result["wall_seconds"] = time.perf_counter() - started
     write_json(args.out, result)

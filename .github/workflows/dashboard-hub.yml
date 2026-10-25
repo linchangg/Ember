@@ -51,6 +51,8 @@ jobs:
           trap 'kill "$HUB_PID" "${ASSET_PID:-}" "${CLIENT_PID:-}" 2>/dev/null || true' EXIT
           for i in $(seq 1 100); do curl -sf http://127.0.0.1:3017/v1/ping && break || sleep .1; done
           "$RUNNER_TEMP/hub-tools/spacetimedb-cli" --config-path "$RUNNER_TEMP/hub-tools/cli.toml" publish phase-e-demo --server http://127.0.0.1:3017 --module-path stdb --yes --anonymous
+          "$RUNNER_TEMP/hub-tools/spacetimedb-cli" --config-path "$RUNNER_TEMP/hub-tools/cli.toml" publish release-report-ci --server http://127.0.0.1:3017 --module-path stdb --yes --anonymous
+          EMBERLINE_REPORT_HUB_TESTS=1 STDB_DB=release-report-ci uv run --project engine pytest engine/tests/test_report_hub.py -q
           export EMBERLINE_FIXTURE_DIR="$RUNNER_TEMP/hub-fixture"
           export EMBERLINE_HUB_CREDENTIALS="$RUNNER_TEMP/hub-credentials.json"
           export EMBERLINE_HUB_EVIDENCE="$RUNNER_TEMP/hub-evidence.json"

@@ -886,7 +886,7 @@ def test_poller_offline_call_and_report(ctx, tmp_path):
         await eng.until(lambda: len(eng.poller.handled) >= 3)
         assert hub.calls == [(aid, "failed", "offline")]
         report = next(c for c in hub.commands if c["kind"] == "report")
-        assert report["status"] == "failed" and "wave 3" in report["result"]["reason"]
+        assert report["status"] == "failed" and "connected runtime hub" in report["result"]["reason"]
 
     with_engine(ctx, hub, root, body)
 

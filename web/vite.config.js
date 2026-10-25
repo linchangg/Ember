@@ -47,6 +47,7 @@ export default defineConfig({
     port: 5173,
     strictPort: true,
     allowedHosts: true,
+    proxy: process.env.EMBERLINE_DEV_SERVICE_PROXY ? { '/api': { target: process.env.EMBERLINE_DEV_SERVICE_PROXY, changeOrigin: true } } : undefined,
   },
   optimizeDeps: {
     exclude: ['maplibre-gl'],

@@ -246,6 +246,26 @@ def test_5_computing_keeps_sim_time_continuous() -> None:
     run(body)
 
 
+def test_rewind_crosses_nested_forks_to_parent_without_deleting_parent_before_fork() -> None:
+    async def body(hub: StdbHttp, _: StdbHttp) -> None:
+        await publish_all(hub)
+        first, second = cycle(10).knowledge_sim_ms, cycle(20).knowledge_sim_ms
+        for child, parent, fork in [('b1','main',first),('b2','b1',second)]:
+            await hub.create_branch(dict(branch_id=child,scenario_id=SCN,parent_id=parent,
+                                         fork_sim_ms=fork,reason='synthetic seek test'))
+        # Exactly at the fork keeps the child active.
+        await hub.rewind(SCN,'b2',second)
+        assert (await clock(hub))['active_branch_id']=='b2'
+        # Crossing both forks restores main and only removes its future cycles.
+        cut=cycle(5).knowledge_sim_ms
+        await hub.rewind(SCN,'b2',cut)
+        assert (await clock(hub))['active_branch_id']=='main'
+        got=await rows(hub,"SELECT * FROM cycle WHERE branch_id = 'main'")
+        assert got and all(r['knowledge_sim_ms']<=cut for r in got)
+        assert any(r['knowledge_sim_ms']==cut for r in got)
+    run(body)
+
+
 def test_6_new_proposal_pauses_clock() -> None:
     async def body(hub: StdbHttp, _: StdbHttp) -> None:
         await hub.call("clock_play", SCN, PIN)

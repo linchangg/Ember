@@ -74,6 +74,10 @@ def fixture_scenario(static_dir: Path) -> Scenario:
 
 
 def build_loop(a: argparse.Namespace, sink: StdbSink, clock: SimClock) -> tuple[Loop, Path]:
+    if getattr(a, "bundle_root", None) is not None:
+        root = a.bundle_root.resolve()
+        static_dir = root / "static" / a.scenario
+        return BundleReplayLoop(fixture_scenario(static_dir), sink, clock, None, None, root / "cache"), static_dir
     if a.fixtures:
         static_dir = FIXTURES / "static" / a.scenario
         if not static_dir.is_dir():
@@ -82,15 +86,18 @@ def build_loop(a: argparse.Namespace, sink: StdbSink, clock: SimClock) -> tuple[
 
     from emberline.runtime.sources import InboxSource, ReplaySource
 
+    cache_root = getattr(a, "cache_root", cache.DEFAULT_ROOT)
     scn_dir = scenario_dir(a.scenario)
     ctx = load_scenario_dir(scn_dir)
     land = landscape(ctx)  # stops naming Abby's missing statics; never a fabricated landscape
-    make, identity = rust_backend()
-    host = make_host(ctx, make, land, NcForcing(scn_dir / "forcing", model_grid(ctx)), cache.DEFAULT_ROOT,
+    from emberline.hazard.bridge import BackendOptions
+    make, identity = rust_backend(BackendOptions(workers=getattr(a, "workers", 2),
+        timeout_s=getattr(a, "timeout_s", 120), memory_budget_bytes=int(getattr(a, "memory_gb", 1)*1024**3)))
+    host = make_host(ctx, make, land, NcForcing(scn_dir / "forcing", model_grid(ctx)), cache_root,
                      members_profile=a.members_profile, identity=identity)
     loop = Loop(ctx, sink, clock, ReplaySource(scn_dir, ctx.scenario_id, ctx.cfg["assimilate_sensors"],
                                                  reports=bool(ctx.cfg.get("use_documented_reports"))), host,
-                cache.DEFAULT_ROOT, "main", model_version(a.members_profile),
+                cache_root, "main", model_version(a.members_profile),
                 briefings="background" if a.profile == "online" else "off", inbox=InboxSource(),
                 survive_physics_errors=True)
     return loop, ctx.web_dir
@@ -105,14 +112,19 @@ def api_server(a: argparse.Namespace, loop: Loop, hub: StdbHttp) -> tuple[Any, A
     except ImportError as e:
         log.warning("local API unavailable (%s); serving nothing on :%s", e, a.port)
         return None, None
-    state = LocalState(scenario_id=loop.ctx.scenario_id, profile=a.profile, fixtures=a.fixtures,
+    state = LocalState(scenario_id=loop.ctx.scenario_id, profile=a.profile, fixtures=a.fixtures, cache_root=getattr(a, "cache_root", None),
+                       bundle_root=getattr(a, "bundle_root", None),
                        seek_presets={"replay_start": loop.ctx.start_ms, "ignition": loop.ctx.t_ign_ms})
     server = uvicorn.Server(uvicorn.Config(create_app(state, hub), host="127.0.0.1", port=a.port, log_level="warning"))
     return state, server
 
 
 async def main_async(a: argparse.Namespace) -> None:
-    uri = os.environ.get("STDB_URI", LOCAL_HUB) if a.profile == "online" else LOCAL_HUB
+    uri = getattr(a, "hub_uri", None) or (os.environ.get("STDB_URI", LOCAL_HUB) if a.profile == "online" else LOCAL_HUB)
+    if a.profile == "offline":
+        from urllib.parse import urlsplit
+        if urlsplit(uri).hostname not in {"127.0.0.1", "localhost", "::1"}:
+            raise ValueError("Offline rehearsal requires a loopback hub")
     hub = StdbHttp(uri, os.environ.get("STDB_DB", "emberline"), os.environ.get("STDB_TOKEN"))
     clock = SimClock()
     sink = StdbSink(hub, a.scenario, sim_now=clock.sim_now)
@@ -139,8 +151,16 @@ def main() -> None:
     ap.add_argument("--fixtures", action="store_true", help="replay fixtures/cache bundles as committed (no physics)")
     ap.add_argument("--members-profile", choices=PROFILES, default="target",
                     help="target = scenario.yaml n_members (reported run); dev = 16 members, labelled +dev-n16")
+    ap.add_argument("--hub-uri", help="hub override; offline profile permits loopback only")
+    ap.add_argument("--workers", type=int, default=2)
+    ap.add_argument("--timeout-s", type=float, default=120)
+    ap.add_argument("--memory-gb", type=float, default=1)
+    ap.add_argument("--cache-root", type=Path, default=cache.DEFAULT_ROOT, help="physics/cache output root")
+    ap.add_argument("--bundle-root", type=Path, help="serve and replay ROOT/{static,cache} without physics; report branching unavailable")
     ap.add_argument("--port", type=int, default=int(os.environ.get("ASSET_PORT", "8787")))
     a = ap.parse_args()
+    if a.fixtures and a.bundle_root is not None:
+        ap.error("--fixtures and --bundle-root are mutually exclusive")
     if a.fixtures and a.scenario == "eaton":
         a.scenario = "fixture"
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")

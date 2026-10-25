@@ -215,6 +215,7 @@ class LineageState:
     data_through: int | None = None
     scans: list[ScanEvent] = field(default_factory=list)
     keys: dict[int, str] = field(default_factory=dict)  # k -> cycle key on this lineage (checkpoint matching)
+    forcing: dict[int, dict] = field(default_factory=dict)
     obs: dict[int, list[ObservationRecord]] = field(default_factory=dict)  # k -> the exact evidence keys[k] hashes
 
 
@@ -378,6 +379,10 @@ class Loop:
             # Bounded backpressure: retain exactly this batch; do not recompute, skip or advance.
             await asyncio.sleep(1)
             return
+        pending_reports = getattr(self, "report_status_updates", {})
+        for bundle in bundles:
+            for report in bundle.reports:
+                pending_reports.pop(report.report_id, None)
         self._pending_publication = None
         self.status["publication_pending"] = 0
         self.i += len(batch)
@@ -396,6 +401,9 @@ class Loop:
             except PublicationUnavailable:
                 self._republish = True
                 await asyncio.sleep(1)
+            else:
+                for report in b.reports:
+                    getattr(self, "report_status_updates", {}).pop(report.report_id, None)
 
     # ------------------------------------------------------------ one cycle
 
@@ -428,6 +436,8 @@ class Loop:
                                   self.config_hash, int(ctx.cfg.get("seed", 7)), self.filter_mode,
                                   wx.audit if wx is not None else None)
             st.keys[k], st.obs[k] = key, obs
+            if wx is not None:
+                st.forcing[k] = wx.audit or {}
             phys = cache.load_cycle(self.root, ctx.scenario_id, self.branch, k, key)
             if phys is None:
                 try:
@@ -455,6 +465,10 @@ class Loop:
         t0 = time.perf_counter()
         host.ensure_state(self.branch, k - ctx.cycle_ms, self._obs_for, st.keys.get)
         arrays = host.step(self.branch, k, obs, key)
+        observer = getattr(self, "physics_observer", None)
+        if observer is not None:
+            observer(k, host, arrays, {"cycle_key": key, "run_hash": self.config_hash,
+                "observations_by_issue": self.state.obs, "forcing_by_issue": self.state.forcing})
         rel = f"cache/{ctx.scenario_id}/{self.branch}/{k}/assets/{key}"
         out_dir = cache.cycle_dir(self.root, ctx.scenario_id, self.branch, k) / "assets" / key
         is_new = not (cache.cycle_dir(self.root, ctx.scenario_id, self.branch, k) / "physics.json").exists()  # a stale key is already counted in coverage
@@ -520,7 +534,8 @@ class Loop:
     async def _build(self, k: int, snap: HubSnapshot, mirror: dict[str, Alert]) -> CycleBundle | None:
         inp = await self._advance(k)
         self._last = inp
-        b = build_bundle(self.ctx, self.branch, inp, snap, list(mirror.values()), self.root)
+        b = build_bundle(self.ctx, self.branch, inp, snap, list(mirror.values()), self.root,
+                         reports=list(getattr(self, "report_status_updates", {}).values()))
         if self._physics_error is None:
             return b
         err = ActivityEvent(event_id=f"ev_{b.bundle_id}_physics", scenario_id=self.ctx.scenario_id,
@@ -532,7 +547,8 @@ class Loop:
         """The current cycle again with fresh hub state (evac_min edit, person joined)."""
         if self._last is None:
             return None
-        return build_bundle(self.ctx, self.branch, self._last, snap, list(mirror.values()), self.root)
+        return build_bundle(self.ctx, self.branch, self._last, snap, list(mirror.values()), self.root,
+                            reports=list(getattr(self, "report_status_updates", {}).values()))
 
     async def _replay_silently(self, target_ms: int) -> None:
         """Rebuild the lineage state up to the first cycle >= target without publishing (rewind/reset)."""
@@ -596,17 +612,34 @@ class BundleReplayLoop(Loop):
 
     def _cycle_ks(self) -> list[int]:
         index = _read_json(self.root / self.ctx.scenario_id / self.branch / "index.json")
-        self.paths = {c["knowledge_sim_ms"]: self.root.parent / c["bundle"] for c in index["cycles"]}
+        if (index["scenario_id"], index["branch_id"]) != (self.ctx.scenario_id, self.branch):
+            raise ValueError("Bundle replay index identity mismatch")
+        self.paths = {}
+        for entry in index["cycles"]:
+            k, reference = entry["knowledge_sim_ms"], Path(entry["bundle"])
+            path = (self.root.parent / reference).resolve()
+            if reference.is_absolute() or not path.is_relative_to(self.root.parent.resolve()):
+                raise ValueError("Bundle replay path escapes asset root")
+            if k in self.paths or k not in self.ctx.cycles():
+                raise ValueError("Duplicate or out-of-range bundle replay issue")
+            self.paths[k] = path
         return sorted(self.paths)
 
     def _coverage(self) -> float:
         self._n_cached = len(self.paths)
-        return 1.0
+        return len(self.paths) / max(1, len(self.ctx.cycles()))
 
     def _load(self, k: int, snap: HubSnapshot) -> CycleBundle:
         b = CycleBundle.model_validate_json(self.paths[k].read_text(encoding="utf-8"))
+        if (b.scenario_id, b.branch_id, b.knowledge_sim_ms) != (self.ctx.scenario_id, self.branch, k):
+            raise ValueError("Bundle replay payload identity mismatch")
+        if any(o.available_sim_ms > k for o in b.observations):
+            raise ValueError("Bundle replay contains future evidence")
         wall = int(time.time() * 1000)
+        reports = {r.report_id: r for r in b.reports}
+        reports.update(getattr(self, "report_status_updates", {}))
         return b.model_copy(update={"people": risk.people(snap.people, b.zone_risk),
+                                    "reports": list(reports.values()),
                                     "events": [e.model_copy(update={"wall_ms": wall}) for e in b.events]})
 
     async def _build(self, k: int, snap: HubSnapshot, mirror: dict[str, Alert]) -> CycleBundle | None:

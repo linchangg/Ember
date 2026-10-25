@@ -6,6 +6,7 @@ import Sidebar from './components/Sidebar'
 import GlobeNetwork from './pages/GlobeNetwork'
 import './App.css'
 
+const PhoneReport = lazy(() => import('./phone/PhoneReport.jsx'))
 const FileDashboard = lazy(() => import('./forecast/FileDashboard.tsx'))
 const DATA_MODE = import.meta.env.VITE_DATA_SOURCE || 'mock'
 
@@ -61,6 +62,7 @@ export default function App() {
     >
       <Routes>
         <Route path="/" element={<GlobeNetwork />} />
+        <Route path="/p" element={<PhoneReport />} />
         <Route
           path="/dashboard"
           element={DATA_MODE === 'mock' ? <Dashboard /> : <FileDashboard />}

@@ -1,0 +1,109 @@
+{
+  "status": "failed",
+  "failure": "Rust forecast timed out after 900 seconds before requested run completed",
+  "synthetic": true,
+  "members": 128,
+  "size": 340,
+  "workers": 2,
+  "requested_measured_samples": 10,
+  "completed_measured_samples": 8,
+  "raw_successful_steps": [
+    {
+      "issue_min": 5,
+      "wall_ms": 161940.15816699903,
+      "reported_ms": 161936,
+      "warmup": true,
+      "cold": true,
+      "ess": 128.0,
+      "resampled": false,
+      "native_steps": 93440
+    },
+    {
+      "issue_min": 10,
+      "wall_ms": 194904.9694589994,
+      "reported_ms": 194903,
+      "warmup": false,
+      "cold": false,
+      "ess": 128.0,
+      "resampled": false,
+      "native_steps": 94720
+    },
+    {
+      "issue_min": 15,
+      "wall_ms": 305731.0151670008,
+      "reported_ms": 305730,
+      "warmup": false,
+      "cold": false,
+      "ess": 128.0,
+      "resampled": false,
+      "native_steps": 96000
+    },
+    {
+      "issue_min": 20,
+      "wall_ms": 362015.27737499966,
+      "reported_ms": 362014,
+      "warmup": false,
+      "cold": false,
+      "ess": 128.0,
+      "resampled": false,
+      "native_steps": 97280
+    },
+    {
+      "issue_min": 25,
+      "wall_ms": 365177.1522500003,
+      "reported_ms": 365176,
+      "warmup": false,
+      "cold": false,
+      "ess": 128.0,
+      "resampled": false,
+      "native_steps": 98560
+    },
+    {
+      "issue_min": 30,
+      "wall_ms": 360409.1294999998,
+      "reported_ms": 360407,
+      "warmup": false,
+      "cold": false,
+      "ess": 128.0,
+      "resampled": false,
+      "native_steps": 99840
+    },
+    {
+      "issue_min": 35,
+      "wall_ms": 326365.0360419997,
+      "reported_ms": 326363,
+      "warmup": false,
+      "cold": false,
+      "ess": 128.0,
+      "resampled": false,
+      "native_steps": 101120
+    },
+    {
+      "issue_min": 40,
+      "wall_ms": 313786.23249999876,
+      "reported_ms": 313785,
+      "warmup": false,
+      "cold": false,
+      "ess": 128.0,
+      "resampled": false,
+      "native_steps": 102400
+    },
+    {
+      "issue_min": 45,
+      "wall_ms": 350578.5721669999,
+      "reported_ms": 350577,
+      "warmup": false,
+      "cold": false,
+      "ess": 128.0,
+      "resampled": false,
+      "native_steps": 103680
+    }
+  ],
+  "target_met": false,
+  "log_sha256": "0f0fd3e099a9350ec96168d34b5836a42c2b14ec022645f264a63d636d9fbdaa",
+  "limits": [
+    "Contended with three Eaton replay runs and software validation",
+    "Incomplete sample set: no accepted steady-state p95 result",
+    "Not historical accuracy evidence"
+  ]
+}

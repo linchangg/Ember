@@ -50,6 +50,7 @@ class CallResult:
     call_id: str | None
     call_status: str  # "placed" | "unconfigured" | "error" | "dry_run" | "offline"
     error: str | None = None
+    uncertain: bool = False  # request may have reached provider; never auto-redial
 
 
 def configured() -> bool:
@@ -140,22 +141,23 @@ def _scrub(text: str, to_number: str) -> str:
 
 def _parse(resp: httpx.Response, to_number: str) -> CallResult:
     if resp.status_code != 200:
-        return CallResult(False, None, "error", _scrub(f"HTTP {resp.status_code}: {resp.text}", to_number))
+        return CallResult(False, None, "error", _scrub(f"HTTP {resp.status_code}: {resp.text}", to_number), uncertain=resp.status_code >= 500)
     calls = resp.json().get("calls") or []
     entry = next((c for c in calls if c.get("number") == to_number), calls[0] if calls else None)
     if entry is None:
-        return CallResult(False, None, "error", "200 with no calls[] entry")
+        return CallResult(False, None, "error", "200 with no calls[] entry", uncertain=True)
     if entry.get("error"):
         return CallResult(False, entry.get("agent_call_id"), "error",
                           _scrub(json.dumps(entry["error"], ensure_ascii=False), to_number))
     if not entry.get("agent_call_id"):
-        return CallResult(False, None, "error", "200 entry without agent_call_id")
+        return CallResult(False, None, "error", "200 entry without agent_call_id", uncertain=True)
     return CallResult(True, entry["agent_call_id"], "placed")
 
 
 async def place_call(alert: Alert, to_number: str, *, dry_run: bool = False,
                      client: httpx.AsyncClient | None = None) -> CallResult:
     """Never raises. dry_run builds the body and stops (ok=False: nothing was placed)."""
+    attempted = False
     try:
         if not E164.match(to_number or ""):
             return CallResult(False, None, "error", "to_number is not E.164")
@@ -165,6 +167,7 @@ async def place_call(alert: Alert, to_number: str, *, dry_run: bool = False,
             return CallResult(False, None, "dry_run")
         if not configured():
             return CallResult(False, None, "unconfigured", f"missing one of {', '.join(ENV_VARS)}")
+        attempted = True
         if client is None:
             async with httpx.AsyncClient(timeout=TIMEOUT_S) as own:
                 resp = await own.post(URL, json=body, headers=_headers())
@@ -172,9 +175,9 @@ async def place_call(alert: Alert, to_number: str, *, dry_run: bool = False,
             resp = await client.post(URL, json=body, headers=_headers())
         result = _parse(resp, to_number)
     except httpx.HTTPError as exc:
-        result = CallResult(False, None, "error", f"network: {type(exc).__name__}")
+        result = CallResult(False, None, "error", f"network: {type(exc).__name__}", uncertain=True)
     except Exception as exc:  # contract: never raises
-        result = CallResult(False, None, "error", f"{type(exc).__name__}")
+        result = CallResult(False, None, "error", f"{type(exc).__name__}", uncertain=attempted)
     log.info("cartesia call %s to %s: %s %s", alert.alert_id, mask(to_number), result.call_status, result.error or "")
     return result
 

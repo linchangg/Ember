@@ -6,6 +6,10 @@ A synthetic example exercises the scoring/audit code only. The implemented metho
 are in `engine/emberline/hazard/historical.py`; the manifest JSON schema is
 `docs/schemas/historical-v1.schema.json`.
 
+For the current Eaton acquisition results, the public-source downloader and the
+limited positive-detection fallback, see [the perimeter source review](PERIMETER_SOURCE_REVIEW.md).
+No usable independent overnight perimeter sequence has yet been acquired.
+
 ## Run the included framework example
 
 From the repository root with the locked engine environment installed:

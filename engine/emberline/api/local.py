@@ -43,6 +43,8 @@ class LocalState:
     scenario_id: str
     profile: str  # "online" | "offline"
     fixtures: bool  # serve fixtures/{static,cache} instead of data/ + cache/
+    cache_root: Path | None = None
+    bundle_root: Path | None = None
     duty_officer_number: str | None = None  # set by POST /dev/duty-officer; memory only
     seek_presets: dict[str, int] = field(default_factory=dict)  # name -> sim_ms
     status: dict = field(default_factory=dict)  # engine writes: last_cycle_sim_ms, physics_ms, hub_ok, cache_coverage
@@ -81,9 +83,11 @@ def safe_file(root: Path, rel: str) -> Path:
 
 def _roots(state: LocalState) -> tuple[Path, Path]:
     """(cache root, static root); static root is joined with {scn}/ [web/]."""
+    if state.bundle_root is not None:
+        return state.bundle_root / "cache", state.bundle_root / "static"
     if state.fixtures:
         return REPO / "fixtures" / "cache", REPO / "fixtures" / "static"
-    return REPO / "cache", REPO / "data" / "scenarios"
+    return state.cache_root or REPO / "cache", REPO / "data" / "scenarios"
 
 
 def _need_hub(hub: StdbHttp | None) -> StdbHttp:
@@ -108,7 +112,7 @@ def create_app(state: LocalState, hub: StdbHttp | None) -> FastAPI:
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1"])
     app.add_middleware(
         CORSMiddleware,
-        allow_origin_regex=r"http://localhost(:\d+)?",
+        allow_origin_regex=r"http://(?:localhost|127\.0\.0\.1)(:\d+)?",
         allow_methods=["GET", "POST"],
         allow_headers=["Content-Type"],
     )
@@ -122,6 +126,10 @@ def create_app(state: LocalState, hub: StdbHttp | None) -> FastAPI:
 
     @app.get("/cache/{path:path}")
     async def cache_file(path: str) -> FileResponse:
+        parts = Path(path).parts
+        if ("checkpoints" in parts or Path(path).name == "branch-evidence.json"
+                or Path(path).suffix in (".sqlite3", ".sqlite", ".key")):
+            raise HTTPException(404, "not a public cache asset")
         p = safe_file(cache_root, path)
         # Deviation from the brief's `immutable`: cycle URLs are not content-addressed (a stale key or a
         # reused b{n} rewrites the same path), so revalidate. FileResponse's ETag makes that a cheap 304.
@@ -131,7 +139,7 @@ def create_app(state: LocalState, hub: StdbHttp | None) -> FastAPI:
     async def static_file(scn: str, path: str) -> FileResponse:
         if not SCN.fullmatch(scn):
             raise HTTPException(400, "bad scenario id")
-        base = static_root / scn if state.fixtures else static_root / scn / "web"
+        base = static_root / scn if state.fixtures or state.bundle_root is not None else static_root / scn / "web"
         return FileResponse(safe_file(base, path))
 
     @app.get("/healthz")
@@ -165,7 +173,7 @@ def create_app(state: LocalState, hub: StdbHttp | None) -> FastAPI:
         r = Report(
             report_id=f"rep_{uuid.uuid4().hex[:8]}",
             scenario_id=state.scenario_id,
-            branch_id="main",  # ponytail: §1.2 status has no active branch; add a key there if branch reports need it
+            branch_id=state.status.get("active_branch_id", "main"),
             person_id=None,
             channel="dashboard",
             kind=body.kind,

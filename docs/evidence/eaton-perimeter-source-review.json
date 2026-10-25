@@ -1,0 +1,63 @@
+{
+  "incident_id": "2025-CALAC-009087",
+  "retrieved_at_utc": "2026-10-25T09:47:16.008048+00:00",
+  "scientific_acceptance": "not_established",
+  "sources": [
+    {
+      "source_id": "firis",
+      "url": "https://services1.arcgis.com/jUJYIo9tSA7EHvfZ/arcgis/rest/services/CA_Perimeters_NIFC_FIRIS_public_view/FeatureServer/0",
+      "where": "UPPER(incident_name) LIKE '%EATON%' OR mission = '2025-CALAC-009087'",
+      "artifacts": [
+        {
+          "path": "firis-metadata.json",
+          "url": "https://services1.arcgis.com/jUJYIo9tSA7EHvfZ/arcgis/rest/services/CA_Perimeters_NIFC_FIRIS_public_view/FeatureServer/0?f=json",
+          "sha256": "fd05e6e4335c64a7fe642cd223aaa9b590654f6c9872c2767a93f408fb3ce932"
+        },
+        {
+          "path": "firis-ids.json",
+          "url": "https://services1.arcgis.com/jUJYIo9tSA7EHvfZ/arcgis/rest/services/CA_Perimeters_NIFC_FIRIS_public_view/FeatureServer/0/query?where=UPPER%28incident_name%29+LIKE+%27%25EATON%25%27+OR+mission+%3D+%272025-CALAC-009087%27&returnIdsOnly=true&f=json",
+          "sha256": "849ce0ea6fde3d1e6384e7680af15766a7e10f2ce0cbf5d765684ea6855789c1"
+        }
+      ],
+      "truth_eligibility": "requires_independent_source_review",
+      "status": "no_current_matches",
+      "feature_count": 0
+    },
+    {
+      "source_id": "wfigs",
+      "url": "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters/FeatureServer/0",
+      "where": "attr_UniqueFireIdentifier = '2025-CALAC-009087'",
+      "artifacts": [
+        {
+          "path": "wfigs-metadata.json",
+          "url": "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters/FeatureServer/0?f=json",
+          "sha256": "b5fd9a422b32b736b458785478f09ef2da03719da19a63ee9ee98a528dad9c31"
+        },
+        {
+          "path": "wfigs-ids.json",
+          "url": "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters/FeatureServer/0/query?where=attr_UniqueFireIdentifier+%3D+%272025-CALAC-009087%27&returnIdsOnly=true&f=json",
+          "sha256": "9770003cfde5985ae7a92c9159bb3c8702c2be81e341e87c61fd4eb0b80d616e"
+        },
+        {
+          "path": "wfigs-features-000.json",
+          "url": "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters/FeatureServer/0/query?objectIds=53438&outFields=%2A&returnGeometry=true&outSR=4326&f=geojson",
+          "sha256": "c56ae49e5d4592b1ee28911fe52b9af288a14995ccf465a5de8ab4ae86082302"
+        }
+      ],
+      "truth_eligibility": "requires_independent_source_review",
+      "status": "downloaded",
+      "feature_count": 1
+    }
+  ],
+  "review": {
+    "status": "no_usable_overnight_truth_acquired",
+    "frozen_replay_last_target_utc": "2025-01-08T21:00:00Z",
+    "firis_published_study_valid_utc": "2025-01-09T02:26:00Z",
+    "wfigs_object_id": 53438,
+    "wfigs_poly_DateCurrent": null,
+    "wfigs_poly_PolygonDateTime": 1778604836894,
+    "wfigs_disposition": "later_context_only; no verified overnight geometry valid time",
+    "fireguard_disposition": "original GIS/coverage/lineage needed; PDF maps are not approved burned masks",
+    "contacts_sent": false
+  }
+}

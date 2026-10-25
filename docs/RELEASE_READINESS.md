@@ -52,13 +52,25 @@ parameters unchanged until that evidence exists. See `HISTORICAL_VALIDATION.md` 
 
 ## Report and notification gate
 
-The engine already has local report ingestion, runtime report commands, the outbound
-Cartesia request builder and file-mode call cards. The Vercel report/voice and callback
-service functions are not present. Complete those against `spec/05_ai_voice.md`, test
-service-only auth and report availability through a real worker/branch, then add the
-phone submission controls. External delivery rehearsal needs provider configuration
-and an explicitly selected test recipient. No call or message was sent during this
-integration, and a precomputed call card is not delivery evidence.
+The release implementation adds server-side signed report sessions, bounded tap/voice
+handlers, authenticated Cartesia callback tools, a persistent dispatch reservation
+journal and `/p` submission controls. Local browser join/tap submission, service tests
+and an actual published-hub/Rust report-to-child integration are verified. Rejected
+reports are published explicitly; backward seeks can restore an ancestor branch.
+Private branch state, dispatch journals and checkpoints are excluded from local assets.
+
+This remains a partial phone implementation: assigned locations only, no spoken
+landmark geocoding, no phone danger-map/alert playback, no automatic transport reconnect,
+and no proven <=5-second report-to-forecast budget. An accepted report becomes part of
+the following configured cycle; a paused clock must advance before that cycle appears.
+GitHub Pages is static and cannot host these API handlers. Use Vercel or the documented
+local service adapter for `/p`; no service credential belongs in browser configuration.
+External delivery rehearsal still needs provider configuration and an explicitly
+selected test recipient. Voice is disabled by default. No external call or message
+was sent; callback tests and precomputed call cards are not delivery evidence.
+
+See `RELEASE_COMPLETION_PLAN.md`, `RELEASE_COMPLETION_RESULTS.md` and
+`RELEASE_SERVICE_SETUP.md` for implementation scope, results and reproduction.
 
 Recheck the committed data with `PYTHONPATH=engine python scripts/validation/eaton_data_smoke.py`.
 This verifies HRRR checksums and release-time selection across the replay, then runs

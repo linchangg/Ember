@@ -860,8 +860,26 @@ export const rewind = spacetimedb.reducer(
   { scenario_id: t.string(), branch_id: t.string(), sim_ms: t.f64() },
   (ctx, { scenario_id, branch_id, sim_ms }) => {
     requireEngine(ctx);
-    deleteAfter(ctx, scenario_id, branch_id, sim_ms);
-    bumpEpoch(ctx, scenario_id);
+    const clock = requireClock(ctx, scenario_id);
+    let target = branch_id;
+    // Preserve the existing reducer signature; implement spec/03's ancestor seek.
+    // Rewinding an inactive comparison branch must not change the active lineage.
+    if (clock.active_branch_id === branch_id) {
+      const seen = new Set<string>();
+      for (;;) {
+        if (seen.has(target)) throw new SenderError('cyclic branch lineage');
+        seen.add(target);
+        const branch = ctx.db.branch.branch_id.find(target);
+        if (!branch || branch.scenario_id !== scenario_id) throw new SenderError('unknown branch lineage');
+        if (branch.parent_id === undefined || branch.fork_sim_ms === undefined || sim_ms >= branch.fork_sim_ms) break;
+        deleteAfter(ctx, scenario_id, target, branch.fork_sim_ms);
+        target = branch.parent_id;
+      }
+    }
+    deleteAfter(ctx, scenario_id, target, sim_ms);
+    if (clock.active_branch_id === branch_id && target !== branch_id) {
+      ctx.db.clock.scenario_id.update({ ...clock, active_branch_id: target, epoch: clock.epoch + 1 });
+    } else bumpEpoch(ctx, scenario_id);
   }
 );
 

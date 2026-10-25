@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-25",
+  "branch": "release/all-phases",
+  "integrated_main": "1d56f832d033ee9119da1ab489e72695a13ae13f",
+  "scientific_acceptance": "not_established",
+  "outbound_delivery": "not_attempted",
+  "deployment": "not_attempted",
+  "checks": {
+    "initial_full_engine": {
+      "passed": 353,
+      "skipped": 18
+    },
+    "integrated_full_engine": {
+      "passed": 357,
+      "skipped": 19,
+      "seconds": 692.59,
+      "note": "Later-added bounded-pilot/timeout cases passed in focused checks"
+    },
+    "published_contracts": {
+      "passed": 15
+    },
+    "native_report_hub": {
+      "passed": 1
+    },
+    "report_runtime_fixes": {
+      "passed": 15
+    },
+    "perimeter_truth_event_checks": {
+      "passed": 18
+    },
+    "benchmark_harness": {
+      "passed": 7
+    },
+    "inventory_audit": {
+      "passed": 9
+    },
+    "dashboard_units": {
+      "passed": 48,
+      "skipped": 1
+    },
+    "service_audio": {
+      "passed": 19
+    },
+    "typescript_lint_build": "passed",
+    "fresh_native_fixture": "running",
+    "remote_ci": "not_run",
+    "browser_build_credentials": "no_private_service_credentials_found"
+  },
+  "open_gates": [
+    "complete_eaton_replay",
+    "independent_historical_skill",
+    "scientific_calibration",
+    "target_latency",
+    "full_phone_and_provider_rehearsal"
+  ],
+  "artifacts": [
+    {
+      "path": "release-contended-benchmark.json",
+      "sha256": "03aa60d2235a6cf10aa15c1160cb5315effde07f217e6f79dd9b9dbfd6772462"
+    },
+    {
+      "path": "eaton-perimeter-source-review.json",
+      "sha256": "67e73f0a3e80cb717f9c95398ed98b83483a898ba9d00cc8b2ad1dad18114f40"
+    }
+  ]
+}

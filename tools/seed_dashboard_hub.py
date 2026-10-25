@@ -41,7 +41,7 @@ async def seed(a):
             await hub.publish_bundles([CycleBundle.model_validate_json((root / e["bundle"]).read_text()) for e in index["cycles"][i:i+10]])
         issue = index["cycles"][-1]["knowledge_sim_ms"]
         await hub.call("clock_seek", a.scenario, issue, private["OPERATOR_PIN"])
-        event = ActivityEvent(event_id="ev_phase_e_idempotence",scenario_id=a.scenario,branch_id="main",sim_ms=issue,wall_ms=0,stage="system",actor="engine",level="info",message="Synthetic Phase E publication acceptance")
+        event = ActivityEvent(event_id="ev_phase_e_idempotence",scenario_id=a.scenario,branch_id="main",sim_ms=issue,wall_ms=0,stage="system",actor="engine",level="info",message="Local publication acceptance; notifier off")
         await hub.append_events([event])
         await hub.append_events([event])
         print("Seeded disposable local hub; credentials saved privately; notification worker is off.")
