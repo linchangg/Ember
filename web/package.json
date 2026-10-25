@@ -9,26 +9,26 @@
     "lint": "oxlint",
     "test": "node --test src/lib/globeData.test.js src/data/*.test.ts src/forecast/*.test.ts",
     "preview": "vite preview",
-    "fetch:firms": "node scripts/fetch_firms.mjs",
-    "make:synthetic": "node scripts/make_synthetic_spread.mjs",
+    "fetch:basemap": "node scripts/fetch_basemap.mjs",
     "typecheck": "tsc --project tsconfig.data.json"
   },
   "dependencies": {
     "cesium": "^1.146.0",
     "maplibre-gl": "^6.15.0",
-    "proj4": "2.22.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router-dom": "^7.18.4",
-    "three": "^0.186.1"
+    "spacetimedb": "2.13.0",
+    "three": "^0.186.1",
+    "proj4": "2.22.0"
   },
   "devDependencies": {
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "oxlint": "^1.88.0",
-    "typescript": "5.6.3",
     "vite": "^8.3.4",
-    "vite-plugin-cesium": "^1.2.23"
+    "vite-plugin-cesium": "^1.2.23",
+    "typescript": "5.6.3"
   }
 }

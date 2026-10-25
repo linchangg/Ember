@@ -611,3 +611,16 @@ a:hover {
 
 .gn__legend2 { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-bottom: 8px; font-size: 11px; color: #a5c2ea; }
 .gn__legend2 i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 6px; }
+
+.gn__badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.gn__badge--mode { border-color: #3b82f688; color: #9cc3f5; }
+.gn__slider { position: relative; }
+.gn__slider input[type=range] { display: block; }
+.gn__tick { position: absolute; top: -3px; width: 2px; height: 8px; background: #a5d2ff; opacity: 0.8; transform: translateX(-1px); pointer-events: auto; }
+.gn__now { position: absolute; bottom: -4px; width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-bottom: 5px solid #e5483c; transform: translateX(-4px); }
+.gn__time-ctl { justify-content: flex-start; gap: 6px; margin: 8px 0 0; align-items: center; }
+.gn__time-ctl button { width: auto; height: 24px; padding: 0 10px; border-radius: 6px; font-size: 11px; }
+.gn__time-ctl button.on { background: #1b3768; border-color: #5b8def; }
+.gn__warn { color: #f0c070; font-size: 10.5px; }
+
+.gn__credit { z-index: 4; position: absolute; left: 28px; bottom: 6px; font-size: 9px; letter-spacing: 0.04em; color: #5f7aa8; pointer-events: none; }

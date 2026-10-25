@@ -8,18 +8,18 @@ import pytest
 
 from emberline.ai.validate import allowed_tokens, extract_tokens, p_words, validate
 
-# Saved from the fixture's cycle-20 alert (FIX-Z2 warning; p_60 0.0, p_120 0.31, act by 21:07).
+# Saved from the fixture's cycle-20 alert (FIX-Z2 warning; p_60 0.02, p_120 0.30, act by 21:07).
 INP = json.loads((Path(__file__).parent / "data" / "briefing_inputs" / "c20.json").read_text(encoding="utf-8"))
 
 GOOD = {
     "headline": "Warning for Fixture Z2 (FIX-Z2): act by 21:07 PST",
     "bullets": [
-        "Fire is possible to reach FIX-Z2 within 2 h (P 31%).",
-        "Median arrival 22:15 PST; about 420 residents, 2 egress roads.",
+        "Fire is possible to reach FIX-Z2 within 2 h (P 30%).",
+        "Median arrival 22:23 PST; about 420 residents, 2 egress roads.",
         "Forecast 19:55 PST, satellite data through 19:55; data age 0 min.",
     ],
     "text": (
-        "DEMO REPLAY (Jan 2025). Warning for FIX-Z2: fire possible within 2 h (P 31%). "
+        "DEMO REPLAY (Jan 2025). Warning for FIX-Z2: fire possible within 2 h (P 30%). "
         "Act by 21:07 PST. About 420 residents. Forecast 19:55, satellite data through 19:55."
     ),
     "voice_script": (
@@ -46,7 +46,7 @@ def with_bullets(bullets: list[str]) -> dict:
 CASES = [
     ("correct", GOOD, None),
     ("altered time", mutate("text", "21:07 PST", "21:15 PST"), "time 21:15"),
-    ("altered pct", mutate("text", "P 31%", "P 35%"), "pct 35%"),
+    ("altered pct", mutate("text", "P 30%", "P 35%"), "pct 35%"),
     ("altered population", mutate("text", "420 residents", "450 residents"), "num 450"),
     ("invented zone", mutate("text", "FIX-Z2:", "FIX-Z9:"), "zone FIX-Z9"),
     ("wrong p word", mutate("text", "fire possible", "fire likely"), "pword likely"),
@@ -99,8 +99,8 @@ def test_very_likely_not_read_as_likely() -> None:
     inp = copy.deepcopy(INP)
     inp["zones"][0]["p_120"] = 0.92
     out = mutate("text", "fire possible", "fire very likely")
-    out = {**out, "bullets": [b.replace("(P 31%)", "(P 92%)").replace("possible", "very likely") for b in out["bullets"]]}
-    out["text"] = out["text"].replace("P 31%", "P 92%")
+    out = {**out, "bullets": [b.replace("(P 30%)", "(P 92%)").replace("possible", "very likely") for b in out["bullets"]]}
+    out["text"] = out["text"].replace("P 30%", "P 92%")
     out["voice_script"] = out["voice_script"].replace("possible", "very likely")
     assert validate(out, inp, "warning") == (True, [])
     inp["zones"][0]["p_120"] = 0.75  # now "likely", so "very likely" is wrong, and only that

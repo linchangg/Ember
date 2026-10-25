@@ -1,7 +1,8 @@
 # Dashboard connection — Phase C
 
 Owner confirmed this phase with “yes.” Implementation is on `feat/dashboard-phase-c`,
-based on Phase B `3cd12f2` and main `2181e1b`. This branch does not change main.
+based on Phase B `3cd12f2`, with updated main `2a62206` integrated before publication.
+This branch does not change main.
 Phase D needs a separate direct confirmation.
 
 ## Delivered behavior
@@ -41,6 +42,13 @@ invented numbers next to engine output. Scientific readiness remains experimenta
 
 No frozen contracts, physics solver, likelihood defaults or alert delivery behavior
 changed. This is a renderer of existing forecasts, not a new model or live hub client.
+
+The latest main merge preserves Linda's scenario-backed homepage, replay clock,
+street basemap, size-aware globe fitting, and refreshed 50-member analytic fixture.
+Package scripts/dependencies combine her basemap command and SpacetimeDB dependency
+with the Phase C tests, strict checking and proj4. Removed one unused `maskCv` canvas
+declaration from the updated globe because it failed warning-free lint; no drawing
+behavior used it. Main's fixture-spec update is inherited, not a new wire change.
 
 ## Reproduce and verify
 

@@ -645,7 +645,7 @@ EMBERLINE_PROFILE=online                          # online | offline
 |---|---|
 | Grid | Eaton extent (§2 corners), **120×120, cell_m = 255**. The manifest declares 120×120. |
 | Timing | `t_ignition` = 2025-01-08T02:15Z. `replay_start` = 02:00Z. 3 pre-ignition bundles (02:00, 02:05, 02:10; `cycle: null`, scan events only) then **36 cycles** every 5 min from 02:20Z. |
-| Fire | Analytic ellipse from (−118.088, 34.205), heading 240° (toward the SW), head ROS 1.2 km/h, L:W 3. 16 synthetic members (±15% ROS, ±10° heading) give quantiles directly. Write `arrival_q.bin`, `perimeter.geojson` (both features), `isochrones.geojson`, and `danger` exactly per §4. |
+| Fire | Analytic ellipse from (−118.088, 34.205), heading 240° (toward the SW), head ROS 1.2 km/h, L:W 3. 50 seeded synthetic members (ROS ~±18%, heading ±8° with a 20% wind-shift tail to ±25°, ignition ±250 m) give quantiles directly. Write `arrival_q.bin`, `perimeter.geojson` (both features), `isochrones.geojson`, and `danger` exactly per §4. |
 | Zones | 6 rectangles (~1.5 km) placed down the SW axis, so `FIX-Z2` crosses R1 at cycle 20 and `FIX-Z3` crosses R2 at cycle 30. `zone_risk` comes from the same member arrivals. |
 | Alerts | Cycle 20 bundle: a `proposed` R1 alert for FIX-Z2 with template text. Cycle 30: R2 for FIX-Z3. |
 | Static files | `manifest.json`, `zones.geojson`, `assets.geojson` (3 points), `timeline.json` (2 fake events), `sensors.json` (goes18_fdcc + viirs_n20), `satellites.json` (GOES-18 geo, NOAA-20 with a placeholder TLE), `area_x.geojson`, `spawn_points.json` (`{"demo": [6 points]}`). Terrain: flat Terrarium PNG (RGB 128,0,0 = 0 m) 256² + a gray 512² JPEG; `texture_date: "fixture"`. `scans_dir: null`. |

@@ -1,0 +1,58 @@
+{
+  "phase": "C",
+  "date": "2026-10-24",
+  "branch": "feat/dashboard-phase-c",
+  "main_integrated": "2a62206",
+  "synthetic": true,
+  "model_version": "rust-levelset-pf-1",
+  "config_hash": null,
+  "sample_cycle_id": "cyc_rust-fixture_main_1736313300000",
+  "node": "24.22.1",
+  "canonical_fixture_web_tests": {
+    "passed": 34,
+    "failed": 0
+  },
+  "rust_fixture_web_tests": {
+    "passed": 34,
+    "failed": 0
+  },
+  "typecheck": "passed",
+  "lint_deny_warnings": "passed",
+  "production_file_build": "passed with existing large map chunk warning",
+  "http_source": {
+    "phase": "B",
+    "source": "FileSource",
+    "transport": "HTTP",
+    "scenario": "rust-fixture",
+    "forecast_cycles": 36,
+    "preignition_cycles": 3,
+    "observations": 111,
+    "alerts": 5,
+    "atomic_cycles": true,
+    "backward_seek": true,
+    "renderer_connected": false
+  },
+  "independent_decoder": {
+    "scenario": "rust-fixture",
+    "forecast_cycles": 36,
+    "preignition_cycles": 3,
+    "observations": 111,
+    "alerts": 7,
+    "raster_bytes": 72000,
+    "frontend_contract": "passed",
+    "transport": "filesystem"
+  },
+  "projection_golden_tolerance_m": 0.1,
+  "browser": {
+    "observed": [
+      "Rust probability raster and published vectors",
+      "q50 selection and legend"
+    ],
+    "final_acceptance": "partial; browser control unavailable before final fit/accessibility checks",
+    "screenshot": null,
+    "browser_ci": "not implemented"
+  },
+  "science_skill": "not established",
+  "performance_targets": "not established",
+  "phase_d": "awaits new explicit confirmation"
+}

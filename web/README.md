@@ -5,11 +5,12 @@ npm install
 npm run dev
 ```
 
-- `/` — historical-event globe with labeled simulated Eaton spread (`/?focus=eaton`)
+- `/` — scenario-backed globe and replay clock from current main
 - `/dashboard` — Sierra Vista mock by default; experimental Rust forecast map in explicit file mode
 - `/compare` — globe stack bake-off (Cesium · MapLibre+Three · Hybrid)
 
-Real elevation: Esri WorldElevation3D (Cesium) and AWS Terrarium DEM (MapLibre). Fire overlays are synthetic.
+Comparison routes use Esri WorldElevation3D (Cesium) and AWS Terrarium DEM (MapLibre).
+Forecast source labels identify synthetic fixtures; the Phase C map uses a flat surface.
 
 The dashboard consumes Rust HazardModel schema-v2 bundles in explicit file mode.
 The full Rust fixture and integration instructions are in

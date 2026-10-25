@@ -13,8 +13,8 @@
     "created_wall_ms": 1792868400000,
     "source": "cache",
     "filter_mode": "none",
-    "n_members": 16,
-    "ess": 16.0,
+    "n_members": 50,
+    "ess": 50.0,
     "tempering_alpha": 1.0,
     "resampled": false,
     "n_obs_by_kind": {
@@ -34,76 +34,44 @@
           [
             [
               [
-                -118.101065,
-                34.207802
+                -118.103832,
+                34.207777
               ],
               [
-                -118.101035,
-                34.205502
+                -118.103802,
+                34.205478
               ],
               [
-                -118.109337,
-                34.205428
+                -118.114872,
+                34.205377
               ],
               [
-                -118.109307,
-                34.203128
+                -118.117579,
+                34.200754
               ],
               [
-                -118.114842,
-                34.203078
+                -118.123114,
+                34.200703
               ],
               [
-                -118.114812,
-                34.200779
+                -118.123083,
+                34.198404
               ],
               [
-                -118.120346,
-                34.200728
+                -118.12585,
+                34.198378
               ],
               [
-                -118.125789,
-                34.19378
+                -118.128434,
+                34.184557
               ],
               [
-                -118.128556,
-                34.193754
-              ],
-              [
-                -118.128495,
-                34.189156
-              ],
-              [
-                -118.131262,
-                34.18913
-              ],
-              [
-                -118.131231,
-                34.186831
-              ],
-              [
-                -118.125698,
-                34.186882
-              ],
-              [
-                -118.125636,
-                34.182283
+                -118.1229,
+                34.184608
               ],
               [
                 -118.12287,
                 34.182309
-              ],
-              [
-                -118.122839,
-                34.180009
-              ],
-              [
-                -118.120073,
-                34.180035
-              ],
-              [
-                -118.120103,
-                34.182334
               ],
               [
                 -118.109036,
@@ -118,157 +86,8 @@
                 34.187108
               ],
               [
-                -118.095351,
-                34.194055
-              ],
-              [
-                -118.092584,
-                34.19408
-              ],
-              [
-                -118.092614,
-                34.196379
-              ],
-              [
-                -118.089847,
-                34.196404
-              ],
-              [
-                -118.089876,
-                34.198703
-              ],
-              [
-                -118.087109,
-                34.198728
-              ],
-              [
-                -118.087227,
-                34.207925
-              ],
-              [
-                -118.101065,
-                34.207802
-              ]
-            ]
-          ]
-        ]
-      },
-      "lead120_p30": {
-        "type": "MultiPolygon",
-        "coordinates": [
-          [
-            [
-              [
-                -118.1066,
-                34.207752
-              ],
-              [
-                -118.10657,
-                34.205453
-              ],
-              [
-                -118.114872,
-                34.205377
-              ],
-              [
-                -118.114842,
-                34.203078
-              ],
-              [
-                -118.120377,
-                34.203028
-              ],
-              [
-                -118.120346,
-                34.200728
-              ],
-              [
-                -118.125881,
-                34.200678
-              ],
-              [
-                -118.12585,
-                34.198378
-              ],
-              [
-                -118.131385,
-                34.198328
-              ],
-              [
-                -118.136827,
-                34.191378
-              ],
-              [
-                -118.139594,
-                34.191353
-              ],
-              [
-                -118.139563,
-                34.189053
-              ],
-              [
-                -118.142329,
-                34.189028
-              ],
-              [
-                -118.139501,
-                34.184455
-              ],
-              [
-                -118.142267,
-                34.184429
-              ],
-              [
-                -118.142237,
-                34.18213
-              ],
-              [
-                -118.136703,
-                34.182181
-              ],
-              [
-                -118.139408,
-                34.177557
-              ],
-              [
-                -118.136641,
-                34.177583
-              ],
-              [
-                -118.136611,
-                34.175283
-              ],
-              [
-                -118.120012,
-                34.175436
-              ],
-              [
-                -118.120042,
-                34.177735
-              ],
-              [
-                -118.114509,
-                34.177786
-              ],
-              [
-                -118.114539,
-                34.180085
-              ],
-              [
-                -118.109006,
-                34.180135
-              ],
-              [
-                -118.1063,
-                34.184759
-              ],
-              [
-                -118.100766,
-                34.184809
-              ],
-              [
-                -118.095322,
-                34.191756
+                -118.098089,
+                34.191731
               ],
               [
                 -118.092555,
@@ -295,26 +114,175 @@
                 34.207925
               ],
               [
-                -118.1066,
-                34.207752
+                -118.103832,
+                34.207777
+              ]
+            ]
+          ]
+        ]
+      },
+      "lead120_p30": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                -118.112135,
+                34.207702
+              ],
+              [
+                -118.112105,
+                34.205403
+              ],
+              [
+                -118.120407,
+                34.205327
+              ],
+              [
+                -118.120377,
+                34.203028
+              ],
+              [
+                -118.125911,
+                34.202977
+              ],
+              [
+                -118.128618,
+                34.198353
+              ],
+              [
+                -118.134152,
+                34.198302
+              ],
+              [
+                -118.136857,
+                34.193678
+              ],
+              [
+                -118.142392,
+                34.193626
+              ],
+              [
+                -118.14236,
+                34.191327
+              ],
+              [
+                -118.136827,
+                34.191378
+              ],
+              [
+                -118.136765,
+                34.18678
+              ],
+              [
+                -118.139532,
+                34.186754
+              ],
+              [
+                -118.139439,
+                34.179856
+              ],
+              [
+                -118.136672,
+                34.179882
+              ],
+              [
+                -118.136641,
+                34.177583
+              ],
+              [
+                -118.117245,
+                34.175461
+              ],
+              [
+                -118.117276,
+                34.177761
+              ],
+              [
+                -118.111743,
+                34.177811
+              ],
+              [
+                -118.109036,
+                34.182434
+              ],
+              [
+                -118.103503,
+                34.182484
+              ],
+              [
+                -118.098059,
+                34.189432
+              ],
+              [
+                -118.095292,
+                34.189457
+              ],
+              [
+                -118.095322,
+                34.191756
+              ],
+              [
+                -118.092555,
+                34.191781
+              ],
+              [
+                -118.092584,
+                34.19408
+              ],
+              [
+                -118.089817,
+                34.194105
+              ],
+              [
+                -118.089847,
+                34.196404
+              ],
+              [
+                -118.087079,
+                34.196429
+              ],
+              [
+                -118.087139,
+                34.201027
+              ],
+              [
+                -118.084371,
+                34.201052
+              ],
+              [
+                -118.08443,
+                34.20565
+              ],
+              [
+                -118.087198,
+                34.205626
+              ],
+              [
+                -118.087227,
+                34.207925
+              ],
+              [
+                -118.112135,
+                34.207702
               ]
             ]
           ]
         ]
       }
     },
-    "burned_ha": 260.1,
-    "front_km": 8.67,
-    "growth_ha_per_h": 156.06,
+    "burned_ha": 227.5875,
+    "front_km": 7.65,
+    "growth_ha_per_h": 312.12,
     "head_bearing_deg": 240.0,
     "params_summary": {
       "ros_mult": [
         1.0,
-        0.111803
+        0.165124
       ],
       "heading_deg": [
         240.0,
-        7.45356
+        16.14775
       ]
     },
     "model_version": "fixture-ellipse-1",
@@ -329,35 +297,35 @@
       "zone_id": "FIX-Z3",
       "knowledge_sim_ms": 1736312100000,
       "p_by_lead": [
-        0.125,
-        0.375,
-        0.625,
-        0.875,
-        0.9375,
-        1.0,
-        1.0,
-        1.0,
-        1.0,
-        1.0,
-        1.0,
-        1.0
+        0.18,
+        0.34,
+        0.52,
+        0.68,
+        0.74,
+        0.8,
+        0.82,
+        0.86,
+        0.88,
+        0.88,
+        0.9,
+        0.92
       ],
-      "eta_q10_sim_ms": 1736313868072,
-      "eta_q50_sim_ms": 1736316261350,
-      "eta_q90_sim_ms": 1736319928420,
-      "act_by_sim_ms": 1736312250746,
+      "eta_q10_sim_ms": 1736313509177,
+      "eta_q50_sim_ms": 1736316649701,
+      "eta_q90_sim_ms": 1736330525711,
+      "act_by_sim_ms": 1736312249989,
       "act_by_basis": "q30 arrival \u2212 45 min evac",
       "evac_min": 45.0,
       "population": 860,
       "housing": 300,
       "n_critical": 1,
       "tier": 2,
-      "risk_score": 4.476066,
+      "risk_score": 3.478543,
       "rank": 1,
       "status": "order",
       "trend": "flat",
       "drivers": [
-        "P 88% by +2h",
+        "P 68% by +2h",
         "school"
       ]
     },
@@ -368,35 +336,35 @@
       "zone_id": "FIX-Z2",
       "knowledge_sim_ms": 1736312100000,
       "p_by_lead": [
-        0.0,
-        0.3125,
-        0.5625,
-        0.875,
-        0.9375,
-        1.0,
-        1.0,
-        1.0,
-        1.0,
-        1.0,
-        1.0,
-        1.0
+        0.12,
+        0.3,
+        0.5,
+        0.64,
+        0.7,
+        0.78,
+        0.8,
+        0.8,
+        0.82,
+        0.86,
+        0.86,
+        0.92
       ],
-      "eta_q10_sim_ms": 1736314414855,
-      "eta_q50_sim_ms": 1736316923245,
-      "eta_q90_sim_ms": 1736320744569,
-      "act_by_sim_ms": 1736312849603,
+      "eta_q10_sim_ms": 1736313705366,
+      "eta_q50_sim_ms": 1736317392925,
+      "eta_q90_sim_ms": 1736332473517,
+      "act_by_sim_ms": 1736312850350,
       "act_by_basis": "q30 arrival \u2212 45 min evac",
       "evac_min": 45.0,
       "population": 420,
       "housing": 150,
       "n_critical": 0,
       "tier": 3,
-      "risk_score": 3.171247,
+      "risk_score": 2.319541,
       "rank": 2,
       "status": "order",
       "trend": "up",
       "drivers": [
-        "P 88% by +2h"
+        "P 64% by +2h"
       ]
     },
     {
@@ -408,33 +376,33 @@
       "p_by_lead": [
         0.0,
         0.0,
-        0.0,
-        0.0625,
-        0.1875,
-        0.3125,
-        0.375,
-        0.5,
-        0.625,
-        0.625,
-        0.6875,
-        0.6875
+        0.02,
+        0.08,
+        0.2,
+        0.3,
+        0.36,
+        0.44,
+        0.54,
+        0.58,
+        0.62,
+        0.62
       ],
-      "eta_q10_sim_ms": 1736320478917,
-      "eta_q50_sim_ms": 1736325781457,
+      "eta_q10_sim_ms": 1736319329264,
+      "eta_q50_sim_ms": 1736327523305,
       "eta_q90_sim_ms": null,
-      "act_by_sim_ms": 1736319671435,
+      "act_by_sim_ms": 1736320122475,
       "act_by_basis": "q30 arrival \u2212 45 min evac",
       "evac_min": 45.0,
       "population": 180,
       "housing": 70,
       "n_critical": 0,
       "tier": 3,
-      "risk_score": 0.203605,
+      "risk_score": 0.260614,
       "rank": 3,
       "status": "watch",
       "trend": "flat",
       "drivers": [
-        "P 6% by +2h"
+        "P 8% by +2h"
       ]
     },
     {
@@ -447,32 +415,32 @@
         0.0,
         0.0,
         0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.25,
-        0.5,
-        0.625,
-        0.75,
-        0.875,
-        1.0
+        0.02,
+        0.06,
+        0.14,
+        0.28,
+        0.36,
+        0.48,
+        0.54,
+        0.66,
+        0.72
       ],
-      "eta_q10_sim_ms": 1736323146946,
-      "eta_q50_sim_ms": 1736326371299,
-      "eta_q90_sim_ms": 1736331988075,
-      "act_by_sim_ms": 1736322413322,
+      "eta_q10_sim_ms": 1736321784315,
+      "eta_q50_sim_ms": 1736328865622,
+      "eta_q90_sim_ms": null,
+      "act_by_sim_ms": 1736322194856,
       "act_by_basis": "q30 arrival \u2212 45 min evac",
       "evac_min": 45.0,
       "population": 180,
       "housing": 70,
       "n_critical": 0,
       "tier": 3,
-      "risk_score": 0.0,
+      "risk_score": 0.065154,
       "rank": 4,
       "status": "watch",
       "trend": "flat",
       "drivers": [
-        "P 0% by +2h"
+        "P 2% by +2h"
       ]
     },
     {
@@ -488,17 +456,17 @@
         0.0,
         0.0,
         0.0,
-        0.0,
-        0.0,
-        0.125,
-        0.375,
-        0.375,
-        0.625
+        0.06,
+        0.12,
+        0.22,
+        0.3,
+        0.36,
+        0.48
       ],
-      "eta_q10_sim_ms": 1736327588600,
-      "eta_q50_sim_ms": 1736332131854,
+      "eta_q10_sim_ms": 1736325977570,
+      "eta_q50_sim_ms": null,
       "eta_q90_sim_ms": null,
-      "act_by_sim_ms": 1736327277991,
+      "act_by_sim_ms": 1736327307668,
       "act_by_basis": "q30 arrival \u2212 45 min evac",
       "evac_min": 45.0,
       "population": 180,
@@ -528,12 +496,12 @@
         0.0,
         0.0,
         0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.125
+        0.02,
+        0.08,
+        0.14,
+        0.24
       ],
-      "eta_q10_sim_ms": 1736332030497,
+      "eta_q10_sim_ms": 1736330170848,
       "eta_q50_sim_ms": null,
       "eta_q90_sim_ms": null,
       "act_by_sim_ms": null,
@@ -759,9 +727,9 @@
       "rule_text": "P(fire reaches zone within 1 h) \u2265 50%, or act-by time within 15 min",
       "cycle_id": "cyc_fixture_main_1736312100000",
       "triggered_sim_ms": 1736312100000,
-      "act_by_sim_ms": 1736312849603,
+      "act_by_sim_ms": 1736312850350,
       "state": "proposed",
-      "text": "DEMO REPLAY (Jan 2025). EVACUATION ORDER recommended \u2014 FIX-Z2: fire possible within 1 h (P 31%). Act by 21:07 PST. ~420 residents. Forecast 20:55, satellite data through 20:55.",
+      "text": "DEMO REPLAY (Jan 2025). EVACUATION ORDER recommended \u2014 FIX-Z2: fire possible within 1 h (P 30%). Act by 21:07 PST. ~420 residents. Forecast 20:55, satellite data through 20:55.",
       "voice_script": "This is an Emberline demo replay of January 2025. Briefing for the duty officer. Recommend an evacuation order for Fixture Z2. Fire is possible to reach the zone within 1 hour. Act by 9:07 PM. About 420 residents. This is decision support; you make the call. Say 'acknowledged' to confirm.",
       "draft_source": "template",
       "briefing_id": null,
@@ -785,9 +753,9 @@
       "rule_text": "P(fire reaches zone within 2 h) \u2265 30%",
       "cycle_id": "cyc_fixture_main_1736308500000",
       "triggered_sim_ms": 1736308500000,
-      "act_by_sim_ms": 1736312849603,
+      "act_by_sim_ms": 1736312850350,
       "state": "superseded",
-      "text": "DEMO REPLAY (Jan 2025). WARNING recommended \u2014 FIX-Z2: fire possible within 2 h (P 31%). Act by 21:07 PST. ~420 residents. Forecast 19:55, satellite data through 19:55.",
+      "text": "DEMO REPLAY (Jan 2025). WARNING recommended \u2014 FIX-Z2: fire possible within 2 h (P 30%). Act by 21:07 PST. ~420 residents. Forecast 19:55, satellite data through 19:55.",
       "voice_script": "This is an Emberline demo replay of January 2025. Briefing for the duty officer. Recommend a warning for Fixture Z2. Fire is possible to reach the zone within 2 hours. Act by 9:07 PM. About 420 residents. This is decision support; you make the call. Say 'acknowledged' to confirm.",
       "draft_source": "template",
       "briefing_id": null,
@@ -856,7 +824,7 @@
       "stage": "alert",
       "actor": "fixture",
       "level": "notice",
-      "message": "FIXTURE FIX-Z2 crossed R2 (P 31% by +1h)",
+      "message": "FIXTURE FIX-Z2 crossed R2 (P 30% by +1h)",
       "ref_kind": "alert",
       "ref_id": "al_main_FIX-Z2_R2_ORDER_1736312100000",
       "duration_ms": null
