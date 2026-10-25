@@ -58,3 +58,5 @@ Format: `Sat 13:05 · Cody · C0 contracts + fixture merged (PR #3) · Cursor ag
 
 2026-10-25: Integrated Cody’s Eaton source/cache commits through 655b775; verified 22 HRRR checksums, causal selection at all 157 issues, and two-member real-input Rust PF smoke (186 used observations). Independent perimeter skill and target latency remain open.
 Latest data-integrated engine suite: 311 passed, 18 skipped (44.66 s); one previously skipped real-data test now runs with committed forcing.
+
+2026-10-25: Reconciled dashboard plan, Phase E status, Rust next tasks and release readiness after PR #11/main 0308ba8. Marked A–E complete, recorded data/CI evidence and partial Eaton cache, and retained independent-truth, calibration, latency and service gates. Documentation only.

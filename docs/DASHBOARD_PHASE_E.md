@@ -1,5 +1,9 @@
 # Phase E — runtime and live hub connection
 
+Post-merge status (2026-10-25): merged through PR #11 at main `0308ba8`; all five
+PR checks passed. The scope description below records what Phase E originally changed.
+Current remaining gates are in `RELEASE_READINESS.md`.
+
 Approved by the owner's “yes” after Phase D. Based on `6c1abe7`; implemented on
 `feat/dashboard-phase-e`. This extends the restored original A–D plan. It does not
 merge main, change frozen shared wire types, deploy a service, or establish scientific

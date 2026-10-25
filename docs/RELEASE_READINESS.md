@@ -1,5 +1,9 @@
 # Integration and remaining release gates
 
+Merged via [PR #11](https://github.com/linchangg/Legendary-Fire-Project/pull/11)
+on 2026-10-25, main `0308ba8`. All five PR checks passed. Local engine suite:
+311 passed / 18 skipped; full synthetic fixture, report branch and decoder passed.
+
 The integration preserves main's globe UI, Eaton statics, VIIRS ingestion, documented
 report inputs, official evacuation-time comparison and precomputed duty-officer cards.
 Connected forecast panels and explicit file/hub sources remain at `/dashboard`.
@@ -17,6 +21,14 @@ Reproduce with `python -m emberline.hazard.benchmark --out NEW_PATH --members 12
 profile member propagation, move authoritative state incrementally, cache forcing and
 landscape transforms, then consider bounded active regions. Measure isolated repeated
 warm runs and process-tree memory before changing the performance claim.
+
+## Replay coverage
+
+The committed Eaton main cache contains 80 of 157 replay issues, ending at
+2025-01-08 08:35 UTC. All 80 bundles pass schema and observation-availability checks.
+Complete and verify the intended branch caches before claiming a complete Eaton demo.
+Use a separate cache root for regenerated outputs and retain their actual model,
+configuration and environment identity.
 
 ## Real-data and scientific gate
 
