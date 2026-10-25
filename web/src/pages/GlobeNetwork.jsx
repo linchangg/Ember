@@ -421,7 +421,7 @@ export default function GlobeNetwork() {
     let lastEntry = null
     let cellH = null
     const fireCv = document.createElement('canvas')
-    const maskCv = document.createElement('canvas')
+    const _maskCv = document.createElement('canvas')
     const lineCv = document.createElement('canvas')
     const labelQ = []
     let base = null
