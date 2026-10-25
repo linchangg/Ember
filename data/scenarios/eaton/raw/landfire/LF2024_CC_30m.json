@@ -1,0 +1,6 @@
+{
+  "url": "https://lfps.usgs.gov/arcgis/rest/services/Landfire_LF2024/LF2024_CC_CONUS/ImageServer/exportImage?bbox=381480%2C3769680%2C412080%2C3800280&bboxSR=32611&imageSR=32611&size=1020%2C1020&format=tiff&pixelType=S16&noData=-9999&interpolation=RSP_NearestNeighbor&f=image&renderingRule=%7B%22rasterFunction%22%3A+%22None%22%7D",
+  "layer": "LF2024_CC_CONUS",
+  "vintage": "LANDFIRE 2024 Update (LF2024), pre-fire: over the Eaton scar 6.1% of 30 m FBFM40 cells differ LF2023->LF2024 vs 59% LF2024->LF2025, so LF2025 shows the burn and LF2024 does not",
+  "retrieved_utc": "2026-10-25T05:55:39Z"
+}
