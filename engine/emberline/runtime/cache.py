@@ -6,18 +6,13 @@ import hashlib
 import io
 import json
 import os
-from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
 
-from emberline.contracts import ObservationRecord
-
 REPO = Path(__file__).resolve().parents[3]
 DEFAULT_ROOT = REPO / "cache"
-# Transport metadata, not evidence: the same set hazard/model.py leaves out of its own evidence fingerprint.
-NOT_EVIDENCE = {"branch_id", "status", "cycle_id", "influence"}
 
 
 @dataclass
@@ -31,28 +26,18 @@ class PhysicsOutput:
     events: list[dict]  # ActivityEvent dicts
     key: str
     cached: bool = False
-    forcing: dict | None = None  # the cycle's forcing audit: file, sha256 and selected bands (physics.json only)
-    identity: dict | None = None  # run_hash + model code identity that produced it (physics.json only)
-
-
-def evidence_hash(o: ObservationRecord) -> str:
-    """sha256 of the record's canonical JSON, so a changed payload under a reused obs_id changes the key."""
-    payload = o.model_dump(mode="json", exclude=NOT_EVIDENCE)
-    return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
 
 
 def cycle_key(
     prev_key: str | None,
-    evidence: list[str],
+    new_obs_ids: list[str],
     model_version: str,
     config_hash: str | None,
     seed: int,
     filter_mode: str,
-    forcing: dict | None = None,
 ) -> str:
-    """Chained: sha256(prev key, sorted evidence hashes, model identity, scenario/config hash, seed, filter, forcing audit)."""
-    payload = [prev_key, sorted(evidence), model_version, config_hash, seed, filter_mode, forcing]
-    return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
+    payload = [prev_key, sorted(new_obs_ids), model_version, config_hash, seed, filter_mode]
+    return hashlib.sha256(json.dumps(payload, separators=(",", ":")).encode("utf-8")).hexdigest()
 
 
 def _write_atomic(path: Path, data: bytes) -> None:
@@ -78,8 +63,7 @@ def save_cycle(root: Path, scn: str, branch: str, k_ms: int, out: PhysicsOutput)
     # physics.json last: its key is what marks the cycle as complete.
     _write_json(
         d / "physics.json",
-        {"cycle": out.cycle, "obs_status": out.obs_status, "scans": out.scans, "events": out.events,
-         "forcing": out.forcing, "identity": out.identity, "key": out.key},
+        {"cycle": out.cycle, "obs_status": out.obs_status, "scans": out.scans, "events": out.events, "key": out.key},
     )
 
 
@@ -104,8 +88,6 @@ def load_cycle(root: Path, scn: str, branch: str, k_ms: int, expect_key: str) ->
         events=phys["events"],
         key=phys["key"],
         cached=True,
-        forcing=phys.get("forcing"),
-        identity=phys.get("identity"),
     )
 
 
@@ -113,28 +95,19 @@ def _checkpoint_dir(root: Path, scn: str, branch: str) -> Path:
     return Path(root) / scn / branch / "checkpoints"
 
 
-def save_checkpoint(root: Path, scn: str, branch: str, k_ms: int, blob: bytes, key: str | None = None) -> None:
-    """checkpoints/{k}.npz, plus {k}.key = the cycle key it was saved under (its lineage), if given."""
-    d = _checkpoint_dir(root, scn, branch)
-    (d / f"{k_ms}.key").unlink(missing_ok=True)  # never leave an old lineage's key next to a new blob
-    _write_atomic(d / f"{k_ms}.npz", blob)
-    if key is not None:
-        _write_atomic(d / f"{k_ms}.key", key.encode("utf-8"))
+def save_checkpoint(root: Path, scn: str, branch: str, k_ms: int, blob: bytes) -> None:
+    _write_atomic(_checkpoint_dir(root, scn, branch) / f"{k_ms}.npz", blob)
 
 
-def latest_checkpoint(
-    root: Path, scn: str, branch: str, at_or_before_ms: int, key_for: Callable[[int], str | None] | None = None
-) -> tuple[int, bytes] | None:
-    """Newest checkpoint <= at_or_before_ms; with key_for, only one saved under key_for(k) (same lineage)."""
+def latest_checkpoint(root: Path, scn: str, branch: str, at_or_before_ms: int) -> tuple[int, bytes] | None:
     d = _checkpoint_dir(root, scn, branch)
     if not d.is_dir():
         return None
     ks = [int(p.stem) for p in d.glob("*.npz") if p.stem.isdigit() and int(p.stem) <= at_or_before_ms]
-    for k in sorted(ks, reverse=True):
-        side = d / f"{k}.key"
-        if key_for is None or (side.exists() and side.read_text(encoding="utf-8") == key_for(k)):
-            return k, (d / f"{k}.npz").read_bytes()
-    return None
+    if not ks:
+        return None
+    k = max(ks)
+    return k, (d / f"{k}.npz").read_bytes()
 
 
 def write_index(root: Path, scn: str, branch: str) -> Path:

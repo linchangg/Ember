@@ -6,10 +6,10 @@ already be in the input; anything else sends the alert back to its template.
 
 import re
 
-from emberline.risk.alerts import P_WORDS, p_words
-
 BANNED = ("will reach", "will burn", "guaranteed", "certain", "would have saved", "evacuate now")
 
+# Same table as risk/alerts.py (spec/03 §8); duplicated so ai/ has no dependency on risk/.
+P_WORDS = ((0.9, "very likely"), (0.7, "likely"), (0.5, "more likely than not"), (0.3, "possible"))
 _PHRASES = sorted([w for _, w in P_WORDS] + ["unlikely"], key=len, reverse=True)
 
 TEXT_PREFIX = "DEMO REPLAY (Jan 2025)."
@@ -20,6 +20,13 @@ _TIME = re.compile(r"\b(\d{1,2}):(\d{2})(?:\s?([AaPp])\.?[Mm]\.?)?")
 _PCT = re.compile(r"\b(\d{1,3}(?:\.\d+)?)\s?%")
 _ZONE = re.compile(r"\b[A-Z][A-Z0-9]+-[A-Z0-9-]+\b")
 _NUM = re.compile(r"\b\d[\d,]*(?:\.\d+)?\b")
+
+
+def p_words(p: float) -> str:
+    for threshold, words in P_WORDS:
+        if p >= threshold:
+            return words
+    return "unlikely"
 
 
 def _norm_num(s: str) -> str:

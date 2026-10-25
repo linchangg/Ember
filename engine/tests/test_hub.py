@@ -124,7 +124,7 @@ COUNTED = ["cycle", "cycle_head", "zone_risk", "observation", "scan_event", "sen
 
 
 async def counts(hub: StdbHttp) -> dict[str, int]:
-    return {t: len(await rows(hub, f"SELECT * FROM {t} WHERE scenario_id = '{SCN}'")) for t in COUNTED}
+    return {t: len(await rows(hub, f"SELECT * FROM {t}")) for t in COUNTED}
 
 
 def z2_r1() -> str:
@@ -184,15 +184,15 @@ def test_3_reset_then_republish() -> None:
         assert acked["state"] == "acknowledged" and acked["acked_sim_ms"] is not None
 
         await hub.call("reset_scenario", SCN, PIN)
-        assert await rows(hub, f"SELECT * FROM person WHERE scenario_id = '{SCN}'") == []
-        assert await rows(hub, f"SELECT * FROM report WHERE scenario_id = '{SCN}'") == []
-        assert [b["branch_id"] for b in await rows(hub, f"SELECT * FROM branch WHERE scenario_id = '{SCN}'")] == ["main"]
-        assert await rows(hub, f"SELECT * FROM alert WHERE scenario_id = '{SCN}'") == []
-        assert all(s["taken_by"] is None for s in await rows(hub, f"SELECT * FROM spawn_point WHERE scenario_id = '{SCN}'"))
+        assert await rows(hub, "SELECT * FROM person") == []
+        assert await rows(hub, "SELECT * FROM report") == []
+        assert [b["branch_id"] for b in await rows(hub, "SELECT * FROM branch")] == ["main"]
+        assert await rows(hub, "SELECT * FROM alert") == []
+        assert all(s["taken_by"] is None for s in await rows(hub, "SELECT * FROM spawn_point"))
         c = await clock(hub)
         assert not c["playing"] and c["anchor_sim_ms"] == MANIFEST["replay_start_sim_ms"]
         assert c["active_branch_id"] == "main"
-        cmds = await rows(hub, f"SELECT * FROM command WHERE scenario_id = '{SCN}'")
+        cmds = await rows(hub, "SELECT * FROM command")
         assert [x["kind"] for x in cmds] == ["reset"]
 
         await hub.publish_bundle(cycle(20))
@@ -213,11 +213,11 @@ def test_4_rewind() -> None:
             "scan_event": "t_start_sim_ms", "alert": "triggered_sim_ms",
         }
         for table, col in checks.items():
-            got = await rows(hub, f"SELECT * FROM {table} WHERE scenario_id = '{SCN}'")
+            got = await rows(hub, f"SELECT * FROM {table}")
             assert got and all(r[col] <= cut for r in got), table
         expected_cycles = sum(1 for b in ALL if b.cycle and b.knowledge_sim_ms <= cut)
-        assert len(await rows(hub, f"SELECT * FROM cycle WHERE scenario_id = '{SCN}'")) == expected_cycles
-        (head,) = await rows(hub, f"SELECT * FROM cycle_head WHERE scenario_id = '{SCN}'")
+        assert len(await rows(hub, "SELECT * FROM cycle")) == expected_cycles
+        (head,) = await rows(hub, "SELECT * FROM cycle_head")
         assert head["knowledge_sim_ms"] == cut
         assert (await clock(hub))["epoch"] == epoch + 1
 
@@ -228,15 +228,11 @@ def test_5_computing_keeps_sim_time_continuous() -> None:
     async def body(hub: StdbHttp, _: StdbHttp) -> None:
         await hub.call("clock_play", SCN, PIN)
         await asyncio.sleep(0.3)
-        playing = await clock(hub)
-        before = sim_now(playing, time.time() * 1000)
+        before = sim_now(await clock(hub), time.time() * 1000)
         await hub.set_clock_status(SCN, "computing")
         computing = await clock(hub)
         assert not computing["playing"] and computing["resume_playing"]
-        # Hub-only continuity: re-anchoring never moves sim time backwards.
-        assert computing["anchor_sim_ms"] >= playing["anchor_sim_ms"]
-        # Cross-process check: Python's and the hub's wall clocks differ by a few ms, so allow 50 wall-ms of skew.
-        assert computing["anchor_sim_ms"] >= before - 50 * playing["speed"]
+        assert computing["anchor_sim_ms"] >= before - 1
         await asyncio.sleep(0.3)
         await hub.set_clock_status(SCN, "ok")
         ok = await clock(hub)
@@ -253,7 +249,7 @@ def test_6_new_proposal_pauses_clock() -> None:
         assert (await clock(hub))["playing"]
         await hub.publish_bundle(cycle(18))  # new FIX-Z3 R1 proposal
         assert not (await clock(hub))["playing"]
-        msgs = [e["message"] for e in await rows(hub, f"SELECT * FROM activity_event WHERE scenario_id = '{SCN}'")]
+        msgs = [e["message"] for e in await rows(hub, "SELECT * FROM activity_event")]
         assert "Clock paused for operator review" in msgs
 
     run(body)
@@ -380,10 +376,10 @@ def test_10_remaining_reducers_smoke() -> None:
 
         await hub.call("join_as_person", SCN, "per_smoke001", "demo", "Judge")
         await hub.call("join_as_person", SCN, "per_smoke001", "demo", "Judge")  # idempotent
-        (p,) = await rows(hub, f"SELECT * FROM person WHERE scenario_id = '{SCN}'")
+        (p,) = await rows(hub, "SELECT * FROM person")
         assert p["zone_id"] == "FIX-Z3" and p["kind"] == "judge" and p["provenance"] == "simulated"
         await hub.call("set_person_status", "per_smoke001", "safe")
-        assert (await rows(hub, f"SELECT * FROM person WHERE scenario_id = '{SCN}'"))[0]["status"] == "safe"
+        assert (await rows(hub, "SELECT * FROM person"))[0]["status"] == "safe"
 
         await hub.submit_report_engine(
             {"report_id": "rep_smoke001", "scenario_id": SCN, "branch_id": "main", "person_id": None,
@@ -424,12 +420,12 @@ def test_12_reset_clears_feed_and_pause_logs_again() -> None:
         paused = "Clock paused for operator review"
 
         async def pause_events() -> int:
-            return sum(e["message"] == paused for e in await rows(hub, f"SELECT * FROM activity_event WHERE scenario_id = '{SCN}'"))
+            return sum(e["message"] == paused for e in await rows(hub, "SELECT * FROM activity_event"))
 
         await hub.publish_bundle(cycle(18))
         assert await pause_events() == 1
         await hub.call("reset_scenario", SCN, PIN)
-        assert await rows(hub, f"SELECT * FROM activity_event WHERE scenario_id = '{SCN}'") == []
+        assert await rows(hub, "SELECT * FROM activity_event") == []
         await hub.publish_bundle(cycle(18))  # same alert_id is proposed again
         assert await pause_events() == 1
 

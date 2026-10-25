@@ -8,7 +8,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from emberline.ai.briefing import draft, fixture_input, input_hash, load_env, make_client
+from emberline.ai.briefing import draft, fixture_input, input_hash
 
 INPUTS = Path(__file__).parent / "data" / "briefing_inputs"
 ZONE_KEYS = {
@@ -16,19 +16,14 @@ ZONE_KEYS = {
     "evac_min", "population", "critical", "egress_roads", "trend",
 }  # fmt: skip
 
-def _live_ready() -> bool:
-    if not os.environ.get("EMBERLINE_LIVE_TESTS"):
-        return False
-    load_env()
-    return bool(os.environ.get("OPENROUTER_API_KEY") or os.environ.get("ANTHROPIC_API_KEY"))
-
-
-needs_live = pytest.mark.skipif(not _live_ready(), reason="live Claude")
+needs_live = pytest.mark.skipif(
+    not (os.environ.get("EMBERLINE_LIVE_TESTS") and os.environ.get("ANTHROPIC_API_KEY")),
+    reason="live Claude",
+)
 
 
 def fake_client(payload: dict | None = None, exc: Exception | None = None):
     async def create(**kwargs):
-        calls.append(kwargs)
         assert not {"temperature", "top_p", "top_k", "tool_choice"} & set(kwargs)
         if exc:
             raise exc
@@ -37,8 +32,7 @@ def fake_client(payload: dict | None = None, exc: Exception | None = None):
             content=[SimpleNamespace(type="thinking"), SimpleNamespace(type="text", text=json.dumps(payload))],
         )
 
-    calls: list[dict] = []
-    return SimpleNamespace(messages=SimpleNamespace(create=create), calls=calls)
+    return SimpleNamespace(messages=SimpleNamespace(create=create))
 
 
 def good_output(inp: dict) -> dict:
@@ -99,32 +93,6 @@ def test_draft_client_error_never_raises() -> None:
     assert brf.text == alert.text
 
 
-def test_model_from_env_is_sent_and_recorded(monkeypatch: pytest.MonkeyPatch) -> None:
-    inp, alert, cycle = fixture_input(20)
-    monkeypatch.setenv("EMBERLINE_BRIEFING_MODEL", "anthropic/claude-sonnet-5.5")
-    client = fake_client(good_output(inp))
-    brf = asyncio.run(draft(inp, alert, cycle, client=client))
-    assert client.calls[0]["model"] == brf.model == "anthropic/claude-sonnet-5.5"
-    monkeypatch.delenv("EMBERLINE_BRIEFING_MODEL")
-    assert asyncio.run(draft(inp, alert, cycle, client=fake_client(good_output(inp)))).model == "claude-sonnet-5-5"
-
-
-def test_make_client_prefers_openrouter(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("ANTHROPIC_BASE_URL", "https://openrouter.ai/api")
-    monkeypatch.setenv("OPENROUTER_API_KEY", "sk-or-test")
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    c = make_client()
-    assert c.auth_token == "sk-or-test" and c.api_key is None and str(c.base_url).startswith("https://openrouter.ai/api")
-    assert c.max_retries == 0
-    monkeypatch.setenv("ANTHROPIC_BASE_URL", "https://api.anthropic.com")  # Claude Code's shell sets this
-    assert str(make_client().base_url).startswith("https://openrouter.ai/api")  # key never goes elsewhere
-    monkeypatch.delenv("OPENROUTER_API_KEY")
-    monkeypatch.delenv("ANTHROPIC_BASE_URL")
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
-    c = make_client()
-    assert c.api_key == "sk-ant-test" and c.auth_token is None
-
-
 @needs_live
 def test_live_smoke() -> None:
     results = []
@@ -132,6 +100,6 @@ def test_live_smoke() -> None:
         inp, alert, cycle = fixture_input(n)
         results.append((n, asyncio.run(draft(inp, alert, cycle))))
     for n, brf in results:
-        print(f"c{n} {brf.model} {'GROUNDED' if brf.grounded else 'FALLBACK'}: {brf.unmatched_tokens}")
-        print(f"  headline: {brf.headline}\n  bullets: {brf.bullets}\n  text: {brf.text}\n  voice: {brf.voice_script}")
+        if not brf.grounded:
+            print(f"c{n} FALLBACK: {brf.unmatched_tokens}")
     assert sum(brf.grounded for _, brf in results) >= 2

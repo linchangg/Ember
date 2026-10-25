@@ -3,37 +3,29 @@
 Claude only rephrases the alert. Every number it writes is checked by
 ai/validate.py; on any failure the alert keeps its template text.
 
-CLI (one real call; needs OPENROUTER_API_KEY or ANTHROPIC_API_KEY in env or engine/.env):
+CLI (one real call, needs ANTHROPIC_API_KEY):
     uv run python -m emberline.ai.briefing --fixture-cycle 20
-
-Config (env): EMBERLINE_BRIEFING_MODEL (default claude-sonnet-5-5), ANTHROPIC_BASE_URL
-(e.g. https://openrouter.ai/api), OPENROUTER_API_KEY (sent as a bearer token) else ANTHROPIC_API_KEY.
 """
 
 import argparse
 import asyncio
 import hashlib
 import json
-import logging
 import os
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from urllib.parse import urlparse
 
 import anthropic
 
 from emberline.ai.validate import validate
 from emberline.contracts import Alert, Briefing, Cycle, CycleBundle, SensorInfo, ZoneRisk, lead_idx
 
-DEFAULT_MODEL = "claude-sonnet-5-5"
-OPENROUTER_URL = "https://openrouter.ai/api"
-PROMPT_VERSION = "briefing_v2"
+MODEL = "claude-sonnet-5-5"
+PROMPT_VERSION = "briefing_v1"
 MAX_INPUT_CHARS = 4096
 HONESTY = "Retrospective replay of Jan 7–8 2025. Decision support only."
 CRITICAL_TYPES = ("hospital", "nursing_home", "assisted_living", "school")  # spec/01 §6 n_critical
-
-log = logging.getLogger(__name__)
 
 ENGINE = Path(__file__).resolve().parents[2]
 REPO = ENGINE.parent
@@ -133,44 +125,18 @@ def load_env(path: Path = ENGINE / ".env") -> None:
             os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
 
 
-def model_name() -> str:
-    return os.environ.get("EMBERLINE_BRIEFING_MODEL") or DEFAULT_MODEL
-
-
-def make_client() -> anthropic.AsyncAnthropic:
-    """OpenRouter (bearer auth_token) if OPENROUTER_API_KEY is set, else Anthropic (api_key)."""
-    # max_retries=0: spec/05 §1 allows one retry, done by _call_with_retry; SDK retries would add hidden calls.
-    base_url = os.environ.get("ANTHROPIC_BASE_URL") or None
-    kwargs: dict = {"timeout": 20.0, "max_retries": 0}
-    if key := os.environ.get("OPENROUTER_API_KEY"):
-        # The OpenRouter key only ever goes to OpenRouter. A shell ANTHROPIC_BASE_URL (Claude Code sets
-        # https://api.anthropic.com) wins over engine/.env, which would send this key to Anthropic.
-        if not base_url or urlparse(base_url).hostname != "openrouter.ai":
-            log.warning("OPENROUTER_API_KEY set but ANTHROPIC_BASE_URL is not openrouter.ai; using %s", OPENROUTER_URL)
-            base_url = OPENROUTER_URL
-        return anthropic.AsyncAnthropic(auth_token=key, base_url=base_url, **kwargs)
-    kwargs["base_url"] = base_url
-    return anthropic.AsyncAnthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"), **kwargs)
-
-
 class _Retryable(Exception):
     pass
 
 
-async def _call(client, inp: dict, model: str) -> dict:
-    log.info("briefing call model=%s", model)
+async def _call(client, inp: dict) -> dict:
     resp = await client.messages.create(
-        model=model,
+        model=MODEL,
         max_tokens=2000,
         thinking={"type": "between_tools"},
         system=SYSTEM_PROMPT,
         messages=[{"role": "user", "content": json.dumps(inp, ensure_ascii=False)}],
         output_config={"format": {"type": "json_schema", "schema": SCHEMA}},
-    )
-    usage = getattr(resp, "usage", None)
-    log.info(
-        "briefing usage input_tokens=%s output_tokens=%s stop=%s",
-        getattr(usage, "input_tokens", None), getattr(usage, "output_tokens", None), resp.stop_reason,
     )
     if resp.stop_reason == "refusal":
         raise _Retryable("refusal")
@@ -186,12 +152,11 @@ async def _call(client, inp: dict, model: str) -> dict:
     return data
 
 
-async def _call_with_retry(client, inp: dict, model: str) -> dict:
+async def _call_with_retry(client, inp: dict) -> dict:
     try:
-        return await _call(client, inp, model)
-    except _Retryable as e:
-        log.info("briefing retry after %s", e)
-        return await _call(client, inp, model)
+        return await _call(client, inp)
+    except _Retryable:
+        return await _call(client, inp)
 
 
 async def draft(inp: dict, alert: Alert, cycle: Cycle, client=None) -> Briefing:
@@ -199,16 +164,12 @@ async def draft(inp: dict, alert: Alert, cycle: Cycle, client=None) -> Briefing:
     t0 = time.perf_counter()
     data: dict | None = None
     unmatched: list[str] = []
-    if client is None:
-        load_env()
-    model = model_name()
     try:
         if client is None:
-            client = make_client()
-        out = await _call_with_retry(client, inp, model)
+            load_env()
+            client = anthropic.AsyncAnthropic(timeout=20.0)
+        out = await _call_with_retry(client, inp)
         ok, unmatched = validate(out, inp, alert.level)
-        if not ok:
-            log.info("Claude draft rejected by validator → template used: %s; draft=%s", unmatched, json.dumps(out))
         data = out if ok else None
     except Exception as e:  # noqa: BLE001: the engine loop must never crash because of Claude
         detail = f" {e}" if isinstance(e, _Retryable) else ""
@@ -227,7 +188,7 @@ async def draft(inp: dict, alert: Alert, cycle: Cycle, client=None) -> Briefing:
         branch_id=alert.branch_id,
         cycle_id=cycle.cycle_id,
         alert_id=alert.alert_id,
-        model=model,
+        model=MODEL,
         prompt_version=PROMPT_VERSION,
         input_hash=input_hash(inp),
         headline=data["headline"],
@@ -287,8 +248,6 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="One Claude briefing on a fixture cycle.")
     ap.add_argument("--fixture-cycle", type=int, required=True)
     args = ap.parse_args()
-    logging.basicConfig(level=logging.INFO, format="%(message)s")
-    logging.getLogger("httpx").setLevel(logging.WARNING)
     inp, alert, cycle = fixture_input(args.fixture_cycle)
     print(json.dumps(inp, indent=2, ensure_ascii=False))
     brf = asyncio.run(draft(inp, alert, cycle))
