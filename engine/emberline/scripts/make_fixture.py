@@ -1,8 +1,9 @@
 """Analytic fixture. spec/00_contracts.md §10. numpy, shapely, and Pillow only.
 
 The fire is an ellipse (head 1.2 km/h, length:width 3, heading 240°) grown from
-the Eaton ignition. Sixteen fixed members (±15% spread rate, ±10° heading) supply
-the quantiles. FIX-Z2 is placed so rule R1 first holds at cycle 20, and FIX-Z3 so
+the Eaton ignition. Fifty seeded members (spread rate ~±18%, heading mostly ±8° with
+a 20% wind-shift tail to ±25°, ignition point ±250 m) supply the quantiles, so some
+members overlap closely and a few burn less likely areas. FIX-Z2 is placed so rule R1 first holds at cycle 20, and FIX-Z3 so
 rule R2 first holds at cycle 30 (spec/00 §7, spec/03 §7–8).
 """
 
@@ -44,7 +45,7 @@ ECC = math.sqrt(1 - (1 / LB) ** 2)
 HORIZON_MIN = 360
 CYCLE_MIN = 5
 N_CYCLES = 36
-N_MEMBERS = 16
+N_MEMBERS = 50
 EVAC_MIN = 45.0
 SIZE_M = 1500.0
 # January is PST (UTC−8). spec/00 §1. A fixed offset avoids the tzdata package on Windows.
@@ -63,9 +64,20 @@ _K0 = 0.9996
 _LON0 = math.radians(-117.0)  # UTM zone 11
 _FALSE_E = 500_000.0
 
-SCALES = (0.85, 0.95, 1.05, 1.15)
-HEADING_OFFSETS = (-10.0, -10.0 / 3.0, 10.0 / 3.0, 10.0)
-MEMBERS = tuple((ROS_M_PER_MIN * scale, HEADING + offset) for scale in SCALES for offset in HEADING_OFFSETS)
+def _make_members() -> tuple[tuple[float, float, float, float], ...]:
+    """(ros m/min, heading deg, ignition shift east m, north m); seeded, so the fixture is reproducible."""
+    rng = np.random.default_rng(20250108)
+    scale = np.clip(np.exp(rng.normal(0.0, 0.18, N_MEMBERS)), 0.6, 1.5)
+    wide = rng.random(N_MEMBERS) < 0.2
+    offset = np.clip(np.where(wide, rng.normal(0.0, 25.0, N_MEMBERS), rng.normal(0.0, 8.0, N_MEMBERS)), -55.0, 55.0)
+    shift = rng.normal(0.0, 250.0, (N_MEMBERS, 2))
+    return tuple(
+        (float(ROS_M_PER_MIN * scale[i]), float(HEADING + offset[i]), float(shift[i, 0]), float(shift[i, 1]))
+        for i in range(N_MEMBERS)
+    )
+
+
+MEMBERS = _make_members()
 
 IGNITION = datetime(2025, 1, 8, 2, 15, tzinfo=timezone.utc)
 CREATED_WALL_MS = int(datetime(2026, 10, 24, 19, 0, tzinfo=timezone.utc).timestamp() * 1000)
@@ -353,8 +365,8 @@ def member_etas(center_along: float, center_cross: float, size: float = SIZE_M) 
     de, dn = along_cross_offset(aa, cc)
     flat_de, flat_dn = de.ravel(), dn.ravel()
     etas = np.empty(N_MEMBERS)
-    for i, (ros, heading) in enumerate(MEMBERS):
-        etas[i] = float(np.min(arrival_minutes(flat_de, flat_dn, heading, ros)))
+    for i, (ros, heading, sx, sy) in enumerate(MEMBERS):
+        etas[i] = float(np.min(arrival_minutes(flat_de - sx, flat_dn - sy, heading, ros)))
     return etas
 
 
@@ -468,8 +480,8 @@ def grid_arrivals() -> np.ndarray:
     de = ee - ign_e
     dn = nn - ign_n
     stacked = np.empty((N_MEMBERS, NY, NX))
-    for i, (ros, heading) in enumerate(MEMBERS):
-        stacked[i] = arrival_minutes(de, dn, heading, ros)
+    for i, (ros, heading, sx, sy) in enumerate(MEMBERS):
+        stacked[i] = arrival_minutes(de - sx, dn - sy, heading, ros)
     ordered = np.sort(stacked, axis=0)
     idxs = [math.ceil(q * N_MEMBERS) - 1 for q in (0.1, 0.3, 0.5, 0.7, 0.9)]
     return ordered[idxs]
@@ -830,8 +842,8 @@ def activity(k_ms: int, cycle_id: str, n_hot: int, alerts: list[dict]) -> list[d
 
 def params_summary() -> dict:
     return {
-        "ros_mult": [1.0, round(float(np.std(np.array(SCALES))), 6)],
-        "heading_deg": [HEADING, round(float(np.std(np.array(HEADING_OFFSETS))), 6)],
+        "ros_mult": [1.0, round(float(np.std([m[0] / ROS_M_PER_MIN for m in MEMBERS])), 6)],
+        "heading_deg": [HEADING, round(float(np.std([m[1] - HEADING for m in MEMBERS])), 6)],
     }
 
 
@@ -1196,8 +1208,8 @@ def grid_corners() -> dict[str, list[float]]:
 
 
 def check_self() -> None:
-    if len(MEMBERS) != 16:
-        raise RuntimeError("expected 16 members")
+    if len(MEMBERS) != N_MEMBERS:
+        raise RuntimeError(f"expected {N_MEMBERS} members")
     back_e, back_n = utm_forward(*utm_inverse(*utm_forward(IGN_LON, IGN_LAT)))
     if abs(back_e - utm_forward(IGN_LON, IGN_LAT)[0]) > 1 or abs(back_n - utm_forward(IGN_LON, IGN_LAT)[1]) > 1:
         raise RuntimeError("UTM round-trip is off by more than a metre")

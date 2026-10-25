@@ -8,8 +8,7 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "fetch:firms": "node scripts/fetch_firms.mjs",
-    "make:synthetic": "node scripts/make_synthetic_spread.mjs"
+    "fetch:basemap": "node scripts/fetch_basemap.mjs"
   },
   "dependencies": {
     "cesium": "^1.146.0",
@@ -17,6 +16,7 @@
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router-dom": "^7.18.4",
+    "spacetimedb": "2.13.0",
     "three": "^0.186.1"
   },
   "devDependencies": {

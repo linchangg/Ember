@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { CITIES, LOCAL, STATES } from '../labels.js'
+import { createClock } from '../lib/replayClock.js'
+import { loadScenario } from '../lib/scenarioData.js'
 
 const EONET = 'https://eonet.gsfc.nasa.gov/api/v3/events?status=all&start=2025-01-05&end=2025-01-09&limit=500'
 const FOCUS_MS = Date.parse('2025-01-07T12:00:00Z')
 const WIN = [Date.parse('2025-01-05T00:00:00Z'), Date.parse('2025-01-10T00:00:00Z')]
 const D2R = Math.PI / 180
-const SIM_START = Date.parse('2025-01-07T00:00:00-08:00')
-const SIM_END = Date.parse('2025-01-31T23:59:00-08:00')
-const HOUR = 3600000
+const fmtHM = (ms) => new Date(ms).toLocaleTimeString('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', minute: '2-digit' })
+const LABEL_FONT = "Michroma, 'Eurostile', 'Orbitron', sans-serif"
+const STATUS_COLOR = { order: [255, 90, 60], warning: [255, 176, 58], watch: [232, 211, 106], clear: [90, 140, 210] }
 const fmtPT = (ms) => `${new Date(ms).toLocaleString('en-US', { timeZone: 'America/Los_Angeles', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} PT`
 
 const KINDS = {
@@ -241,6 +243,42 @@ const orbitPos = (o, th) => [
   o.r * (Math.cos(th) * o.u[2] + Math.sin(th) * o.w[2]),
 ]
 
+/** Basemap polylines: keep unit vectors and per-vertex lon/lat so they can be re-lifted onto terrain each frame. */
+function prepLines(list) {
+  return list.map((it) => {
+    const [name, c] = Array.isArray(it[1]) ? it : [null, it]
+    const n = c.length / 2
+    const xyz = new Float64Array(n * 3)
+    let sx = 0
+    let sy = 0
+    let sz = 0
+    for (let i = 0; i < n; i++) {
+      const v = vec(c[i * 2], c[i * 2 + 1])
+      xyz.set(v, i * 3)
+      sx += v[0]
+      sy += v[1]
+      sz += v[2]
+    }
+    const m = Math.hypot(sx, sy, sz) || 1
+    const cen = [sx / m, sy / m, sz / m]
+    let rad = 0
+    for (let i = 0; i < n; i++) rad = Math.max(rad, Math.hypot(xyz[i * 3] - cen[0], xyz[i * 3 + 1] - cen[1], xyz[i * 3 + 2] - cen[2]))
+    return { name, n, xyz, ll: c, h: new Float32Array(n).fill(NaN), cen, radM: rad * 6371008 }
+  })
+}
+
+function prepBasemap(d) {
+  const roads = Object.fromEntries(Object.entries(d.roads).map(([k, v]) => [k, prepLines(v)]))
+  return {
+    roads,
+    rail: prepLines(d.rail),
+    waterLines: prepLines(d.water.lines),
+    waterBodies: prepLines(d.water.bodies),
+    pois: d.pois,
+    places: d.places,
+  }
+}
+
 export default function GlobeNetwork() {
   const canvasRef = useRef(null)
   const wrapRef = useRef(null)
@@ -251,45 +289,39 @@ export default function GlobeNetwork() {
   selRef.current = !!pick
   const fitRef = useRef(null)
   const spinRef = useRef(null)
-  const [viirs, setViirs] = useState(null)
-  const [synthetic, setSynthetic] = useState(false)
-  const [forecast, setForecast] = useState(null)
-  const fcRef = useRef(null)
-  fcRef.current = forecast
   const [hover, setHover] = useState(null)
-  const viirsRef = useRef(null)
-  viirsRef.current = viirs
-  const [simMs, setSimMs] = useState(Date.parse('2025-01-08T12:00:00-08:00'))
-  const simRef = useRef(simMs)
-  simRef.current = simMs
-  const [playing, setPlaying] = useState(false)
-  const showTime = !!pick && !!viirs && /eaton/i.test(pick.title)
+  const scnId = new URLSearchParams(window.location.search).get('scn') || import.meta.env.VITE_SCENARIO_ID || 'fixture'
+  const [scenario, setScenario] = useState(null)
+  const scnRef = useRef(null)
+  scnRef.current = scenario
+  const clockRef = useRef(null)
+  const [scrub, setScrub] = useState(null) // null = follow the replay clock; a number = looking at another time
+  const scrubRef = useRef(null)
+  scrubRef.current = scrub
+  const [ui, setUi] = useState(null)
+  const showTime = !!pick && !!scenario && /eaton/i.test(pick.title)
   const timeRef = useRef(false)
   timeRef.current = showTime
 
-  // Spread data: real VIIRS file wins; the synthetic placeholder is the fallback (see scripts/).
+  // Scenario files (Cody's formats) + the replay clock (hub if VITE_STDB_URI is set, else local)
   useEffect(() => {
-    const load = (url) => fetch(url).then((r) => (r.ok ? r.json() : Promise.reject(new Error(url))))
-    load('/data/eaton_viirs.json')
-      .catch(() => load('/data/eaton_spread_synthetic.json'))
-      .then((d) => {
-        setSynthetic(!!d.synthetic)
-        const issues = new Map()
-        for (const [issued, lon, lat, p, eta] of d.forecast ?? []) {
-          if (!issues.has(issued)) issues.set(issued, [])
-          issues.get(issued).push({ lon, lat, p, eta })
-        }
-        setForecast(issues.size ? { times: [...issues.keys()].sort((a, b) => a - b), issues } : null)
-        setViirs(d.detections.map(([t, lon, lat, frp]) => ({ t, lon, lat, frp })).sort((x, y) => x.t - y.t))
+    let alive = true
+    loadScenario(scnId)
+      .then((sc) => {
+        if (!alive) return
+        clockRef.current = createClock(sc.manifest)
+        setScenario(sc)
       })
-      .catch(() => setViirs(null))
-  }, [])
-
+      .catch((e) => console.warn('scenario load failed', e))
+    return () => { alive = false }
+  }, [scnId])
   useEffect(() => {
-    if (!playing) return undefined
-    const id = setInterval(() => setSimMs((m) => (m + HOUR >= SIM_END ? (setPlaying(false), SIM_END) : m + HOUR)), 90)
+    const id = setInterval(() => {
+      const c = clockRef.current
+      if (c) setUi({ now: c.now(), clock: c.get(), kind: c.kind, note: c.note })
+    }, 100)
     return () => clearInterval(id)
-  }, [playing])
+  }, [])
 
   useEffect(() => {
     fetch(EONET)
@@ -333,11 +365,11 @@ export default function GlobeNetwork() {
     let hoverEv = null
     let countryLabels = []
     const tileKey = (lo, la, z = TZ) => [Math.floor(((lo + 180) / 360) * 2 ** z), Math.floor(((1 - Math.asinh(Math.tan(la * D2R)) / Math.PI) / 2) * 2 ** z)]
-    const sampleAt = (lo, la) => {
+    const sampleRaw = (lo, la) => {
       const X = ((lo + 180) / 360) * 2 ** TZ
       const Y = ((1 - Math.asinh(Math.tan(la * D2R)) / Math.PI) / 2) * 2 ** TZ
       const ch = chunks.get(`${TZ}_${Math.floor(X)}_${Math.floor(Y)}`)
-      if (!ch || ch === 'loading') return 0
+      if (!ch || ch === 'loading') return null
       const fi = (X - ch.cx) * 256
       const fj = (Y - ch.cy) * 256
       const i = Math.min(255, Math.floor(fi))
@@ -347,6 +379,7 @@ export default function GlobeNetwork() {
       const e = ch.el
       return (e[j * 257 + i] * (1 - u) + e[j * 257 + i + 1] * u) * (1 - v) + (e[(j + 1) * 257 + i] * (1 - u) + e[(j + 1) * 257 + i + 1] * u) * v
     }
+    const sampleAt = (lo, la) => sampleRaw(lo, la) ?? 0
     const pump = () => {
       while (active < 4 && queue.length) {
         const [z, cx0, cy0] = queue.shift()
@@ -383,14 +416,14 @@ export default function GlobeNetwork() {
       }
       pump()
     }
-    let fire = null
+    let lastEntry = null
+    let cellH = null
     const fireCv = document.createElement('canvas')
     const maskCv = document.createElement('canvas')
     const lineCv = document.createElement('canvas')
-    const fireKey = events.find((e) => /eaton/i.test(e.title))?.title
-    fetch('/data/eaton_perimeter.geojson').then((r) => r.json()).then((g) => {
-      fire = g.features[0].geometry.coordinates.flatMap((poly) => poly)
-    }).catch(() => {})
+    const labelQ = []
+    let base = null
+    fetch('/data/basemap_eaton.json').then((r) => r.json()).then((d) => { base = prepBasemap(d) }).catch(() => {})
     const small = [document.createElement('canvas'), document.createElement('canvas')]
     const SCALE = [6, 14]
 
@@ -421,8 +454,6 @@ export default function GlobeNetwork() {
       return c
     }
     const heat = {
-      burnt: heatSprite([128, 14, 20], [110, 12, 20]),
-      hot: heatSprite([255, 80, 55], [230, 50, 40]),
       high: heatSprite([255, 140, 30], [245, 110, 20]),
       low: heatSprite([255, 205, 80], [250, 170, 60]),
     }
@@ -477,6 +508,8 @@ export default function GlobeNetwork() {
     function frame(ms) {
       raf = requestAnimationFrame(frame)
       const t = ms / 1000
+      // safety net: a non-finite view value would blank the whole map, so fall back to the default view
+      if (!Number.isFinite(view.zoom + view.lon + view.lat + view.cxo)) Object.assign(view, { zoom: 1, lon: -98, lat: 28, cxo: 0, target: null })
       if (view.target) {
         const tg = view.target
         const dl = ((tg.lon - view.lon + 540) % 360) - 180
@@ -576,9 +609,11 @@ export default function GlobeNetwork() {
         smooth(Math.log(350), Math.log(1100), lz),
         smooth(Math.log(900), Math.log(2500), lz),
       ]
+      const street = 1 - 0.75 * smooth(Math.log(8000), Math.log(30000), lz) // contours step back so roads read
+      for (let i = 0; i < 4; i++) layerW[i] *= street
       const tf = layerW[0]
       const xf = smooth(Math.log(300), Math.log(650), lz) // far tiles hand over to near tiles
-      const lift = (1.6 * R) / 6371000
+      const lift = Math.min(0.06, (1.6 * R) / 6371000)
       const drawn = []
       if (view.zoom > 25 && ms - lastPlan > 250) {
         lastPlan = ms
@@ -636,62 +671,163 @@ export default function GlobeNetwork() {
         }))
       }
 
-      // fire perimeter: red fill, with the terrain lines inside it turned red
+      // basemap: roads, rail, streams, water (US Census TIGER + USGS), revealed by zoom
+      if (base && view.zoom > 100) {
+        const mpp0 = 6371008 / R
+        const wscale = Math.min(3, Math.max(1, view.zoom / 3000))
+        const strokeLines = (lines, a, w, rgb, dash, name) => {
+          if (a < 0.02) return
+          const path = new Path2D()
+          for (const L of lines) {
+            P(L.cen[0], L.cen[1], L.cen[2], tmp)
+            const r = L.radM / mpp0 + 80
+            if (tmp[2] < -0.05 || tmp[0] < -r || tmp[0] > W + r || tmp[1] < -r || tmp[1] > H + r) continue
+            let first = true
+            let mx = 0
+            let my = 0
+            for (let i = 0; i < L.n; i++) {
+              P(L.xyz[i * 3], L.xyz[i * 3 + 1], L.xyz[i * 3 + 2], tmp)
+              let h = L.h[i]
+              if (h !== h) {
+                const sh = sampleRaw(L.ll[i * 2], L.ll[i * 2 + 1])
+                if (sh != null) L.h[i] = sh
+                h = sh ?? 0
+              }
+              const y = tmp[1] - h * lift
+              if (first) path.moveTo(tmp[0], y)
+              else path.lineTo(tmp[0], y)
+              first = false
+              if (i === L.n >> 1) {
+                mx = tmp[0]
+                my = y
+              }
+            }
+            if (name && L.name && L.radM / mpp0 > 70 && tmp[2] > 0) labelQ.push({ text: L.name, x: mx, y: my, color: rgb, a: a, size: 7.5, spacing: '0.5px' })
+          }
+          ctx.setLineDash(dash)
+          ctx.lineWidth = w * wscale
+          ctx.strokeStyle = rgba(rgb, a)
+          ctx.stroke(path)
+          ctx.setLineDash([])
+        }
+        const z = view.zoom
+        const ramp = (a, b) => smooth(Math.log(a), Math.log(b), lz)
+        strokeLines(base.waterLines, 0.5 * ramp(300, 1000), 1, [90, 170, 255], [], false)
+        strokeLines(base.rail, 0.35 * ramp(400, 1200), 0.8, [150, 170, 200], [6, 4], false)
+        strokeLines(base.roads.trail, 0.45 * ramp(600, 2000), 0.8, [120, 200, 190], [4, 3], false)
+        strokeLines(base.roads.service, 0.3 * ramp(3000, 8000), 0.6, [110, 150, 225], [], false)
+        strokeLines(base.roads.local, 0.5 * ramp(1500, 4000), 0.8, [120, 170, 240], [], z > 6000)
+        strokeLines(base.roads.collector, 0.7 * ramp(400, 1200), 1.2, [140, 190, 250], [], z > 1500)
+        strokeLines(base.roads.major, 0.85 * ramp(100, 400), 1.8, [175, 215, 255], [], z > 1500)
+        // water bodies: faint fill + outline
+        if (ramp(200, 800) > 0.02) {
+          const path = new Path2D()
+          for (const L of base.waterBodies) {
+            P(L.cen[0], L.cen[1], L.cen[2], tmp)
+            const r = L.radM / mpp0 + 80
+            if (tmp[2] < -0.05 || tmp[0] < -r || tmp[0] > W + r || tmp[1] < -r || tmp[1] > H + r) continue
+            for (let i = 0; i < L.n; i++) {
+              P(L.xyz[i * 3], L.xyz[i * 3 + 1], L.xyz[i * 3 + 2], tmp)
+              const y = tmp[1] - (L.h[i] === L.h[i] ? L.h[i] : sampleAt(L.ll[i * 2], L.ll[i * 2 + 1])) * lift
+              if (i === 0) path.moveTo(tmp[0], y)
+              else path.lineTo(tmp[0], y)
+            }
+            path.closePath()
+          }
+          ctx.fillStyle = `rgba(70,140,230,${0.18 * ramp(200, 800)})`
+          ctx.fill(path)
+          ctx.lineWidth = 0.8
+          ctx.strokeStyle = `rgba(110,180,255,${0.5 * ramp(200, 800)})`
+          ctx.stroke(path)
+        }
+      }
+
+      // scenario layers in Cody's bundle format: forecast raster, burned area, front, isochrones, zones
       const ff = smooth(Math.log(25), Math.log(120), lz)
-      const vi = viirsRef.current
-      if (vi && ff > 0.01) {
-        // VIIRS detections up to the chosen time: overlapping detections add up, recent ones glow brighter
+      const sc = scnRef.current
+      const clk = clockRef.current
+      labelQ.length = 0
+      if (sc && clk && ff > 0.01) {
+        const mpp0 = 6371008 / R
+        const nowMs = clk.now()
+        const T = scrubRef.current ?? nowMs
+        const K = sc.cycleAt(Math.min(T, nowMs))
+        let en = sc.entry(K)
+        if (en) lastEntry = en
+        else en = K == null ? null : lastEntry
+        const { nx, ny, cell_m } = sc.manifest.grid
         if (fireCv.width !== W || fireCv.height !== H) {
           fireCv.width = W
           fireCv.height = H
-          maskCv.width = W
-          maskCv.height = H
           lineCv.width = W
           lineCv.height = H
         }
+        if (!cellH || cellH.length !== nx * ny) cellH = new Float32Array(nx * ny).fill(NaN)
         const fg = fireCv.getContext('2d')
         fg.clearRect(0, 0, W, H)
+        fg.filter = 'none'
         fg.globalCompositeOperation = 'lighter'
-        const rad = Math.max(5, 650 / (6371008 / R))
-        const T = simRef.current
-        // predicted spread: latest forecast issued at or before T, cells whose ETA is still ahead
-        const fc = fcRef.current
-        if (fc) {
-          let it = -1
-          for (let i = 0; i < fc.times.length && fc.times[i] <= T; i++) it = i
-          for (const c of it >= 0 ? fc.issues.get(fc.times[it]) : []) {
-            if (c.eta <= T || c.p < 0.05) continue
-            c.v ??= vec(c.lon, c.lat)
-            if (c.h === undefined && chunks.get(`${TZ}_${tileKey(c.lon, c.lat).join('_')}`) instanceof Object) c.h = sampleAt(c.lon, c.lat)
-            P(c.v[0], c.v[1], c.v[2], tmp)
+        // forecast: client rule from spec/00 4.2, class k = how many of the 5 quantile arrivals have passed
+        if (en?.arrival) {
+          const t = (T - en.bundle.knowledge_sim_ms) / 120000
+          const a = en.arrival
+          const n = nx * ny
+          const rad = Math.max(3, (cell_m * 0.95) / mpp0)
+          const ll = sc.cellLonLat
+          for (let i = 0; i < n; i++) {
+            let k = 0
+            let zero = 0
+            for (let q = 0; q < 5; q++) {
+              const v = a[q * n + i]
+              if (v !== 255 && v <= t) k++
+              if (v === 0) zero++
+            }
+            if (k === 0 || zero === 5) continue
+            const lo = ll[i * 2]
+            const la = ll[i * 2 + 1]
+            const v3 = vec(lo, la)
+            P(v3[0], v3[1], v3[2], tmp)
             if (tmp[2] < 0) continue
-            const y = tmp[1] - (c.h || 0) * lift
+            let h = cellH[i]
+            if (h !== h) {
+              const r = sampleRaw(lo, la)
+              if (r != null) cellH[i] = r
+              h = r ?? 0
+            }
+            const y = tmp[1] - h * lift
             if (tmp[0] < -rad || tmp[0] > W + rad || y < -rad || y > H + rad) continue
-            const high = c.p >= 0.5
-            fg.globalAlpha = (high ? 0.3 + 0.4 * c.p : 0.12 + 0.4 * c.p) * ff
-            fg.drawImage(high ? heat.high : heat.low, tmp[0] - rad, y - rad, rad * 2, rad * 2)
+            fg.globalAlpha = [0, 0.14, 0.26, 0.42, 0.6, 0.8][k] * ff // more member overlap = more intense
+            fg.drawImage(k >= 3 ? heat.high : heat.low, tmp[0] - rad, y - rad, rad * 2, rad * 2)
           }
+          fg.globalAlpha = 1
         }
-        for (const d of vi) {
-          if (d.t > T) break
-          d.v ??= vec(d.lon, d.lat)
-          if (d.h === undefined && chunks.get(`${TZ}_${tileKey(d.lon, d.lat).join('_')}`) instanceof Object) d.h = sampleAt(d.lon, d.lat)
-          P(d.v[0], d.v[1], d.v[2], tmp)
-          if (tmp[2] < 0) continue
-          const y = tmp[1] - (d.h || 0) * lift
-          if (tmp[0] < -rad || tmp[0] > W + rad || y < -rad || y > H + rad) continue
+        const lift3 = (lo, la) => {
+          const v3 = vec(lo, la)
+          P(v3[0], v3[1], v3[2], tmp)
+          return [tmp[0], tmp[1] - sampleAt(lo, la) * lift, tmp[2]]
+        }
+        // burned area: dark red with a soft edge
+        if (en?.burned) {
+          const path = new Path2D()
+          for (const poly of en.burned.coordinates) {
+            for (const ring of poly) {
+              ring.forEach(([lo, la], i) => {
+                const q = lift3(lo, la)
+                if (i === 0) path.moveTo(q[0], q[1])
+                else path.lineTo(q[0], q[1])
+              })
+              path.closePath()
+            }
+          }
+          const bl = Math.max(1.5, Math.min(36, 500 / mpp0))
           fg.globalCompositeOperation = 'source-over'
-          fg.globalAlpha = 0.4 * ff
-          fg.drawImage(heat.burnt, tmp[0] - rad, y - rad, rad * 2, rad * 2)
-          const age = T - d.t
-          if (age < 12 * HOUR) {
-            fg.globalCompositeOperation = 'lighter'
-            fg.globalAlpha = 0.3 * Math.exp(-age / (5 * HOUR)) * ff
-            fg.drawImage(heat.hot, tmp[0] - rad, y - rad, rad * 2, rad * 2)
+          for (const [kk, aa] of [[2.4, 0.2], [1.1, 0.3], [0.45, 0.35]]) {
+            fg.filter = `blur(${bl * kk}px)`
+            fg.fillStyle = `rgba(140,18,26,${aa * ff})`
+            fg.fill(path, 'evenodd')
           }
+          fg.filter = 'none'
         }
-        fg.globalCompositeOperation = 'lighter'
-        fg.globalAlpha = 1
         const lg = lineCv.getContext('2d')
         lg.clearRect(0, 0, W, H)
         for (const d of drawn) {
@@ -705,57 +841,68 @@ export default function GlobeNetwork() {
         lg.globalCompositeOperation = 'source-over'
         ctx.drawImage(fireCv, 0, 0, W, H)
         ctx.drawImage(lineCv, 0, 0, W, H)
-      } else if (fire && ff > 0.01) {
-        const path = new Path2D()
-        for (const ring of fire) {
-          ring.forEach(([lo, la], i) => {
-            const v = vec(lo, la)
-            P(v[0], v[1], v[2], tmp)
-            const y = tmp[1] - sampleAt(lo, la) * lift
-            if (i === 0) path.moveTo(tmp[0], y)
-            else path.lineTo(tmp[0], y)
+
+        const lines = (coords, close) => {
+          const path = new Path2D()
+          coords.forEach(([lo, la], i) => {
+            const q = lift3(lo, la)
+            if (i === 0) path.moveTo(q[0], q[1])
+            else path.lineTo(q[0], q[1])
           })
-          path.closePath()
+          if (close) path.closePath()
+          return path
         }
-        // feathered burn glow: soft edge, denser toward the middle of the footprint
-        const mpp0 = 6371008 / R
-        const bl = Math.max(1.5, Math.min(36, 500 / mpp0))
-        if (fireCv.width !== W || fireCv.height !== H) {
-          fireCv.width = W
-          fireCv.height = H
-          maskCv.width = W
-          maskCv.height = H
+        // active front
+        if (en?.front) {
+          for (const line of en.front.coordinates) {
+            const path = lines(line, false)
+            ctx.lineWidth = 6
+            ctx.strokeStyle = `rgba(255,159,28,${0.35 * ff})`
+            ctx.stroke(path)
+            ctx.lineWidth = 1.6
+            ctx.strokeStyle = `rgba(255,224,138,${0.9 * ff})`
+            ctx.stroke(path)
+          }
         }
-        const fg = fireCv.getContext('2d')
-        const mg = maskCv.getContext('2d')
-        fg.clearRect(0, 0, W, H)
-        mg.clearRect(0, 0, W, H)
-        fg.filter = 'none'
-        for (const [k, a] of [[2.4, 0.2], [1.1, 0.28], [0.45, 0.3]]) {
-          fg.filter = `blur(${bl * k}px)`
-          fg.fillStyle = `rgba(215,45,35,${a * ff})`
-          fg.fill(path, 'evenodd')
+        // isochrones (q50 arrival contours), labelled +Nh
+        if (en) {
+          for (const f of en.isochrones) {
+            const g = f.geometry
+            const parts = g.type === 'MultiLineString' ? g.coordinates : [g.coordinates]
+            for (const line of parts) {
+              ctx.lineWidth = 1
+              ctx.strokeStyle = `rgba(225,238,255,${0.28 * ff})`
+              ctx.stroke(lines(line, false))
+              const mid = lift3(...line[Math.floor(line.length / 2)])
+              if (mid[2] > 0) labelQ.push({ text: `+${f.properties.lead_min / 60}h`, x: mid[0], y: mid[1], color: [225, 238, 255], a: 0.7 * ff, size: 8 })
+            }
+          }
         }
-        mg.filter = `blur(${bl}px)`
-        mg.fillStyle = '#fff'
-        mg.fill(path, 'evenodd')
-        mg.filter = 'none'
-        const lg = lineCv.getContext('2d')
-        if (lineCv.width !== W || lineCv.height !== H) {
-          lineCv.width = W
-          lineCv.height = H
+        // zones: outline by status, label with the name and risk
+        ctx.setLineDash([])
+        for (const z of sc.zones?.features ?? []) {
+          const zr = en?.zoneRisk.get(z.properties.zone_id)
+          const st = zr?.status ?? 'clear'
+          const col = STATUS_COLOR[st] ?? STATUS_COLOR.clear
+          const polys = z.geometry.type === 'Polygon' ? [z.geometry.coordinates] : z.geometry.coordinates
+          const ring = polys[0][0]
+          const cen = lift3(ring.reduce((s2, p2) => s2 + p2[0], 0) / ring.length, ring.reduce((s2, p2) => s2 + p2[1], 0) / ring.length)
+          if (cen[2] > 0) {
+            const p120 = zr ? zr.p_by_lead[3] : null
+            labelQ.push({
+              text: z.properties.name, x: cen[0], y: cen[1], color: col, a: ff, size: 8.5,
+              detail: zr && st !== 'clear' ? `${Math.round(p120 * 100)}% by +2h · act by ${fmtHM(zr.act_by_sim_ms)}` : null,
+            })
+          }
         }
-        lg.clearRect(0, 0, W, H)
-        for (const d of drawn) {
-          lg.lineWidth = d.w + 0.4
-          lg.strokeStyle = `rgba(255,${120 - d.ly * 25},75,${Math.min(1, 0.9 * d.f * ff + 0.1 * ff)})`
-          lg.stroke(d.pa)
+        // area X
+        if (sc.areaX) {
+          ctx.setLineDash([5, 4])
+          ctx.lineWidth = 1
+          ctx.strokeStyle = `rgba(110,210,235,${0.55 * ff})`
+          ctx.stroke(lines(sc.areaX.geometry.coordinates[0], true))
+          ctx.setLineDash([])
         }
-        lg.globalCompositeOperation = 'destination-in'
-        lg.drawImage(maskCv, 0, 0)
-        lg.globalCompositeOperation = 'source-over'
-        ctx.drawImage(fireCv, 0, 0, W, H)
-        ctx.drawImage(lineCv, 0, 0, W, H)
       }
 
       // borders: project once, bucket front segments by travelling colour wave
@@ -977,8 +1124,8 @@ export default function GlobeNetwork() {
         }
         const left = dot ? x + 6 : x - tw / 2
         const r = [left - 3, y - 8, left + tw + 3, y + 8]
-        if (r[2] < 0 || r[0] > W || r[3] < 0 || r[1] > H) return
-        if (placed.some((q) => r[0] < q[2] && r[2] > q[0] && r[1] < q[3] && r[3] > q[1])) return
+        if (r[2] < 0 || r[0] > W || r[3] < 0 || r[1] > H) return false
+        if (placed.some((q) => r[0] < q[2] && r[2] > q[0] && r[1] < q[3] && r[3] > q[1])) return false
         placed.push(r)
         if (dot === 'peak') {
           ctx.fillStyle = color
@@ -996,6 +1143,7 @@ export default function GlobeNetwork() {
         ctx.textBaseline = 'middle'
         ctx.fillStyle = color
         ctx.fillText(text, left, y)
+        return true
       }
       const show = (lo, la, minZ, maxZ, local) => {
         const a = smooth(minZ, minZ * 1.5, zoom) * (maxZ ? 1 - smooth(maxZ * 0.6, maxZ, zoom) : 1)
@@ -1008,6 +1156,36 @@ export default function GlobeNetwork() {
         return [tmp[0], y, a * front]
       }
       ctx.letterSpacing = '0px'
+      for (const L of labelQ) {
+        ctx.letterSpacing = L.spacing ?? '1px'
+        const font = `${L.size}px ${LABEL_FONT}`
+        if (draw(L.text, L.x, L.y, font, rgba(L.color, 0.95 * Math.min(1, L.a)), false) && L.detail) {
+          ctx.letterSpacing = '0.5px'
+          draw(L.detail, L.x, L.y + 12, `7.5px ${LABEL_FONT}`, rgba(L.color, 0.8 * Math.min(1, L.a)), false)
+        }
+      }
+      const ASSET_NAMES = { hospital: 'Hospital', nursing_home: 'Nursing home', school: 'School', fire_station: 'Fire station', substation: 'Substation', water_plant: 'Water plant' }
+      ctx.letterSpacing = '1px'
+      for (const f of sc?.assets?.features ?? []) {
+        const [lo, la] = f.geometry.coordinates
+        const q = show(lo, la, 600, 0, true)
+        if (q) draw(ASSET_NAMES[f.properties.type] ?? f.properties.type, q[0], q[1], `8px ${LABEL_FONT}`, `rgba(190,225,255,${0.9 * q[2]})`, 'peak')
+      }
+      if (base) {
+        const PLACE_Z = { city: 60, cdp: 120, populated: 300, summit: 500, ridge: 900, valley: 1200, gap: 1500, basin: 1500, flat: 1800, area: 1800, stream: 2500, spring: 3000, lake: 1500, reservoir: 1500, cliff: 2500, bench: 2500, arroyo: 2500, canyon: 1200 }
+        const POI_Z = { hospital: 900, fire_station: 1200, police: 1500, college: 900, school: 1800, trailhead: 2500, city_hall: 1500, post_office: 3500, landmark: 2500, monument: 2500 }
+        ctx.letterSpacing = '1px'
+        for (const [name, kind, lo, la] of base.places) {
+          const q = show(lo, la, PLACE_Z[kind] ?? 2500, 0, true)
+          if (!q) continue
+          const peak = kind === 'summit' || kind === 'ridge'
+          draw(name, q[0], q[1], `${kind === 'city' || kind === 'cdp' ? 9 : 8}px ${LABEL_FONT}`, kind === 'city' || kind === 'cdp' || kind === 'populated' ? `rgba(165,210,255,${0.95 * q[2]})` : `rgba(120,170,235,${0.85 * q[2]})`, peak ? 'peak' : kind === 'populated' || kind === 'city' || kind === 'cdp')
+        }
+        for (const [name, type, lo, la] of base.pois) {
+          const q = show(lo, la, POI_Z[type] ?? 3000, 0, true)
+          if (q) draw(name, q[0], q[1], `7.5px ${LABEL_FONT}`, `rgba(190,225,255,${0.85 * q[2]})`, type === 'hospital' || type === 'fire_station' ? 'peak' : true)
+        }
+      }
       for (const [name, lo, la, kind, minZ] of LOCAL) {
         const q = show(lo, la, minZ, 0, true)
         if (!q) continue
@@ -1089,17 +1267,15 @@ export default function GlobeNetwork() {
       let zoom = 700
       let lon = ev.lon
       let lat = ev.lat
-      if (ev.title === fireKey && fire) {
-        const pts = fire.flat()
-        const xs = pts.map((p) => p[0])
-        const ys = pts.map((p) => p[1])
-        const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)]
+      const bb = scnRef.current?.manifest.aoi_bbox
+      if (bb && /eaton/i.test(ev.title)) {
+        const [x0, y0, x1, y1] = bb
         lon = (x0 + x1) / 2
         lat = (y0 + y1) / 2
         const dx = (x1 - x0) * 111320 * Math.cos(lat * D2R)
         const dy = (y1 - y0) * 110574
         const mpp = Math.max(dx / ((W - 340) * 0.8), dy / (H * 0.7))
-        zoom = Math.max(20, Math.min(3000, 6371008 / mpp / (0.34 * Math.min(W, H))))
+        zoom = Math.max(20, Math.min(40000, 6371008 / mpp / (0.34 * Math.min(W, H))))
       }
       view.target = { lon, lat, zoom }
     }
@@ -1173,7 +1349,7 @@ export default function GlobeNetwork() {
       const rect = cv.getBoundingClientRect()
       const sx = e.clientX - rect.left
       const sy = e.clientY - rect.top
-      const nz = Math.max(0.55, Math.min(3000, view.zoom * Math.exp(-e.deltaY * 0.0015)))
+      const nz = Math.max(0.55, Math.min(40000, view.zoom * Math.exp(-e.deltaY * 0.0015)))
       const y1 = (sx - cx) / R
       const z2 = (cy - sy) / R
       const d2 = 1 - y1 * y1 - z2 * z2
@@ -1249,23 +1425,54 @@ export default function GlobeNetwork() {
         <button onClick={() => spinRef.current?.(0)} aria-label="Stop spin" title="Stop">❚❚</button>
         <button onClick={() => spinRef.current?.(1)} aria-label="Spin clockwise" title="Spin clockwise">↻</button>
       </div>
+      <div className="gn__credit">Roads, places, water: US Census TIGERweb · USGS · Terrain: AWS Terrain Tiles · Events: NASA EONET</div>
       {hover && !pick ? <div className="gn__tip" style={{ left: hover.x + 14, top: hover.y + 14 }}>{hover.title}</div> : null}
       {hover && pick && hover.title !== pick.title ? <div className="gn__tip" style={{ left: hover.x + 14, top: hover.y + 14 }}>{hover.title}</div> : null}
-      {showTime ? (
-        <div className="gn__time">
-          <button onClick={() => setPlaying((p) => !p)} aria-label={playing ? 'Pause' : 'Play'}>{playing ? '❚❚' : '▶'}</button>
-          <div className="gn__time-main">
-            {synthetic ? <div className="gn__badge">SIMULATED spread · placeholder, not observed data</div> : null}
-            <div className="gn__legend2">
-              <span><i style={{ background: '#a01a20' }} />Burned / detected</span>
-              <span><i style={{ background: '#ff8c1e' }} />High likelihood prediction (50%–99%)</span>
-              <span><i style={{ background: '#ffd05a' }} />Low likelihood prediction (5%–49%)</span>
+      {showTime ? (() => {
+        const m = scenario.manifest
+        const now = ui?.now ?? m.replay_start_sim_ms
+        const t = scrub ?? now
+        const clk = ui?.clock
+        const K = scenario.cycleAt(Math.min(t, now))
+        const cyc = K != null ? scenario.entry(K)?.bundle.cycle : null
+        const span = m.replay_end_sim_ms - m.replay_start_sim_ms
+        const sorry = ui?.note
+        return (
+          <div className="gn__time">
+            <button onClick={() => (clk?.playing ? clockRef.current.pause() : clockRef.current.play())} aria-label={clk?.playing ? 'Pause' : 'Play'}>{clk?.playing ? '❚❚' : '▶'}</button>
+            <div className="gn__time-main">
+              <div className="gn__badges">
+                <span className="gn__badge gn__badge--mode">REPLAY {clk?.speed ?? 240}× · {ui?.kind === 'hub' ? 'hub clock' : 'local clock'}</span>
+                {m.is_fixture ? <span className="gn__badge" title={`Simulated in this scenario: ${m.honesty.simulated.join(', ')}`}>{m.title}</span> : null}
+              </div>
+              <div className="gn__legend2">
+                <span><i style={{ background: '#8c121a' }} />Burned</span>
+                <span><i style={{ background: '#ff8c1e' }} />High likelihood prediction (50%–99%)</span>
+                <span><i style={{ background: '#ffd05a' }} />Low likelihood prediction (10%–49%)</span>
+              </div>
+              <div className="gn__time-row">
+                <b>{fmtPT(t)}</b>
+                <span>{cyc ? `Data through ${fmtHM(cyc.data_through_sim_ms)} · burned ${Math.round(cyc.burned_ha)} ha · front ${cyc.front_km} km` : 'Before first forecast'}</span>
+              </div>
+              <div className="gn__slider">
+                <input type="range" min={m.replay_start_sim_ms} max={m.replay_end_sim_ms} step={60000} value={t} onChange={(e) => setScrub(+e.target.value)} />
+                {scenario.timeline.map((ev) => (
+                  <i key={ev.t_sim_ms} className="gn__tick" style={{ left: `${((ev.t_sim_ms - m.replay_start_sim_ms) / span) * 100}%` }} title={`${fmtPT(ev.t_sim_ms)} · ${ev.label}`} />
+                ))}
+                <i className="gn__now" style={{ left: `${((now - m.replay_start_sim_ms) / span) * 100}%` }} title="Replay clock" />
+              </div>
+              <div className="gn__time-row gn__time-ctl">
+                <button onClick={() => { clockRef.current.pause(); clockRef.current.seek(m.replay_start_sim_ms); setScrub(null) }} title="Rewind to the start of the replay">⏮ Restart</button>
+                {[60, 240, 600].map((v) => (
+                  <button key={v} className={clk?.speed === v ? 'on' : ''} onClick={() => clockRef.current.setSpeed(v)}>{v}×</button>
+                ))}
+                {scrub != null ? <button className="on" onClick={() => setScrub(null)}>Follow clock</button> : null}
+                {sorry ? <span className="gn__warn">{sorry}</span> : null}
+              </div>
             </div>
-            <div className="gn__time-row"><b>{fmtPT(simMs)}</b><span>{viirs.filter((d) => d.t <= simMs).length} detections</span></div>
-            <input type="range" min={SIM_START} max={SIM_END} step={HOUR} value={simMs} onChange={(e) => { setPlaying(false); setSimMs(+e.target.value) }} />
           </div>
-        </div>
-      ) : null}
+        )
+      })() : null}
       {pick ? (
         <aside className="gn__side">
           <button className="gn__close" onClick={() => setPick(null)} aria-label="Close">×</button>
