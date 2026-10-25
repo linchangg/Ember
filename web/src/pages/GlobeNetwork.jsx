@@ -413,7 +413,7 @@ export default function GlobeNetwork() {
         setSelZone(v.zone_id)
         setLead(60)
         flyRef.current?.(c.lon, c.lat, 2600)
-        say(`${name}: Emberline alerts first`, `At ${fmtHM(v.engine_t)} PT the engine proposes an order for ${name}. The county's first ${levelWord(v)} for this zone comes at ${fmtHM(v.official_t)} PT: ${v.lead_min} minutes later. The orange mark on the time slider is Emberline, the white mark is the county, and the green bar is the lead.`)
+        say(`${name}: Emberline alerts first`, `At ${fmtHM(v.engine_t)} PT the engine ${v.engine_level === 'order_recommended' ? 'recommends an order' : 'proposes a warning'} for ${name}. The county's first ${levelWord(v)} for this zone comes at ${fmtHM(v.official_t)} PT: ${v.lead_min} minutes later. The orange mark on the time slider is Emberline, the white mark is the county, and the green bar is the lead.`)
         await wait(11000)
         say(`${name}: the county acts`, `Time runs forward to ${fmtHM(v.official_t)} PT, when the official ${v.official_level} goes out. Emberline's alert had been waiting ${v.lead_min} minutes.`)
         const steps = 8
