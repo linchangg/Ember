@@ -287,6 +287,7 @@ export default function GlobeNetwork() {
   const [error, setError] = useState(null)
   const [pick, setPick] = useState(null)
   const selRef = useRef(false)
+  const pickTitleRef = useRef(null)
   const fitRef = useRef(null)
   const [hover, setHover] = useState(null)
   const scnId = new URLSearchParams(window.location.search).get('scn') || import.meta.env.VITE_SCENARIO_ID || 'fixture'
@@ -312,6 +313,7 @@ export default function GlobeNetwork() {
   const timeRef = useRef(false)
   useEffect(() => {
     selRef.current = !!pick
+    pickTitleRef.current = pick?.title ?? null
     scnRef.current = scenario
     timeRef.current = showTime
     leadRef.current = lead
@@ -1211,8 +1213,9 @@ export default function GlobeNetwork() {
         if (hi < 0) return
       })
 
-      // events
+      // events (the opened one is hidden until its panel is closed)
       for (const e of events) {
+        if (e.title === pickTitleRef.current) continue
         P(e.v[0], e.v[1], e.v[2], tmp)
         const a = seen(tmp)
         const p = (t * 0.45 + e.phase) % 1
@@ -1297,7 +1300,7 @@ export default function GlobeNetwork() {
       beaconHits = []
       for (const ev of events) {
         const fe = FEATURED.find((f) => f.re.test(ev.title))
-        if (!fe) continue
+        if (!fe || ev.title === pickTitleRef.current) continue // opened events lose their label until the panel is closed
         P(ev.v[0], ev.v[1], ev.v[2], tmp)
         if (tmp[2] < -0.02) continue // far side of the globe
         const fade = smooth(-0.02, 0.2, tmp[2])
@@ -1421,6 +1424,7 @@ export default function GlobeNetwork() {
         let best = null
         let bd = 12
         for (const ev of events) {
+          if (ev.title === pickTitleRef.current) continue
           P(ev.v[0], ev.v[1], ev.v[2], tmp)
           if (tmp[2] < 0) continue
           const dist = Math.hypot(tmp[0] - mouse.x, tmp[1] - mouse.y)
@@ -1556,6 +1560,7 @@ export default function GlobeNetwork() {
         let bd = 14
         if (!best) {
           for (const ev of events) {
+            if (ev.title === pickTitleRef.current) continue
             P(ev.v[0], ev.v[1], ev.v[2], tmp)
             if (tmp[2] < 0) continue
             const dist = Math.hypot(tmp[0] - mx, tmp[1] - my)
