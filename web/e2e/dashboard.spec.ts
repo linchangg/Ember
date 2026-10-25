@@ -58,7 +58,20 @@ test('all 39 replay entries commit coherent map and panel identities', async ({
   const slider = page.getByRole('slider', { name: 'Replay issue time' })
   await slider.press('Home')
   for (let i = 0; i < index.cycles.length; i++) {
-    if (i) await slider.press('ArrowRight')
+    // The analytic fixture omits the ignition slot: one index entry is not
+    // necessarily one five-minute slider step. Wait for each seek to commit.
+    const previous = i
+      ? index.cycles[i - 1].knowledge_sim_ms
+      : index.cycles[0].knowledge_sim_ms
+    for (
+      let time = previous;
+      time < index.cycles[i].knowledge_sim_ms;
+      time += 300000
+    ) {
+      await expect(slider).toBeEnabled()
+      await slider.press('ArrowRight')
+      await expect(slider).toHaveValue(String(time + 300000))
+    }
     await expect(slider).toHaveValue(String(index.cycles[i].knowledge_sim_ms))
     const b = JSON.parse(
       await readFile(path.join(root, index.cycles[i].bundle), 'utf8')
@@ -97,11 +110,19 @@ test('five quantile and probability masks agree with raw fixture counts at 30/12
   page,
 }) => {
   await page.getByRole('button', { name: 'Latest forecast' }).click()
+  await expect(page.getByTestId('forecast-map')).toHaveAttribute(
+    'data-cycle-id',
+    bundle.cycle.cycle_id
+  )
+  await expect(
+    page.getByRole('button', { name: 'Latest forecast' })
+  ).toBeEnabled()
   const map = page.getByTestId('forecast-map'),
     n = manifest.grid.nx * manifest.grid.ny
   for (const lead of [30, 120, 360])
     for (const mode of ['probability', '0', '1', '2', '3', '4']) {
       await page.getByLabel('Forecast lead').selectOption(String(lead))
+      await expect(page.getByLabel('Forecast display')).toBeEnabled()
       await page.getByLabel('Forecast display').selectOption(mode)
       let count = 0
       for (let cell = 0; cell < n; cell++) {

@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react'
 import { Link } from 'react-router-dom'
 import { createConfiguredSource } from '../data/store.ts'
 import {
@@ -83,6 +89,8 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
   const [mode, setMode] = useState<RasterMode>('probability'),
     [lead, setLead] = useState(120)
   const [actionError, setActionError] = useState<string | null>(null)
+  const [actionBusy, setActionBusy] = useState(false)
+  const actionPending = useRef(false)
   const format = useMemo(
     () =>
       new Intl.DateTimeFormat('en-US', {
@@ -96,10 +104,18 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
     [manifest?.tz]
   )
   const run = (task: () => Promise<void>) => {
+    if (actionPending.current) return
+    actionPending.current = true
+    setActionBusy(true)
     setActionError(null)
-    void task().catch((error) =>
-      setActionError(error instanceof Error ? error.message : String(error))
-    )
+    void task()
+      .catch((error) =>
+        setActionError(error instanceof Error ? error.message : String(error))
+      )
+      .finally(() => {
+        actionPending.current = false
+        setActionBusy(false)
+      })
   }
   const selectIssue = (issue: number) =>
     run(async () => {
@@ -169,7 +185,7 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
                 <select
                   aria-label="Replay branch"
                   value={clock?.active_branch_id ?? 'main'}
-                  disabled={!clock}
+                  disabled={!clock || actionBusy}
                   onChange={(event) => {
                     const branch = event.target.value
                     run(async () => {
@@ -189,6 +205,7 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
                 Display{' '}
                 <select
                   aria-label="Forecast display"
+                  disabled={actionBusy}
                   value={mode}
                   onChange={(event) =>
                     setMode(
@@ -211,7 +228,7 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
                 <select
                   aria-label="Forecast lead"
                   value={lead}
-                  disabled={!manifest}
+                  disabled={!manifest || actionBusy}
                   onChange={(event) => {
                     const next = Number(event.target.value)
                     setLead(next)
@@ -233,7 +250,7 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
                 </select>
               </label>
               <button
-                disabled={!clock}
+                disabled={!clock || actionBusy}
                 onClick={() =>
                   run(async () => {
                     if (clock?.playing) {
@@ -249,7 +266,7 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
                 {clock?.playing ? 'Pause' : 'Play'}
               </button>
               <button
-                disabled={!clock}
+                disabled={!clock || actionBusy}
                 onClick={() => selectIssue(clock!.max_sim_ms)}
               >
                 Latest forecast
@@ -264,7 +281,7 @@ function ConnectedDashboard({ source }: { source: DataSource }) {
               max={clock?.max_sim_ms ?? 0}
               step={300000}
               value={simTime}
-              disabled={!clock}
+              disabled={!clock || actionBusy}
               onChange={(event) => selectIssue(Number(event.target.value))}
             />
             <div className="time-slider__ticks">

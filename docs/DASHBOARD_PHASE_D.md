@@ -153,6 +153,12 @@ web CI runs browser tests; Linux native CI also runs them against the paired Rus
 fixture, and both native platforms run the web unit/HTTP panel checks. Remote CI status
 must be observed separately from local manual Chrome and component test results.
 
+Replay controls serialize each pause/seek/scrub operation. Branch, lead, display and
+issue controls are disabled until it commits, so an old cycle cannot rebase a new
+lead selection. Browser acceptance follows actual index timestamps, including the
+analytic fixture’s missing ignition slot, and waits for the selected cycle before
+checking its raster.
+
 ## Evidence and remaining boundary
 
 See `docs/evidence/dashboard-phase-d.json` for actual local results and limitations.
