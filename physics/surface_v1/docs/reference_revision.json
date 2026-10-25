@@ -1,0 +1,7 @@
+{
+  "oracle": "behave",
+  "repository": "https://github.com/firelab/behave",
+  "pinned_sha": null,
+  "status": "not_executed",
+  "notes": "Independent Behave comparison is specified in BUILD_PLAN section 13.4 and has not been executed in this workspace yet."
+}

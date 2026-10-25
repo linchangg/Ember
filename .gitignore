@@ -15,3 +15,12 @@ __pycache__/
 data/scenarios/*/raw/
 .vercel/
 stdb/target/
+
+# Isolated Rust surface-fire research workspace
+/physics/surface_v1/target/
+# Wave-1 generated outputs (rebuildable; commit deliberately if wanted)
+data/scenarios/*/forcing/
+data/scenarios/*/check_goes_report.html
+engine/cache/
+stdb/dist/
+.claude/worktrees/

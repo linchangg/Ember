@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-24",
+  "platform": "aarch64-apple-darwin",
+  "rust": "1.99.1",
+  "base_main": "2277dfd6fd069d0b9bc0493f6f918fb80c2ad988",
+  "imported_spike": "99b7f459bfbb1968d19d479152adcf80b33e8bfe",
+  "status": "local_checks_passed_hosted_ci_not_yet_confirmed",
+  "commands": {
+    "cargo fmt --all -- --check": "passed",
+    "cargo clippy --workspace --all-targets --offline --locked -- -D warnings": "passed",
+    "cargo test --workspace --offline --locked": {
+      "passed": 47,
+      "failed": 0
+    },
+    "cargo test --workspace --release --offline --locked": {
+      "passed": 47,
+      "failed": 0
+    }
+  },
+  "independent_behave": {
+    "commit": "7e3d7a44b7e7eed271ec3029ec34f0bd66466532",
+    "upstream_tests_passed": 215,
+    "upstream_tests_failed": 0,
+    "strict_cases": 36,
+    "documented_variant_cases": 6
+  },
+  "kernel_benchmark": {
+    "name": "lf_step_128",
+    "criterion_samples": 10,
+    "measurement_seconds": 1,
+    "estimate_microseconds": [
+      137.97,
+      138.62,
+      140.05
+    ],
+    "scope": "single 128x128 LF kernel on uniform phi; not a complete forecast latency or operational performance gate"
+  },
+  "canonical_existing_files": {
+    "changed": [
+      ".gitignore",
+      "README.md",
+      "docs/process.md"
+    ],
+    "specs_contracts_web_and_shared_fixtures": "unchanged",
+    "python_fixture_demo": "not runnable: engine implementation absent on current main; pending C0 not imported"
+  },
+  "deep_learning": "not implemented, no learned-model correctness claim",
+  "activation": "research sibling only; Python HazardModel adapter is not activated"
+}

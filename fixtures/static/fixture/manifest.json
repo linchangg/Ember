@@ -1,0 +1,101 @@
+{
+  "scenario_id": "fixture",
+  "title": "FIXTURE (synthetic)",
+  "tz": "America/Los_Angeles",
+  "config_hash": null,
+  "is_fixture": true,
+  "honesty": {
+    "real": [],
+    "simulated": [
+      "ellipse fire",
+      "zones",
+      "sensors",
+      "residents",
+      "terrain"
+    ]
+  },
+  "aoi_bbox": [
+    -118.28848,
+    34.061148,
+    -117.952753,
+    34.340097
+  ],
+  "initial_view": {
+    "longitude": -118.120617,
+    "latitude": 34.200623,
+    "zoom": 11,
+    "pitch": 45,
+    "bearing": 0
+  },
+  "t_ignition_sim_ms": 1736302500000,
+  "replay_start_sim_ms": 1736301600000,
+  "replay_end_sim_ms": 1736313300000,
+  "horizon_min": 360,
+  "step_min": 30,
+  "quantiles": [
+    0.1,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+  ],
+  "grid": {
+    "nx": 120,
+    "ny": 120,
+    "cell_m": 255.0,
+    "crs": "EPSG:32611",
+    "corners": {
+      "tl": [
+        -118.28848,
+        34.337048
+      ],
+      "tr": [
+        -117.955863,
+        34.340097
+      ],
+      "br": [
+        -117.952753,
+        34.064165
+      ],
+      "bl": [
+        -118.284289,
+        34.061148
+      ]
+    }
+  },
+  "terrain": {
+    "elevation_url": "static/fixture/terrain_elev.png",
+    "encoding": "terrarium",
+    "bounds": [
+      -118.28848,
+      34.061148,
+      -117.952753,
+      34.340097
+    ],
+    "texture_url": "static/fixture/terrain_tex.jpg",
+    "texture_date": "fixture",
+    "attribution": [
+      "Synthetic flat terrain for the Emberline fixture"
+    ]
+  },
+  "static": {
+    "zones_url": "static/fixture/zones.geojson",
+    "assets_url": "static/fixture/assets.geojson",
+    "sensors_url": "static/fixture/sensors.json",
+    "satellites_url": "static/fixture/satellites.json",
+    "timeline_url": "static/fixture/timeline.json",
+    "area_x_url": "static/fixture/area_x.geojson",
+    "spawn_points_url": "static/fixture/spawn_points.json",
+    "scans_dir": null
+  },
+  "lake_ave": [
+    [
+      -118.1316,
+      34.19
+    ],
+    [
+      -118.1316,
+      34.235
+    ]
+  ]
+}

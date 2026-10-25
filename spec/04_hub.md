@@ -141,7 +141,7 @@ These endpoints were checked against https://spacetimedb.com/docs/http/database 
 ## 4. Web client (`web/src/data/SpacetimeSource.ts`)
 
 **Bindings and connection**
-- Generate bindings: `spacetime generate --lang typescript --out-dir web/src/module_bindings --project-path stdb`. Re-run after every module change and commit the result.
+- Generate bindings: `spacetime generate --lang typescript --out-dir web/src/module_bindings --module-path stdb`. Re-run after every module change and commit the result.
 - Create the connection once at module scope and wrap the app in the provider (form verified against the package types in research 05):
   ```
   DbConnection.builder().withUri(VITE_STDB_URI).withDatabaseName('emberline').withToken(saved).onConnect(save)

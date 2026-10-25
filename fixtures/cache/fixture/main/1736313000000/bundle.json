@@ -1,0 +1,814 @@
+{
+  "schema_version": 2,
+  "bundle_id": "bnd_fixture_main_1736313000000",
+  "scenario_id": "fixture",
+  "branch_id": "main",
+  "knowledge_sim_ms": 1736313000000,
+  "cycle": {
+    "cycle_id": "cyc_fixture_main_1736313000000",
+    "scenario_id": "fixture",
+    "branch_id": "main",
+    "knowledge_sim_ms": 1736313000000,
+    "data_through_sim_ms": 1736313000000,
+    "created_wall_ms": 1792868400000,
+    "source": "cache",
+    "filter_mode": "none",
+    "n_members": 16,
+    "ess": 16.0,
+    "tempering_alpha": 1.0,
+    "resampled": false,
+    "n_obs_by_kind": {
+      "goes_pixel": 3
+    },
+    "horizon_min": 360,
+    "step_min": 30,
+    "assets": {
+      "arrival_q": "cache/fixture/main/1736313000000/arrival_q.bin",
+      "perimeter": "cache/fixture/main/1736313000000/perimeter.geojson",
+      "isochrones": "cache/fixture/main/1736313000000/isochrones.geojson"
+    },
+    "danger": {
+      "lead60_p30": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                -118.101065,
+                34.207802
+              ],
+              [
+                -118.101035,
+                34.205502
+              ],
+              [
+                -118.112105,
+                34.205403
+              ],
+              [
+                -118.112075,
+                34.203103
+              ],
+              [
+                -118.117609,
+                34.203053
+              ],
+              [
+                -118.117579,
+                34.200754
+              ],
+              [
+                -118.123114,
+                34.200703
+              ],
+              [
+                -118.128556,
+                34.193754
+              ],
+              [
+                -118.131323,
+                34.193729
+              ],
+              [
+                -118.131293,
+                34.19143
+              ],
+              [
+                -118.13406,
+                34.191404
+              ],
+              [
+                -118.134029,
+                34.189105
+              ],
+              [
+                -118.131262,
+                34.18913
+              ],
+              [
+                -118.1312,
+                34.184532
+              ],
+              [
+                -118.128434,
+                34.184557
+              ],
+              [
+                -118.128373,
+                34.179959
+              ],
+              [
+                -118.114539,
+                34.180085
+              ],
+              [
+                -118.11457,
+                34.182384
+              ],
+              [
+                -118.109036,
+                34.182434
+              ],
+              [
+                -118.109066,
+                34.184734
+              ],
+              [
+                -118.103533,
+                34.184784
+              ],
+              [
+                -118.098089,
+                34.191731
+              ],
+              [
+                -118.095322,
+                34.191756
+              ],
+              [
+                -118.095351,
+                34.194055
+              ],
+              [
+                -118.092584,
+                34.19408
+              ],
+              [
+                -118.092614,
+                34.196379
+              ],
+              [
+                -118.089847,
+                34.196404
+              ],
+              [
+                -118.089876,
+                34.198703
+              ],
+              [
+                -118.087109,
+                34.198728
+              ],
+              [
+                -118.087227,
+                34.207925
+              ],
+              [
+                -118.101065,
+                34.207802
+              ]
+            ]
+          ]
+        ]
+      },
+      "lead120_p30": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                -118.109367,
+                34.207727
+              ],
+              [
+                -118.109337,
+                34.205428
+              ],
+              [
+                -118.11764,
+                34.205352
+              ],
+              [
+                -118.117609,
+                34.203053
+              ],
+              [
+                -118.123144,
+                34.203002
+              ],
+              [
+                -118.123114,
+                34.200703
+              ],
+              [
+                -118.128648,
+                34.200652
+              ],
+              [
+                -118.131354,
+                34.196028
+              ],
+              [
+                -118.136888,
+                34.195977
+              ],
+              [
+                -118.136827,
+                34.191378
+              ],
+              [
+                -118.14236,
+                34.191327
+              ],
+              [
+                -118.142329,
+                34.189028
+              ],
+              [
+                -118.145096,
+                34.189002
+              ],
+              [
+                -118.142267,
+                34.184429
+              ],
+              [
+                -118.145034,
+                34.184403
+              ],
+              [
+                -118.145003,
+                34.182104
+              ],
+              [
+                -118.139439,
+                34.179856
+              ],
+              [
+                -118.139377,
+                34.175258
+              ],
+              [
+                -118.133844,
+                34.175309
+              ],
+              [
+                -118.133813,
+                34.17301
+              ],
+              [
+                -118.125514,
+                34.173086
+              ],
+              [
+                -118.125545,
+                34.175385
+              ],
+              [
+                -118.117245,
+                34.175461
+              ],
+              [
+                -118.117276,
+                34.177761
+              ],
+              [
+                -118.111743,
+                34.177811
+              ],
+              [
+                -118.109036,
+                34.182434
+              ],
+              [
+                -118.103503,
+                34.182484
+              ],
+              [
+                -118.098059,
+                34.189432
+              ],
+              [
+                -118.095292,
+                34.189457
+              ],
+              [
+                -118.095322,
+                34.191756
+              ],
+              [
+                -118.092555,
+                34.191781
+              ],
+              [
+                -118.092584,
+                34.19408
+              ],
+              [
+                -118.089817,
+                34.194105
+              ],
+              [
+                -118.087168,
+                34.203327
+              ],
+              [
+                -118.084401,
+                34.203351
+              ],
+              [
+                -118.087227,
+                34.207925
+              ],
+              [
+                -118.109367,
+                34.207727
+              ]
+            ]
+          ]
+        ]
+      }
+    },
+    "burned_ha": 305.6175,
+    "front_km": 9.69,
+    "growth_ha_per_h": 156.06,
+    "head_bearing_deg": 240.0,
+    "params_summary": {
+      "ros_mult": [
+        1.0,
+        0.111803
+      ],
+      "heading_deg": [
+        240.0,
+        7.45356
+      ]
+    },
+    "model_version": "fixture-ellipse-1",
+    "config_hash": null,
+    "duration_ms": 1
+  },
+  "zone_risk": [
+    {
+      "cycle_id": "cyc_fixture_main_1736313000000",
+      "scenario_id": "fixture",
+      "branch_id": "main",
+      "zone_id": "FIX-Z3",
+      "knowledge_sim_ms": 1736313000000,
+      "p_by_lead": [
+        0.25,
+        0.5625,
+        0.875,
+        0.9375,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "eta_q10_sim_ms": 1736313730435,
+      "eta_q50_sim_ms": 1736316094737,
+      "eta_q90_sim_ms": 1736319724253,
+      "act_by_sim_ms": 1736312100000,
+      "act_by_basis": "q30 arrival \u2212 45 min evac",
+      "evac_min": 45.0,
+      "population": 860,
+      "housing": 300,
+      "n_critical": 1,
+      "tier": 2,
+      "risk_score": 4.795785,
+      "rank": 1,
+      "status": "order",
+      "trend": "flat",
+      "drivers": [
+        "P 94% by +2h",
+        "school"
+      ]
+    },
+    {
+      "cycle_id": "cyc_fixture_main_1736313000000",
+      "scenario_id": "fixture",
+      "branch_id": "main",
+      "zone_id": "FIX-Z2",
+      "knowledge_sim_ms": 1736313000000,
+      "p_by_lead": [
+        0.1875,
+        0.4375,
+        0.6875,
+        0.875,
+        0.9375,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "eta_q10_sim_ms": 1736314278261,
+      "eta_q50_sim_ms": 1736316757895,
+      "eta_q90_sim_ms": 1736320540039,
+      "act_by_sim_ms": 1736312700000,
+      "act_by_basis": "q30 arrival \u2212 45 min evac",
+      "evac_min": 45.0,
+      "population": 420,
+      "housing": 150,
+      "n_critical": 0,
+      "tier": 3,
+      "risk_score": 3.171247,
+      "rank": 2,
+      "status": "order",
+      "trend": "flat",
+      "drivers": [
+        "P 88% by +2h"
+      ]
+    },
+    {
+      "cycle_id": "cyc_fixture_main_1736313000000",
+      "scenario_id": "fixture",
+      "branch_id": "main",
+      "zone_id": "FIX-Z1",
+      "knowledge_sim_ms": 1736313000000,
+      "p_by_lead": [
+        0.0,
+        0.0,
+        0.0,
+        0.0625,
+        0.1875,
+        0.3125,
+        0.4375,
+        0.5625,
+        0.625,
+        0.6875,
+        0.6875,
+        0.8125
+      ],
+      "eta_q10_sim_ms": 1736320330342,
+      "eta_q50_sim_ms": 1736325675899,
+      "eta_q90_sim_ms": null,
+      "act_by_sim_ms": 1736319507220,
+      "act_by_basis": "q30 arrival \u2212 45 min evac",
+      "evac_min": 45.0,
+      "population": 180,
+      "housing": 70,
+      "n_critical": 0,
+      "tier": 3,
+      "risk_score": 0.203605,
+      "rank": 3,
+      "status": "watch",
+      "trend": "flat",
+      "drivers": [
+        "P 6% by +2h"
+      ]
+    },
+    {
+      "cycle_id": "cyc_fixture_main_1736313000000",
+      "scenario_id": "fixture",
+      "branch_id": "main",
+      "zone_id": "FIX-Z4",
+      "knowledge_sim_ms": 1736313000000,
+      "p_by_lead": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.125,
+        0.375,
+        0.625,
+        0.75,
+        0.875,
+        1.0,
+        1.0
+      ],
+      "eta_q10_sim_ms": 1736323011372,
+      "eta_q50_sim_ms": 1736326197749,
+      "eta_q90_sim_ms": 1736331773691,
+      "act_by_sim_ms": 1736322264836,
+      "act_by_basis": "q30 arrival \u2212 45 min evac",
+      "evac_min": 45.0,
+      "population": 180,
+      "housing": 70,
+      "n_critical": 0,
+      "tier": 3,
+      "risk_score": 0.0,
+      "rank": 4,
+      "status": "watch",
+      "trend": "flat",
+      "drivers": [
+        "P 0% by +2h"
+      ]
+    },
+    {
+      "cycle_id": "cyc_fixture_main_1736313000000",
+      "scenario_id": "fixture",
+      "branch_id": "main",
+      "zone_id": "FIX-Z5",
+      "knowledge_sim_ms": 1736313000000,
+      "p_by_lead": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.125,
+        0.375,
+        0.625,
+        0.625
+      ],
+      "eta_q10_sim_ms": 1736327453137,
+      "eta_q50_sim_ms": 1736331954549,
+      "eta_q90_sim_ms": null,
+      "act_by_sim_ms": 1736327129627,
+      "act_by_basis": "q30 arrival \u2212 45 min evac",
+      "evac_min": 45.0,
+      "population": 180,
+      "housing": 70,
+      "n_critical": 0,
+      "tier": 3,
+      "risk_score": 0.0,
+      "rank": 5,
+      "status": "watch",
+      "trend": "flat",
+      "drivers": [
+        "P 0% by +2h"
+      ]
+    },
+    {
+      "cycle_id": "cyc_fixture_main_1736313000000",
+      "scenario_id": "fixture",
+      "branch_id": "main",
+      "zone_id": "FIX-Z6",
+      "knowledge_sim_ms": 1736313000000,
+      "p_by_lead": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.125,
+        0.125
+      ],
+      "eta_q10_sim_ms": 1736331895113,
+      "eta_q50_sim_ms": null,
+      "eta_q90_sim_ms": null,
+      "act_by_sim_ms": null,
+      "act_by_basis": "q30 arrival \u2212 45 min evac",
+      "evac_min": 45.0,
+      "population": 180,
+      "housing": 70,
+      "n_critical": 0,
+      "tier": 3,
+      "risk_score": 0.0,
+      "rank": 6,
+      "status": "watch",
+      "trend": "flat",
+      "drivers": [
+        "P 0% by +2h"
+      ]
+    }
+  ],
+  "observations": [
+    {
+      "obs_id": "obs_goes18_fdcc_goes18_20250108T051000_135_200",
+      "scenario_id": "fixture",
+      "branch_id": "main",
+      "sensor_id": "goes18_fdcc",
+      "kind": "goes_pixel",
+      "observed_sim_ms": 1736313000000,
+      "available_sim_ms": 1736313000000,
+      "geometry": {
+        "type": "footprint",
+        "ring": [
+          [
+            -118.124408,
+            34.167868
+          ],
+          [
+            -118.099458,
+            34.168094
+          ],
+          [
+            -118.099785,
+            34.193341
+          ],
+          [
+            -118.124743,
+            34.193115
+          ],
+          [
+            -118.124408,
+            34.167868
+          ]
+        ]
+      },
+      "hot": true,
+      "footprint_key": "goes18:135:200",
+      "fdc_class": 10,
+      "report_kind": null,
+      "confidence": 1.0,
+      "frp_mw": null,
+      "trust": 1.0,
+      "provenance": "simulated",
+      "source_ref": "fixture",
+      "status": "assimilated",
+      "cycle_id": "cyc_fixture_main_1736313000000",
+      "influence": null
+    },
+    {
+      "obs_id": "obs_goes18_fdcc_goes18_20250108T051000_135_201",
+      "scenario_id": "fixture",
+      "branch_id": "main",
+      "sensor_id": "goes18_fdcc",
+      "kind": "goes_pixel",
+      "observed_sim_ms": 1736313000000,
+      "available_sim_ms": 1736313000000,
+      "geometry": {
+        "type": "footprint",
+        "ring": [
+          [
+            -118.132996,
+            34.176186
+          ],
+          [
+            -118.108043,
+            34.176414
+          ],
+          [
+            -118.108374,
+            34.201661
+          ],
+          [
+            -118.133334,
+            34.201433
+          ],
+          [
+            -118.132996,
+            34.176186
+          ]
+        ]
+      },
+      "hot": true,
+      "footprint_key": "goes18:135:201",
+      "fdc_class": 10,
+      "report_kind": null,
+      "confidence": 1.0,
+      "frp_mw": null,
+      "trust": 1.0,
+      "provenance": "simulated",
+      "source_ref": "fixture",
+      "status": "assimilated",
+      "cycle_id": "cyc_fixture_main_1736313000000",
+      "influence": null
+    },
+    {
+      "obs_id": "obs_goes18_fdcc_goes18_20250108T051000_135_202",
+      "scenario_id": "fixture",
+      "branch_id": "main",
+      "sensor_id": "goes18_fdcc",
+      "kind": "goes_pixel",
+      "observed_sim_ms": 1736313000000,
+      "available_sim_ms": 1736313000000,
+      "geometry": {
+        "type": "footprint",
+        "ring": [
+          [
+            -118.137645,
+            34.186444
+          ],
+          [
+            -118.112689,
+            34.186672
+          ],
+          [
+            -118.113021,
+            34.21192
+          ],
+          [
+            -118.137984,
+            34.211691
+          ],
+          [
+            -118.137645,
+            34.186444
+          ]
+        ]
+      },
+      "hot": true,
+      "footprint_key": "goes18:135:202",
+      "fdc_class": 10,
+      "report_kind": null,
+      "confidence": 1.0,
+      "frp_mw": null,
+      "trust": 1.0,
+      "provenance": "simulated",
+      "source_ref": "fixture",
+      "status": "assimilated",
+      "cycle_id": "cyc_fixture_main_1736313000000",
+      "influence": null
+    }
+  ],
+  "scan_events": [
+    {
+      "scan_id": "goes18_20250108T051000",
+      "scenario_id": "fixture",
+      "branch_id": "main",
+      "sensor_id": "goes18_fdcc",
+      "mode": "CONUS",
+      "t_start_sim_ms": 1736313000000,
+      "t_end_sim_ms": 1736313000000,
+      "available_sim_ms": 1736313000000,
+      "n_pixels_aoi": 93,
+      "n_hot": 3,
+      "n_clear": 90,
+      "assimilated": true,
+      "pixels_path": null,
+      "provenance": "simulated"
+    }
+  ],
+  "sensors": [
+    {
+      "sensor_id": "goes18_fdcc",
+      "scenario_id": "fixture",
+      "kind": "goes_pixel",
+      "name": "GOES-18 FDCC",
+      "platform": "GOES-18",
+      "provenance": "simulated",
+      "enabled": true,
+      "status": "ok",
+      "last_data_sim_ms": 1736313000000,
+      "latency_s": 0.0,
+      "lon": null,
+      "lat": null,
+      "heading_deg": null,
+      "hfov_deg": null,
+      "pixel_m": 2000.0
+    },
+    {
+      "sensor_id": "viirs_n20",
+      "scenario_id": "fixture",
+      "kind": "viirs_pixel",
+      "name": "VIIRS NOAA-20",
+      "platform": "NOAA-20",
+      "provenance": "simulated",
+      "enabled": true,
+      "status": "ok",
+      "last_data_sim_ms": null,
+      "latency_s": null,
+      "lon": null,
+      "lat": null,
+      "heading_deg": null,
+      "hfov_deg": null,
+      "pixel_m": 375.0
+    }
+  ],
+  "alerts": [],
+  "briefings": [],
+  "people": [],
+  "reports": [],
+  "metrics": [],
+  "events": [
+    {
+      "event_id": "ev_1736313000000_0",
+      "scenario_id": "fixture",
+      "branch_id": "main",
+      "sim_ms": 1736313000000,
+      "wall_ms": 1792868400000,
+      "stage": "observation",
+      "actor": "fixture",
+      "level": "info",
+      "message": "FIXTURE GOES-18 21:10 \u2192 3 hot px, 90 clear",
+      "ref_kind": null,
+      "ref_id": null,
+      "duration_ms": null
+    },
+    {
+      "event_id": "ev_1736313000000_1",
+      "scenario_id": "fixture",
+      "branch_id": "main",
+      "sim_ms": 1736313000000,
+      "wall_ms": 1792868400000,
+      "stage": "filter",
+      "actor": "fixture",
+      "level": "info",
+      "message": "FIXTURE Filter: ESS 16/16 (\u03b1 1.00), not resampled",
+      "ref_kind": null,
+      "ref_id": null,
+      "duration_ms": null
+    },
+    {
+      "event_id": "ev_1736313000000_2",
+      "scenario_id": "fixture",
+      "branch_id": "main",
+      "sim_ms": 1736313000000,
+      "wall_ms": 1792868400000,
+      "stage": "forecast",
+      "actor": "fixture",
+      "level": "info",
+      "message": "FIXTURE Forecast run 0.1 s \u2192 12 leads",
+      "ref_kind": null,
+      "ref_id": null,
+      "duration_ms": 100
+    }
+  ]
+}

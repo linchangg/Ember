@@ -1,0 +1,46 @@
+{
+  "demo": [
+    {
+      "spawn_id": "fix-spawn-FIX-Z3",
+      "lon": -118.130206,
+      "lat": 34.175856,
+      "zone_id": "FIX-Z3",
+      "street": "Fixture Lane 3"
+    },
+    {
+      "spawn_id": "fix-spawn-FIX-Z2",
+      "lon": -118.140984,
+      "lat": 34.187319,
+      "zone_id": "FIX-Z2",
+      "street": "Fixture Lane 2"
+    },
+    {
+      "spawn_id": "fix-spawn-FIX-Z1",
+      "lon": -118.162385,
+      "lat": 34.187263,
+      "zone_id": "FIX-Z1",
+      "street": "Fixture Lane 1"
+    },
+    {
+      "spawn_id": "fix-spawn-FIX-Z4",
+      "lon": -118.168295,
+      "lat": 34.165484,
+      "zone_id": "FIX-Z4",
+      "street": "Fixture Lane 4"
+    },
+    {
+      "spawn_id": "fix-spawn-FIX-Z5",
+      "lon": -118.184158,
+      "lat": 34.157666,
+      "zone_id": "FIX-Z5",
+      "street": "Fixture Lane 5"
+    },
+    {
+      "spawn_id": "fix-spawn-FIX-Z6",
+      "lon": -118.200018,
+      "lat": 34.149847,
+      "zone_id": "FIX-Z6",
+      "street": "Fixture Lane 6"
+    }
+  ]
+}

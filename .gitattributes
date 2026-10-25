@@ -16,3 +16,8 @@
 *.wav binary
 *.webm binary
 *.mp3 binary
+
+# Physics reference fixtures: preserve exact little-endian array bytes.
+*.f64le binary
+*.u16le binary
+*.u8 binary

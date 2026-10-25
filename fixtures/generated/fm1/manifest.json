@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "incident_id": "synthetic-fm1",
+  "start_utc": "2026-01-01T00:00:00Z",
+  "grid": {
+    "width": 64,
+    "height": 64,
+    "cell_size_m": 10.0,
+    "x0_m": 0.0,
+    "y0_m": 0.0,
+    "crs": "LOCAL_METRIC_TEST"
+  },
+  "landscape": {
+    "elevation": "elevation.f64le",
+    "fuel_id": "fuel_id.u16le",
+    "valid": "valid.u8",
+    "burnable": "burnable.u8",
+    "fuel_catalog": "fuel_models.csv"
+  },
+  "initial": {
+    "phi": "initial_phi.f64le",
+    "perimeter_activity": "assume_entire_boundary_active"
+  },
+  "environment": {
+    "wind_reference": "midflame_horizontal_heading_surface_speed",
+    "interpolation": "hold_right_continuous",
+    "frames": [
+      {
+        "time_s": 0.0,
+        "observed_or_valid_utc": "2026-01-01T00:00:00Z",
+        "available_utc": "2026-01-01T00:00:00Z",
+        "directory": "weather/000000"
+      },
+      {
+        "time_s": 600.0,
+        "observed_or_valid_utc": "2026-01-01T00:10:00Z",
+        "available_utc": "2026-01-01T00:00:00Z",
+        "directory": "weather/000600"
+      }
+    ],
+    "coverage_end_s": 3600.0
+  },
+  "simulation": {
+    "horizons_s": [
+      300.0,
+      600.0,
+      1800.0,
+      3600.0
+    ],
+    "cfl": 0.4,
+    "max_step_s": 30.0,
+    "wind_limit": "effective_0p9_ir",
+    "ellipse_max_lb": 8.0,
+    "reinitialize": false,
+    "solver": "level_set_lf_euler_v1"
+  }
+}
