@@ -28,10 +28,25 @@ warm runs and process-tree memory before changing the performance claim.
 ## Replay coverage
 
 The committed Eaton main cache contains 80 of 157 replay issues, ending at
-2025-01-08 08:35 UTC. All 80 bundles pass schema and observation-availability checks.
-Complete and verify the intended branch caches before claiming a complete Eaton demo.
-Use a separate cache root for regenerated outputs and retain their actual model,
-configuration and environment identity.
+2025-01-08 08:35 UTC. Cody's later main commit `b408fe2` fetches the public
+`demo-data-eaton-v1` release for Pages. The release was downloaded with its declared
+SHA256 verified: main, satellites-only and openloop each have **157/157** issues,
+with 462 referenced forecast assets checked per branch and no inventory errors.
+
+The archive omits 471 immutable bundle copies referenced by its indexes. The new
+Pages packaging step restores them only after canonical bytes match the indexed
+SHA256; indexes and predictions are unchanged. It rejects mismatches and excludes
+private checkpoints/evidence/dispatch journals from the site. Standalone preparation:
+
+```sh
+node web/scripts/restore_bundle_versions.mjs /path/to/extracted-release eaton
+```
+
+See `docs/evidence/published-eaton-release.json` for source IDs, checksum and audits.
+This closes the development demo's published replay coverage, **not** target-profile
+or scientific validation. All three branches are N=16; a matched reinit baseline,
+N=128 runs and raw-member historical exports remain separate work. Model perimeters
+in this archive are forecasts, not independent observed-perimeter truth.
 
 ## Real-data and scientific gate
 

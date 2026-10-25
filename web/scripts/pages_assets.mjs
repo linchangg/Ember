@@ -2,8 +2,9 @@
 // and copies index.html to 404.html so deep links such as /dashboard work on GitHub Pages.
 // Scenarios: the synthetic fixture always; the real Eaton run too if its files are in the repo.
 import { cpSync, existsSync, readdirSync, rmSync, statSync } from 'node:fs'
-import { join } from 'node:path'
+import { basename, join, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { restoreBundleVersions } from './restore_bundle_versions.mjs'
 
 const root = fileURLToPath(new URL('../..', import.meta.url))
 const dist = fileURLToPath(new URL('../dist', import.meta.url))
@@ -28,7 +29,15 @@ for (const [id, src] of Object.entries(SOURCES)) {
     continue
   }
   cpSync(s, join(dist, 'static', id), { recursive: true })
-  cpSync(c, join(dist, 'cache', id, ...(src.branch ? [src.branch] : [])), { recursive: true })
+  restoreBundleVersions(id === 'fixture' ? join(root, 'fixtures') : root, id)
+  cpSync(c, join(dist, 'cache', id, ...(src.branch ? [src.branch] : [])), {
+    recursive: true,
+    filter: (source) => {
+      const parts = relative(c, source).split(sep), name = basename(source)
+      return !parts.includes('checkpoints') && name !== 'branch-evidence.json' &&
+        !name.startsWith('dispatch.sqlite3') && !/\.(?:npz|npy|key|sqlite3?)(?:-|$)/.test(name)
+    },
+  })
   console.log(`${id}: ${(size(join(dist, 'static', id)) / 1e6).toFixed(1)} MB static, ${(size(join(dist, 'cache', id)) / 1e6).toFixed(1)} MB cache`)
 }
 cpSync(join(dist, 'index.html'), join(dist, '404.html'))

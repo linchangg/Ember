@@ -14,7 +14,8 @@
     "build:pages": "vite build && node scripts/pages_assets.mjs",
     "test:browser": "playwright test",
     "test:browser:hub": "playwright test --config playwright.hub.config.ts",
-    "test:services": "node --test api/lib/*.test.mjs src/phone/*.test.js"
+    "test:services": "node --test api/lib/*.test.mjs src/phone/*.test.js",
+    "test:packaging": "node --test scripts/*.test.mjs"
   },
   "dependencies": {
     "cesium": "^1.146.0",

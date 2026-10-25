@@ -1,7 +1,7 @@
 # Release implementation review results
 
 2026-10-25. Plan: `RELEASE_COMPLETION_PLAN.md`. Branch: `release/all-phases`.
-Integrated main through `1d56f83`, including the current globe, guided tour, Pages
+Integrated main through `b408fe2`, including the current globe, guided tour, Pages
 hosting and presentation changes. No frozen table/type/reducer signature changed.
 The existing `rewind` reducer now performs its specified ancestor-seek behavior.
 
@@ -45,12 +45,13 @@ test established assimilation; the two pieces of evidence are not conflated.
 | Final lost-ack/crash recovery and engine lifecycle regressions | 39 passed, 1 configured skip |
 | Acquisition/import/positive-event diagnostic checks | 18 passed |
 | Benchmark harness, including retained timeout evidence | 7 passed |
+| Pages restoration/private-state packaging regressions | 4 passed |
 | Release inventory audit regressions | 9 passed |
 | Dashboard unit checks | 48 passed, 1 configured skip |
 | Report/callback/voice-stub/audio checks | 19 passed |
 | TypeScript checks, lint, production build, hub type check | Passed locally |
 | Fresh complete 16-member Rust fixture + report branch | Passed: 36 forecasts + 3 pre-ignition issues, 13 child forecasts; decoder passed; 49 native dashboard tests passed |
-| Remote CI on this implementation | Draft PR #15; all five push checks passed on ca655b8; final recovery update requires its own CI |
+| Remote CI on engine/report implementation | ca655b8: all 10 checks passed; 92352dc: all 8 checks passed; subsequent packaging update gets its own CI |
 
 Configured hub tests are skipped in the ordinary suite; they are run separately
 against a disposable published database. Provider tests use stubs. No actual call,
@@ -58,12 +59,15 @@ provider request, deployment or message to a teammate was made.
 
 ## Release gates still open
 
-1. **Full Eaton replay:** the committed main cache remains 80/157 issues. New PF,
-   open-loop and reinit development runs use a separate root. The last accessible
-   reinit index had 10/157; other new indexes were cloud-offloaded at review time.
-   Do not infer completion from cycle directory counts. These runs do not establish
-   N=128 coverage. Copy/continue runs in storage that will remain locally available,
-   then run `release_audit.py` on every intended branch and record hashes/coverage.
+1. **Target/matched replay:** Cody's published release now passes development
+   inventory acceptance for main, satellites-only and openloop: **157/157 each**,
+   **1,386 referenced forecast assets**, no errors. Its omitted immutable bundle
+   copies were reconstructed byte-for-byte after SHA256 verification, with unchanged
+   indexes. Full Pages copy smoke: 471/471 indexed bundles present. See
+   `evidence/published-eaton-release.json`. These are N=16 demonstration branches
+   with different input policies, not a matched four-way scientific experiment.
+   N=128 and matched reinit/raw-member runs remain open. Earlier local reruns used
+   cloud-offloaded storage and are retained as partial evidence, not promoted.
 2. **Independent historical accuracy:** no usable overnight Eaton burned-perimeter
    sequence with explicit coverage was acquired. The downloaded NIFC polygon is
    later context. Obtain original FireGuard GIS/coverage/lineage or select another
@@ -89,5 +93,6 @@ provider request, deployment or message to a teammate was made.
 
 Draft PR: https://github.com/linchangg/Legendary-Fire-Project/pull/15. These limitations
 are included in its description; this is not a calibrated production release.
-The locally served committed Eaton data also loaded with shared hub status ok and
-a verified +120-minute forecast. Local preview uses 80/157 issues, not a full replay.
+The local preview initially verified the committed 80-issue subset, then was updated
+to the complete published archive after its audit. The asset host reports 157/157.
+The release's perimeters remain model outputs, not independent truth.

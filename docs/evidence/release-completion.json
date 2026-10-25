@@ -1,7 +1,7 @@
 {
   "date": "2026-10-25",
   "branch": "release/all-phases",
-  "integrated_main": "1d56f832d033ee9119da1ab489e72695a13ae13f",
+  "integrated_main": "b408fe2d31d5e5fe6297df3f1d53773dea134410",
   "scientific_acceptance": "not_established",
   "outbound_delivery": "not_attempted",
   "deployment": "not_attempted",
@@ -63,12 +63,16 @@
         40184408273,
         40184408243
       ],
-      "final_recovery_update": "requires_own_ci"
+      "final_recovery_update": {
+        "commit": "92352dcd69c44788f943a2980416027d11fe1b3b",
+        "checks": "8 passed",
+        "packaging_update": "requires_own_ci"
+      }
     },
     "browser_build_credentials": "no_private_service_credentials_found",
     "local_eaton_dashboard": {
       "hub": "ok",
-      "indexed_issues": 80,
+      "indexed_issues": 157,
       "expected_issues": 157,
       "lead_min": 120
     },
@@ -76,10 +80,28 @@
       "passed": 39,
       "skipped": 1,
       "seconds": 61.96
+    },
+    "pages_packaging": {
+      "passed": 4,
+      "full_copy_smoke": "471/471 indexed bundles present",
+      "private_runtime_state": "excluded"
+    },
+    "published_eaton": {
+      "branches": [
+        "main",
+        "satellites-only",
+        "openloop"
+      ],
+      "issues_per_branch": 157,
+      "expected_per_branch": 157,
+      "assets_checked": 1386,
+      "errors": 0,
+      "members": 16,
+      "immutable_bundle_copies_restored": 471
     }
   },
   "open_gates": [
-    "complete_eaton_replay",
+    "target_and_matched_reinit_replay",
     "independent_historical_skill",
     "scientific_calibration",
     "target_latency",
@@ -93,6 +115,10 @@
     {
       "path": "eaton-perimeter-source-review.json",
       "sha256": "67e73f0a3e80cb717f9c95398ed98b83483a898ba9d00cc8b2ad1dad18114f40"
+    },
+    {
+      "path": "published-eaton-release.json",
+      "sha256": "4ce3d2064125146c5e3f8ea3000ca5f1eace07d3d6a0788ee2e4dbda0adc932f"
     }
   ],
   "pull_request": "https://github.com/linchangg/Legendary-Fire-Project/pull/15"
