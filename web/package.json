@@ -7,10 +7,11 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
-    "test": "node --test src/lib/globeData.test.js",
+    "test": "node --test src/lib/globeData.test.js src/data/*.test.ts",
     "preview": "vite preview",
     "fetch:firms": "node scripts/fetch_firms.mjs",
-    "make:synthetic": "node scripts/make_synthetic_spread.mjs"
+    "make:synthetic": "node scripts/make_synthetic_spread.mjs",
+    "typecheck": "tsc --project tsconfig.data.json"
   },
   "dependencies": {
     "cesium": "^1.146.0",
@@ -25,6 +26,7 @@
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
     "oxlint": "^1.88.0",
+    "typescript": "5.6.3",
     "vite": "^8.3.4",
     "vite-plugin-cesium": "^1.2.23"
   }

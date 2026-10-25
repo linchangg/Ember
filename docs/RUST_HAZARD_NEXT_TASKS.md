@@ -199,3 +199,12 @@ incident inputs and causal replay artifacts. Dashboard Phase A generation/HTTP h
 is complete. The owner requires direct confirmation before each remaining phase:
 stop before FileSource/store/hooks work (Phase B), then stop again before rendering.
 See `DASHBOARD_PHASE_A.md` for the exact boundary and restart commands.
+
+### Phase B follow-up
+
+The owner has now directly authorized Phase B. FileSource/store/hooks, replay timing,
+validated assets and local actions are implemented and tested against canonical and
+Rust-generated fixtures, including HTTP consumption. Main 2181e1b now provides Cody's
+runtime/publisher/local API modules; remaining work is integration acceptance, not
+creating those modules from scratch. See `DASHBOARD_PHASE_B.md`. Stop before Phase C
+map rendering until new direct owner confirmation. Scientific/performance gates remain.

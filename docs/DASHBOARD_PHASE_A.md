@@ -1,4 +1,7 @@
-# Dashboard connection: Phase A completed; Phase B awaits confirmation
+# Dashboard connection: Phase A record
+
+Subsequent update: the owner directly authorized Phase B, which is now implemented;
+see `DASHBOARD_PHASE_B.md`. The Phase A boundary below is the original handoff.
 
 The owner explicitly requires direct confirmation before each subsequent phase.
 This record covers Phase A only. No FileSource, dashboard store/hooks, forecast-map
