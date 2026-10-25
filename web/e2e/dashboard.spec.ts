@@ -204,7 +204,11 @@ test(
     ).toContainText('simulated')
     const article = page
       .locator('[data-alert-id]')
-      .filter({ has: page.getByRole('button', { name: 'Approve locally' }) })
+      .filter({
+        has: page
+          .locator('button:enabled')
+          .filter({ hasText: 'Approve locally' }),
+      })
       .first()
     const id = await article.getAttribute('data-alert-id')
     await article.getByRole('button', { name: 'Approve locally' }).click()
