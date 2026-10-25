@@ -86,3 +86,7 @@ The script refuses changed or unpinned source, builds and runs the upstream test
 ## Integration boundary
 
 Do not route these binary files directly to the UI or `arrival_q.bin`. A future approved `HazardModel` adapter must reverse row order, reconcile the 90 m UTM grid, convert seconds to minutes with a fixed `t_ref`, and construct unconditional arrival quantiles using no-arrival mass. It also needs model-version selection, Python save/load parity, observation cutoff rules, and end-to-end fixture tests. Conditional research quantiles cannot be copied into the demo output contract. AllConvNet, PhysFire-WM, learned residuals, and other deep-learning models are not implemented.
+
+## Research adapter
+
+`adapter/` is a research compatibility layer: row-order and time conversion, unconditional quantiles from member outcomes, and a subprocess bridge to a release `fire-cli`. The field map and the decisions still open are in [docs/ADAPTER_SPEC.md](docs/ADAPTER_SPEC.md). Workload timing is [docs/BENCHMARK_PROTOCOL.md](docs/BENCHMARK_PROTOCOL.md). This layer does not implement `HazardModel` and does not select the application backend.
