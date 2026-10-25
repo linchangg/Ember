@@ -163,8 +163,11 @@ checking its raster.
 
 See `docs/evidence/dashboard-phase-d.json` for actual local results and limitations.
 The native replay completed in 143.108 s for the paired development workload; this is
-not the target N=128/340×340 per-cycle benchmark. Browser CI collection/configuration
-is validated locally; execution status is recorded separately. Scientific calibration,
+not the target N=128/340×340 per-cycle benchmark. GitHub [dashboard checks](https://github.com/linchangg/Legendary-Fire-Project/actions/runs/40170496792)
+passed (3 browser cases, 1 native-only skip). The
+[native integration matrix](https://github.com/linchangg/Legendary-Fire-Project/actions/runs/40170496830)
+passed on Linux and macOS for code commit `f0cc6b1`; Linux also passed all 4 browser
+cases against the paired Rust fixture. Scientific calibration,
 held-out historical skill and performance targets remain open. No continuously updating
 hub transport, live report API, notification delivery or deployment is included.
 

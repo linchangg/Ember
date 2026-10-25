@@ -26,7 +26,14 @@
   "production_build": "passed; existing large chunk warning",
   "browser_ci": {
     "cases_collected": 4,
-    "execution": "pending remote CI; not run by local CLI"
+    "execution": "passed on GitHub Linux Chromium; canonical fixture 3 passed, 1 native-only skip",
+    "run_url": "https://github.com/linchangg/Legendary-Fire-Project/actions/runs/40170496792",
+    "code_commit": "f0cc6b1",
+    "fixes": [
+      "Serialize replay controls through pause/seek/scrub completion",
+      "Traverse actual index timestamps including missing ignition slot",
+      "Select enabled owned child alert for local review"
+    ]
   },
   "manual_chrome": [
     "pre-ignition unavailable states",
@@ -69,5 +76,13 @@
   "science_skill": "not established",
   "performance_targets": "not established",
   "phase_e": "not started; requires new direct confirmation",
-  "main_changed": false
+  "main_changed": false,
+  "native_ci": {
+    "execution": "passed on both ubuntu-latest and macos-latest",
+    "run_url": "https://github.com/linchangg/Legendary-Fire-Project/actions/runs/40170496830",
+    "code_commit": "f0cc6b1",
+    "paired_rust_browser": "4 passed on Linux Chromium",
+    "full_python_suite": "passed on both platforms",
+    "paired_fixture_decoder_http_panels": "passed on both platforms"
+  }
 }
