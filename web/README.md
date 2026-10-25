@@ -60,7 +60,7 @@ Phase E explicit hub mode, runtime publication rules and local published-hub acc
 One-time setup: Settings → Pages → Source: **GitHub Actions**. The site lives at `https://<owner>.github.io/<repo>/`.
 
 - `npm run build:pages` runs `vite build`, then `scripts/pages_assets.mjs` copies the scenario files into `dist/static/<id>/` and
-  `dist/cache/<id>/main/` (the synthetic `fixture` always; `eaton` too once `data/scenarios/eaton/web` and `cache/eaton/main` are committed).
-- The workflow sets `VITE_BASE=/<repo>/`. The default scenario is `fixture`; run the workflow by hand with `scenario: eaton` to open the real replay,
-  or add `?scn=eaton` to the URL.
+  `dist/cache/<id>/main/` (the synthetic `fixture`, and the real `eaton` run from `data/scenarios/eaton/web` and `cache/eaton/main`).
+- The workflow sets `VITE_BASE=/<repo>/`. The site opens the real `eaton` backtest by default; run the workflow by hand with `scenario: fixture`
+  for the synthetic one, or add `?scn=fixture` to the URL.
 - Try it locally: `VITE_BASE=/Legendary-Fire-Project/ npm run build:pages && VITE_BASE=/Legendary-Fire-Project/ npx vite preview`.

@@ -692,6 +692,10 @@ export default function GlobeNetwork() {
       }
 
       // atmosphere + translucent body
+      if (!Number.isFinite(cx + cy + R)) {
+        console.warn('bad frame', { cx, cy, R, W, H, zoom: view.zoom, lon: view.lon, lat: view.lat, cxo: view.cxo, target: view.target })
+        return
+      }
       const halo = ctx.createRadialGradient(cx, cy, R * 0.6, cx, cy, R * 1.32)
       halo.addColorStop(0, 'rgba(40,110,230,0)')
       halo.addColorStop(0.44, 'rgba(40,110,230,0.04)')

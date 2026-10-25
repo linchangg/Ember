@@ -5,8 +5,8 @@ on:
   workflow_dispatch:
     inputs:
       scenario:
-        description: Scenario the site opens by default (fixture or eaton)
-        default: fixture
+        description: Scenario the site opens by default (eaton = the real backtest, fixture = synthetic)
+        default: eaton
 permissions:
   contents: read
   pages: write
@@ -29,7 +29,7 @@ jobs:
       - run: npm run build:pages
         env:
           VITE_BASE: /${{ github.event.repository.name }}/
-          VITE_SCENARIO_ID: ${{ inputs.scenario || 'fixture' }}
+          VITE_SCENARIO_ID: ${{ inputs.scenario || 'eaton' }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
