@@ -1,0 +1,13 @@
+{
+  "phase": "B",
+  "source": "FileSource",
+  "transport": "HTTP",
+  "scenario": "rust-fixture",
+  "forecast_cycles": 36,
+  "preignition_cycles": 3,
+  "observations": 111,
+  "alerts": 5,
+  "atomic_cycles": true,
+  "backward_seek": true,
+  "renderer_connected": false
+}

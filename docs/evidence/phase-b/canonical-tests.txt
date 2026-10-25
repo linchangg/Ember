@@ -1,0 +1,38 @@
+
+> emberline-web@0.1.0 test
+> node --test src/lib/globeData.test.js src/data/*.test.ts
+
+✔ asset paths cannot traverse, change origin or bypass the asset prefix (0.950208ms)
+✔ manifest/index reject incompatible constants, duplicate timestamps and bad identity (19.714458ms)
+✔ pre-ignition initialization is paused with no forecast and exact bounds (25.566875ms)
+✔ all fixture entries stage one consistent cycle/assets/risk and only eligible evidence (283.026834ms)
+✔ scrubbing changes view only; future views use the latest currently known cycle (13.397292ms)
+✔ no later cycle leaks when viewing the future from an earlier simulation issue (2.937583ms)
+✔ slow obsolete seek cannot replace a newer pre-ignition selection, even if fetch ignores abort (2.875833ms)
+✔ a broken binary clears selected forecast/panels and exposes an error instead of mock fallback (13.727917ms)
+✔ future observations and unsupported bundle schema fail before commit (1.436958ms)
+✔ disposal cancels outstanding staging and prevents subsequent publication (2.942792ms)
+✔ clock play/pause/speed and reset use deterministic anchors and enforce bounds (1.817833ms)
+✔ local approval survives seeks and cannot be downgraded or sent externally (29.098333ms)
+✔ playback pauses when a new alert proposal is committed (12.394667ms)
+✔ arrival cache holds at most four grids and does not reuse model identities (5.998291ms)
+✔ configuration is explicit and has no mock/hub silent fallback (0.212708ms)
+✔ React data hooks read the committed fixture snapshot without rendering a map (17.3115ms)
+✔ StrictMode-style lease cleanup/reacquire keeps a source alive; a true unmount disposes it (1.6015ms)
+✔ branch switch stages independent assets and retains only eligible parent history (59.251833ms)
+✔ zero activity limit returns no events and source leases dispose separately on replacement (2.709375ms)
+✔ missing assets and invalid quantile byte values fail visibly (1.62775ms)
+✔ epoch changes invalidate metadata as well as binary caches (4.330166ms)
+✔ bad initial index rejects initialization and exposes a recoverable error snapshot (0.787667ms)
+✔ a failed playback update is not repeatedly retried by the clock timer (1.759375ms)
+✔ an unavailable or empty event feed cannot crash globe initialization (0.65575ms)
+✔ coincident and antipodal events produce no invalid flight (0.175ms)
+✔ valid separated events preserve the animated flight parameters (0.166166ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 679.6025

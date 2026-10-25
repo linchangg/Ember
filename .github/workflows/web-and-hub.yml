@@ -1,9 +1,9 @@
 name: Dashboard and hub checks
 on:
   push:
-    paths: ['web/**', 'stdb/**', '.github/workflows/web-and-hub.yml']
+    paths: ['web/**', 'stdb/**', 'fixtures/**', 'tools/check_dashboard_source.mts', '.github/workflows/web-and-hub.yml']
   pull_request:
-    paths: ['web/**', 'stdb/**', '.github/workflows/web-and-hub.yml']
+    paths: ['web/**', 'stdb/**', 'fixtures/**', 'tools/check_dashboard_source.mts', '.github/workflows/web-and-hub.yml']
 permissions:
   contents: read
 jobs:
@@ -19,6 +19,7 @@ jobs:
           node-version: '22'
       - run: npm ci --ignore-scripts
       - run: npm run lint -- --deny-warnings
+      - run: npm run typecheck
       - run: npm test
       - run: npm run build
   hub-types:
