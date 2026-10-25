@@ -1,5 +1,15 @@
 # Build process
 
+## Rust backend update (Oct 24)
+
+The project owner approved Rust as the `HazardModel` backend. The public API and
+schema remain frozen; the implementation decision, exact build commands, equations,
+tests and current limitations are in [RUST_HAZARD_BACKEND.md](RUST_HAZARD_BACKEND.md).
+The ordered follow-up work for Abby, Cody and Linda is in
+[RUST_HAZARD_NEXT_TASKS.md](RUST_HAZARD_NEXT_TASKS.md). This update supersedes the
+Python/MTT implementation choice for this backend; it does not claim that forecast
+skill, latency, the full runtime or Linda's dashboard integration is complete.
+
 How the three of us and our coding agents (Cursor) get from the spec to the demo. This repo now holds the canonical spec. The `Emberline` folder on Cody's laptop is an older copy; don't edit it.
 
 ## Where we are (Sat 12:40)
