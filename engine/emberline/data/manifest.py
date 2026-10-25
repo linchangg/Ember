@@ -2,8 +2,9 @@
 
     uv run python -m emberline.data.manifest --scenario eaton [--rebuild-goes]
 
-Reads obs/goes18_fdcc.parquet + obs/scan_events.parquet (data/goes.py, built here if missing)
-and forcing/hrrr_*.nc; writes replay_manifest.parquet and truth/latency.json.
+Reads obs/goes18_fdcc.parquet + obs/scan_events.parquet (data/goes.py, built here if missing),
+obs/viirs.parquet (data/viirs.py, optional) and forcing/hrrr_*.nc;
+writes replay_manifest.parquet and truth/latency.json.
 """
 
 from __future__ import annotations
@@ -16,10 +17,11 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from emberline.data import goes
+from emberline.data import goes, viirs
 from emberline.data.config import load_scenario, scenario_dir, utc_ms
 
 GOES_TABLE = "obs/goes18_fdcc.parquet"
+VIIRS_TABLE = "obs/viirs.parquet"
 HRRR_SOURCE = "hrrr_sfc"
 HOUR_MS = 3_600_000
 MAX_GAP_MS = 15 * 60_000  # GOES "stale" threshold (runtime/sources.py)
@@ -42,6 +44,18 @@ def goes_rows(events: pd.DataFrame, basis: dict[str, str]) -> pd.DataFrame:
         "n_hot": events["n_hot"],
         "provenance": events["provenance"],
     })
+
+
+def viirs_rows(scn_dir: Path) -> pd.DataFrame:
+    """One observation row per VIIRS pass (data/viirs.py); none if the table hasn't been built."""
+    if not (scn_dir / VIIRS_TABLE).exists():
+        return pd.DataFrame(columns=COLUMNS)
+    g = pd.read_parquet(scn_dir / VIIRS_TABLE).groupby("pass_id", sort=True)
+    a = g.agg(source=("sensor_id", "first"), scan_start_ms=("t_obs_ms", "min"), scan_end_ms=("t_obs_ms", "max"),
+              available_ms=("available_ms", "max"), rows=("row", "size")).reset_index()
+    return a.rename(columns={"pass_id": "entry_id"}).assign(
+        kind="observation", latency_basis=viirs.LATENCY_BASIS, local_path=VIIRS_TABLE, n_hot=a["rows"],
+        provenance="real")[COLUMNS]
 
 
 def hrrr_basis(init_ms: int, avail0: int) -> str:
@@ -74,7 +88,7 @@ def hrrr_rows(scn_dir: Path) -> pd.DataFrame:
 
 def build_manifest(events: pd.DataFrame, basis: dict[str, str], scn_dir: Path) -> pd.DataFrame:
     assert set(events["scan_id"]) <= set(basis), "scan without a latency basis"
-    parts = [goes_rows(events, basis), hrrr_rows(scn_dir)]
+    parts = [goes_rows(events, basis), viirs_rows(scn_dir), hrrr_rows(scn_dir)]
     man = pd.concat([p for p in parts if len(p)], ignore_index=True)[COLUMNS]
     man = man.astype({"scan_start_ms": "int64", "scan_end_ms": "int64", "available_ms": "int64",
                       "rows": "int64", "n_hot": "int64"})

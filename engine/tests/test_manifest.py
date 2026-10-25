@@ -40,7 +40,8 @@ def test_manifest_sorted_and_covers():  # 01 §12 test 7
     check_manifest(man, utc_ms(cfg["replay_start_utc"]), utc_ms(cfg["replay_end_utc"]))
     obs = man[man["kind"] == "observation"]
     ev = pd.read_parquet(SCN / "obs" / "scan_events.parquet")
-    assert sorted(obs["entry_id"]) == sorted(ev["scan_id"])  # one row per scan
+    goes_obs = obs[~obs["source"].str.startswith("viirs")]
+    assert sorted(goes_obs["entry_id"]) == sorted(ev["scan_id"])  # one row per GOES scan; VIIRS: test_viirs.py
     assert set(man["kind"]) <= {"observation", "forcing"}
     assert set(man["latency_basis"]) <= {"s3_last_modified", "product_created", "assumed_urt", "assumed_nrt"}  # 01 §8 enum
 
@@ -56,8 +57,9 @@ def test_replay_source_round_trip():
     src = ReplaySource(SCN, "eaton", ["goes18_fdcc"])
     a, b = utc_ms("2025-01-08T09:00:00Z"), utc_ms("2025-01-08T10:00:00Z")
     obs, scans = src.collect(a, b)
+    assert all(a < s.available_sim_ms <= b for s in scans)
+    scans = [s for s in scans if s.mode == "CONUS"]  # VIIRS passes report too, unassimilated here
     assert len(scans) == 12 and obs
-    assert all(a < s.available_sim_ms <= b and s.mode == "CONUS" for s in scans)
     for o in obs:
         assert a < o.available_sim_ms <= b and o.observed_sim_ms < o.available_sim_ms
         assert re.fullmatch(r"obs_goes18_fdcc_g18c_\d{8}T\d{6}_\d+_\d+", o.obs_id)
