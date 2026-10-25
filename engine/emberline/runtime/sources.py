@@ -25,18 +25,21 @@ API and hazard.integration.weather_from_hrrr availability adapter are now availa
 
 from __future__ import annotations
 
+import json
 import math
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
 
-from emberline.contracts import Footprint, ObservationRecord, ScanEvent
+from emberline.contracts import Footprint, ObservationRecord, PointRadius, ScanEvent
 
 GOES_STALE_MS = 15 * 60_000
 SYN_SENSOR = "synthetic_goes"
 SYN_LATENCY_MS = 3 * 60_000
 SYN_HALF_M = 1000.0  # ~2 km square footprint
+DOC_SENSOR = "documented_report"
+DOC_TRUST, DOC_RADIUS_M = 0.9, 400.0  # 01 §9
 
 
 def _none(v: Any) -> Any:
@@ -63,10 +66,30 @@ def _check_window(obs: list[ObservationRecord], scans: list[ScanEvent], b_ms: in
     _assert_due([(s.scan_id, s.available_sim_ms) for s in scans], b_ms)
 
 
+def documented_reports(scn_dir: Path, scenario_id: str) -> list[ObservationRecord]:
+    """truth/timeline.json `as_observation` rows as ground reports (01 §9), available when responders reported them."""
+    rows = json.loads((scn_dir / "truth" / "timeline.json").read_text(encoding="utf-8"))
+    out = []
+    for r in rows:
+        if not r.get("as_observation"):
+            continue
+        if r.get("lon") is None or r.get("lat") is None:
+            raise ValueError(f"documented report without a location: {r['label']}")  # never invent one
+        t = int(r["t_sim_ms"])
+        out.append(ObservationRecord(
+            obs_id=f"obs_rep_doc_{t}", scenario_id=scenario_id, sensor_id=DOC_SENSOR, kind="ground_report",
+            observed_sim_ms=t, available_sim_ms=t,
+            geometry=PointRadius(lon=float(r["lon"]), lat=float(r["lat"]), radius_m=DOC_RADIUS_M),
+            hot=True, report_kind="fire", trust=DOC_TRUST, provenance="real", source_ref=r["label"],
+        ))
+    return out
+
+
 class ReplaySource:
-    def __init__(self, scn_dir: Path, scenario_id: str, assimilate_sensors: list[str]):
+    def __init__(self, scn_dir: Path, scenario_id: str, assimilate_sensors: list[str], reports: bool = False):
         self.scenario_id = scenario_id
         self.assimilate = set(assimilate_sensors)
+        self.reports = documented_reports(scn_dir, scenario_id) if reports else []
         man = pd.read_parquet(scn_dir / "replay_manifest.parquet")
         man = man[man["kind"] == "observation"]
         self.manifest = man.sort_values(["available_ms", "entry_id"], kind="stable")
@@ -90,6 +113,7 @@ class ReplaySource:
             if s.assimilated:
                 obs.extend(o)
             scans.append(s)
+        obs += [r for r in self.reports if a_ms < r.available_sim_ms <= b_ms]  # no ScanEvent: not a sensor pass
         _check_window(obs, scans, b_ms)
         return obs, scans
 

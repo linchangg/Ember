@@ -42,7 +42,11 @@ EVENTS: list[tuple[str, str, str, str, dict]] = [
         "Radio: fire moving west in foothills north of Farnsworth Park",
         "report",
         "Citygate; LA County AAR",
-        {"as_observation": True},
+        # Manual geocode, no intersection to look up: lon = centroid of OSM way 164247879 (Charles S.
+        # Farnsworth Park, Geofabrik socal-261023.osm.pbf), lat = the park's north edge (34.2021) + 400 m,
+        # so the 400 m report disk sits in the foothills just north of the park.
+        {"as_observation": True, "lonlat": (-118.1328, 34.2057),
+         "note": "Hand-placed 400 m north of Farnsworth Park (OSM); the report names no street."},
     ),
     ("2025-01-08 03:25", "Evacuation orders for 13 west-Altadena zones", "official", "Citygate; LA County AAR; FSRI", {}),
     ("2025-01-08 05:13", "FireGuard: front ~1 block west of Lake Ave", "report", "Citygate", {}),
@@ -58,10 +62,11 @@ def event_row(scn: str, pst: str, label: str, kind: str, source: str, extra: dic
     row: dict = {"t_sim_ms": pst_to_utc_ms(pst), "label": label, "source": source, "kind": kind}
     extra = dict(extra)
     streets = extra.pop("streets", None)
+    lonlat = extra.pop("lonlat", None)
     row.update(extra)
     if not row.get("as_observation"):
         return row
-    hit = street_intersection(scn, *streets, WEST_ALTADENA) if streets else None
+    hit = street_intersection(scn, *streets, WEST_ALTADENA) if streets else lonlat
     row["approximate"] = True
     if hit is None:
         row["note"] = "No street intersection in the source; location left out." if not streets else (
@@ -69,7 +74,7 @@ def event_row(scn: str, pst: str, label: str, kind: str, source: str, extra: dic
         )
         return row
     row["lon"], row["lat"] = hit
-    row["note"] = f"Geocoded to the OSM intersection of {streets[0]} and {streets[1]}; the report names the intersection only."
+    row["note"] = row.get("note") or f"Geocoded to the OSM intersection of {streets[0]} and {streets[1]}; the report names the intersection only."
     return row
 
 
