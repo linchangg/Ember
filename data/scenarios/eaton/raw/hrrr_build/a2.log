@@ -1,0 +1,9 @@
+2025010803  avail f00 01-07 19:51 PST  f09 01-07 20:08 PST  f00 mean  6.7 m/s from  34.2°  1.32 MB
+2025010805  avail f00 01-07 21:51 PST  f09 01-07 22:08 PST  f00 mean 10.8 m/s from  22.9°  1.28 MB
+C:\Users\Codys\Projects\Legendary-Fire-Project\engine\.venv\Lib\site-packages\herbie\core.py:1301: UserWarning: Will not remove GRIB file because it previously existed.
+  warnings.warn("Will not remove GRIB file because it previously existed.")
+2025010806  avail f00 01-07 22:51 PST  f09 01-07 23:04 PST  f00 mean 12.7 m/s from  29.9°  1.37 MB
+2025010809  avail f00 01-08 01:52 PST  f09 01-08 02:08 PST  f00 mean 11.7 m/s from  31.5°  1.54 MB
+2025010812  avail f00 01-08 04:52 PST  f09 01-08 05:02 PST  f00 mean 11.1 m/s from  31.3°  1.57 MB
+2025010815  avail f00 01-08 07:51 PST  f09 01-08 08:10 PST  f00 mean  4.1 m/s from  41.8°  1.59 MB
+SIGN CHECK 06Z Jan 8: init 2025010805 f01  mean wind 11.6 m/s from 26.2°  PASS (NE, Santa Ana)

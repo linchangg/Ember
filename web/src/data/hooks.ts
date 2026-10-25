@@ -1,4 +1,4 @@
-/** Prepared hooks for Phase C/D consumers; no existing renderer is connected yet. */
+/** Shared hooks for the connected forecast map and later panel consumers. */
 import {
   createContext,
   createElement,
@@ -11,7 +11,11 @@ import {
 import type { ReactNode } from 'react'
 import type { Cycle } from '../contracts.ts'
 import type { DataSource, Snapshot } from './source.ts'
-import { acquireSource, createSnapshotSelector } from './store.ts'
+import {
+  acquireSource,
+  createSnapshotSelector,
+  createPanelSelector,
+} from './store.ts'
 
 const Context = createContext<DataSource | null>(null)
 export function DataSourceProvider({
@@ -163,4 +167,15 @@ export function useDataStatus() {
     () => ({ status, error, pending, forecastStatus }),
     [status, error, pending, forecastStatus]
   )
+}
+
+export function useMapSelection() {
+  const cycle = useSelected(useCallback((s: Snapshot) => s.cycle, []))
+  const assets = useSelected(useCallback((s: Snapshot) => s.mapAssets, []))
+  return useMemo(() => ({ cycle, assets }), [cycle, assets])
+}
+
+/** Panels update at minute/cycle/status boundaries, not on every clock tick. */
+export function usePanelSnapshot() {
+  return useSelected(useMemo(() => createPanelSelector(), []))
 }

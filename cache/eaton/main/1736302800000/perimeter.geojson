@@ -1,0 +1,1 @@
+{"type":"FeatureCollection","features":[{"type":"Feature","id":"burned","properties":{"kind":"burned"},"geometry":{"type":"MultiPolygon","coordinates":[]}},{"type":"Feature","id":"front","properties":{"kind":"front"},"geometry":{"type":"MultiLineString","coordinates":[]}}]}

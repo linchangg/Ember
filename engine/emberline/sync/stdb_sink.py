@@ -13,7 +13,7 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 
 from emberline.contracts import ActivityEvent, Briefing, CycleBundle, Report
-from emberline.sync.sink import HubSnapshot, alert_from_row, clock_from_row, person_from_row
+from emberline.sync.sink import HubSnapshot, PublicationUnavailable, alert_from_row, clock_from_row, person_from_row
 from emberline.sync.stdb_http import StdbHttp
 
 log = logging.getLogger(__name__)
@@ -57,12 +57,14 @@ class StdbSink:
         await self._safe("load_scenario", lambda: self.hub.load_scenario(payload))
 
     async def publish(self, b: CycleBundle) -> None:
-        await self._safe("publish_bundle", lambda: self.hub.publish_bundle(b))
+        if not await self._safe("publish_bundle", lambda: self.hub.publish_bundle(b)):
+            raise PublicationUnavailable("Hub did not acknowledge cycle publication")
 
     async def publish_many(self, bs: list[CycleBundle]) -> None:
         for i in range(0, len(bs), MAX_BATCH):
             chunk = bs[i : i + MAX_BATCH]
-            await self._safe("publish_bundles", lambda c=chunk: self.hub.publish_bundles(c))
+            if not await self._safe("publish_bundles", lambda c=chunk: self.hub.publish_bundles(c)):
+                raise PublicationUnavailable("Hub did not acknowledge batch publication")
 
     async def rewind(self, scn: str, branch: str, sim_ms: int) -> None:
         await self._safe("rewind", lambda: self.hub.rewind(scn, branch, sim_ms))

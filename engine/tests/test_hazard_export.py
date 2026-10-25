@@ -26,3 +26,10 @@ def test_export_empty_geometry_is_serializable(setup_model):
     length, polygon, front = mask_geometry(np.zeros((grid.H, grid.W), bool), grid)
     assert length == 0 and polygon["coordinates"] == [] and front["coordinates"] == []
     json.dumps([polygon, front], allow_nan=False)
+
+
+def test_publication_branch_cannot_escape_asset_root(tmp_path):
+    import pytest
+    from emberline.hazard.export import publish
+    with pytest.raises(ValueError, match="branch ID"):
+        publish(tmp_path, *([None] * 12), branch="../escape")

@@ -1,0 +1,88 @@
+{
+  "date": "2026-10-24",
+  "phase": "D",
+  "branch": "feat/dashboard-phase-d",
+  "base": "ff44fcd",
+  "approval": "ok approve for d",
+  "web_canonical": {
+    "passed": 41,
+    "skipped": 1,
+    "failed": 0,
+    "skip": "paired native branch is not present in analytic fixture"
+  },
+  "web_paired_rust": {
+    "passed": 42,
+    "skipped": 0,
+    "failed": 0
+  },
+  "all_engine_tests": {
+    "passed": 284,
+    "skipped": 19,
+    "failed": 0,
+    "warnings": 1
+  },
+  "strict_typecheck": "passed",
+  "lint_deny_warnings": "passed",
+  "production_build": "passed; existing large chunk warning",
+  "browser_ci": {
+    "cases_collected": 4,
+    "execution": "passed on GitHub Linux Chromium; canonical fixture 3 passed, 1 native-only skip",
+    "run_url": "https://github.com/linchangg/Legendary-Fire-Project/actions/runs/40170496792",
+    "code_commit": "f0cc6b1",
+    "fixes": [
+      "Serialize replay controls through pause/seek/scrub completion",
+      "Traverse actual index timestamps including missing ignition slot",
+      "Select enabled owned child alert for local review"
+    ]
+  },
+  "manual_chrome": [
+    "pre-ignition unavailable states",
+    "published cycle/model/ESS/zone statistics",
+    "main/report-demo switching at same issue and 120-minute lead",
+    "parent/child published q50 overlay",
+    "parent/child probabilities and burned area",
+    "delayed report observed/available/trust/provenance",
+    "local alert approval",
+    "reload and hot refresh after lifecycle fix"
+  ],
+  "native_fixture": {
+    "members": 16,
+    "forecast_cycles": 36,
+    "preignition_cycles": 3,
+    "child_forecast_cycles": 13,
+    "main_observations_used": 110,
+    "checkpoint_next_step_parity_checked": true,
+    "parent_arrays_unchanged": true,
+    "wall_seconds": 143.10816279200003,
+    "synthetic": true
+  },
+  "http_panels": {
+    "source": "FileSource + Phase D panel model",
+    "transport": "HTTP",
+    "main_forecasts": 36,
+    "child_forecasts": 13,
+    "exact_issue_comparisons": 13,
+    "leads_min": [
+      30,
+      120,
+      360
+    ],
+    "causal_observations": true,
+    "parent_selection_unchanged": true,
+    "notifications_sent": 0,
+    "renderer_checked": false
+  },
+  "frozen_contracts_changed": false,
+  "science_skill": "not established",
+  "performance_targets": "not established",
+  "phase_e": "not started; requires new direct confirmation",
+  "main_changed": false,
+  "native_ci": {
+    "execution": "passed on both ubuntu-latest and macos-latest",
+    "run_url": "https://github.com/linchangg/Legendary-Fire-Project/actions/runs/40170496830",
+    "code_commit": "f0cc6b1",
+    "paired_rust_browser": "4 passed on Linux Chromium",
+    "full_python_suite": "passed on both platforms",
+    "paired_fixture_decoder_http_panels": "passed on both platforms"
+  }
+}

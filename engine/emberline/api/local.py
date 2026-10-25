@@ -145,6 +145,8 @@ def create_app(state: LocalState, hub: StdbHttp | None) -> FastAPI:
             "cache_coverage": s.get("cache_coverage"),
             "last_cycle_sim_ms": s.get("last_cycle_sim_ms"),
             "physics_ms": s.get("physics_ms"),
+            "backlog_cycles": s.get("backlog_cycles", 0),
+            "publication_pending": s.get("publication_pending", 0),
             "duty_officer_set": state.duty_officer_number is not None,
         }
 

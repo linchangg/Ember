@@ -1,33 +1,36 @@
 # Dashboard–engine connection plan
 
-Based on the merged PR #8 implementation (`c5e2599`) and its recorded verification.
-This is a proposed implementation plan, not a claim that the following integration
-already exists. Preserve Linda’s current routes and visual design.
+Status updated 2026-10-25: **Phases A–E are implemented and merged** in
+[PR #11](https://github.com/linchangg/Legendary-Fire-Project/pull/11), main `0308ba8`.
+The connected forecast view runs at `/dashboard` in explicit file or hub mode.
+Linda's homepage globe remains preserved. The phase instructions below retain the
+original implementation sequence; they are not a list of unstarted phases.
+See [release readiness](RELEASE_READINESS.md) and [next tasks](RUST_HAZARD_NEXT_TASKS.md)
+for current acceptance gaps and [Phase E](DASHBOARD_PHASE_E.md) for launch commands.
 
 ## 1. Readiness and release boundaries
 
 | Capability | Current evidence | Status |
 |---|---|---|
-| Rust forecasts behind Python HazardModel | Native propagation, quantiles, observation assimilation and checkpoint parity; complete 39-cycle synthetic replay | Implemented; ready for experimental dashboard integration |
-| Scientific calibration | N=128 synthetic outline score improved 0.7259 → 0.9132, but wind and ROS recovery fail | Incomplete |
-| Historical validation | No independently held-out historical forecast evaluation has established skill | Not established |
-| Performance | Target exists: ≤0.5 s/cycle at 128 members, 340×340, six-hour horizon; prior cold/contended run took 244.25 s | Target not met |
-| Dashboard hookup | Current globe spread is simulated; dashboard figures are mocked | Not implemented |
+| Rust behind Python HazardModel | Native propagation, assimilation, checkpoints; 36 forecast + 3 pre-ignition fixture cycles and report branch | Implemented |
+| File/hub forecast dashboard | All five PR checks passed, including Linux/macOS fixtures and live-hub restart/two-browser acceptance | Merged at `/dashboard`; real-data rehearsal remains |
+| Eaton inputs | 22 HRRR checksums; causal selection at 157 issues; two-member real-input PF smoke uses 186 observations | Inputs present; committed main cache covers 80/157 issues |
+| Scientific calibration | Synthetic improvement does not establish parameter recovery or held-out skill | Incomplete |
+| Historical validation | Scoring framework exists; independent timestamped burned-perimeter truth absent | Not established |
+| Performance | One cold N=128, 340×340, six-hour forecast: 94.649 s vs 0.5 s target | Target not met; not a p95 |
+| Report/notification service | Local report path, request builder and call cards; Vercel endpoints/callbacks absent | Incomplete; no external delivery tested |
 
-The 114.405 s N=16 full-fixture replay is a different workload, not proof of target
-latency. All 12 PR checks passing establishes software integration, not predictive
-accuracy. Keep spotting disabled. No deep-learning component exists.
-
-Deliver two separate milestones: (A) verified experimental forecast replay in the
-existing UI, (B) continuously updating engine/hub integration. Scientific deployment
-acceptance remains a separate gate after both.
+Latest local engine suite: 311 passed / 18 skipped; canonical web suite: 48 passed /
+1 paired-fixture skip. Typecheck, lint and production build passed. Software checks
+are separate from predictive skill. Spotting remains disabled; no deep-learning
+component exists. Future phases still require the owner's direct confirmation.
 
 ## 2. Data path and ownership
 
 ```text
 Eligible weather + observations
   -> Python runtime / HazardModel
-  -> persistent Rust bridge and native propagation
+  -> Rust subprocess bridge and native propagation
   -> Python assimilation, weighted arrival quantiles, risk/alert calculations
   -> immutable CycleBundle + binary/GeoJSON assets
   -> FileSource initially, SpacetimeSource later
