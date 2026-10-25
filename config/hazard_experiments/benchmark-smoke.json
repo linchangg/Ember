@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "run_id": "benchmark-smoke-v1",
+  "members": 16,
+  "height": 120,
+  "width": 120,
+  "cell_m": 255,
+  "horizon_min": 360,
+  "workers": 2,
+  "timeout_s": 600,
+  "memory_budget_bytes": 2147483648,
+  "seeds": [7, 8, 9],
+  "warmup_cycles": 1,
+  "measured_cycles": 5,
+  "workloads": ["no_observation", "satellite", "delayed_ground"],
+  "interactive_budget_ms": 10000,
+  "original_target_ms": 500
+}

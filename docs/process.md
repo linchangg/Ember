@@ -32,3 +32,5 @@ Format: `Sat 13:05 · Cody · C0 contracts + fixture merged (PR #3) · Cursor ag
 - Sat Oct 24 · Abby · E0 local experiment contracts, atomic run directories, and prediction snapshots; 8 focused tests passed and wire schema stayed 2; no forecast-skill or performance claim · Cursor
 
 - Sat 23:30 · Cody · Eaton statics: 3DEP DEM/slope/aspect + LANDFIRE LF2024 FBFM40/CC (LFPS exportImage, no email) on the 90 m grid; load_landscape passes Abby's validation; real Rust dev run 40-90 s/cycle at N=16; Windows fingerprint sort fix in bridge.py · Claude workflow
+
+- Sat Oct 24 · Abby · E1 benchmark runner records cold/warm workload samples, timeouts, and physical extent; reduced-grid smoke run had no timeouts and low-sample p95; satellite warm median 11.2 s exceeds the 10 s budget so that configuration does not qualify; eligible_for_profile_selection is execution-only and 500 ms was not met · Cursor
