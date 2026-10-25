@@ -674,3 +674,34 @@ a:hover {
 .gn__alert-act { display: flex; gap: 8px; margin-top: 8px; }
 .gn__alert-act button { flex: 1; padding: 6px; border-radius: 6px; border: 1px solid #3b82f655; background: #0f1d3a; color: #cfe0fa; cursor: pointer; }
 .gn__alert-act button.go { background: #1f6b3a; border-color: #4ade80; color: #eafff1; }
+
+/* one typeface for the map labels and every panel (Michroma is wide, so sizes come down) */
+.gn__side, .gn__time, .gn__probe, .gn__tip, .gn__err, .gn__credit { font-family: Michroma, 'Eurostile', 'Orbitron', sans-serif; letter-spacing: 0.02em; }
+.gn__side button, .gn__time button, .gn__probe button { font-family: inherit; }
+.gn__side { font-size: 10px; }
+.gn__side h2 { font-size: 13px; line-height: 1.5; letter-spacing: 0.04em; }
+.gn__side dt { font-size: 8.5px; }
+.gn__side dd { font-size: 10.5px; }
+.gn__fit, .gn__tabs button, .gn__more, .gn__link, .gn__alert-act button { font-size: 9.5px; }
+.gn__zones-sum { font-size: 10.5px; }
+.gn__zones-sum span { font-size: 8.5px; }
+.gn__zone-head { font-size: 10.5px; }
+.gn__zone-line { font-size: 9px; }
+.gn__zone-drivers { font-size: 8.5px; }
+.gn__chip, .gn__state { font-size: 8px; }
+.gn__alert { font-size: 9.5px; }
+.gn__alert-head { font-size: 10.5px; }
+.gn__alert-meta { font-size: 8.5px; }
+.gn__alert-body.dim { font-size: 9px; }
+.gn__empty, .gn__note { font-size: 9.5px; }
+.gn__time { font-size: 10px; }
+.gn__time-row { font-size: 10px; }
+.gn__legend2 { font-size: 8.5px; }
+.gn__badge { font-size: 8.5px; }
+.gn__meta { font-size: 8.5px; }
+.gn__time-ctl button { font-size: 9px; }
+.gn__warn { font-size: 9px; }
+.gn__probe { font-size: 9.5px; }
+.gn__probe b { font-size: 11px; }
+.gn__probe-sub { font-size: 8.5px; }
+.gn__err { font-size: 10px; }

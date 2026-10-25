@@ -48,12 +48,44 @@ const getJson = (rel) => fetch(assetUrl(base(), rel)).then((r) => (r.ok ? r.json
 
 /** Static files the snapshot does not carry: assets, area X, timeline. Missing files are fine. */
 export async function loadExtras(manifest) {
-  const [assets, areaX, timeline] = await Promise.all([
+  const [assets, areaX, timeline, footprint] = await Promise.all([
     getJson(manifest.static.assets_url).catch(() => null),
     getJson(manifest.static.area_x_url).catch(() => null),
     getJson(manifest.static.timeline_url).catch(() => []),
+    forecastFootprint(manifest).catch(() => null),
   ])
-  return { assets, areaX, timeline }
+  return { assets, areaX, timeline, footprint }
+}
+
+/**
+ * Lon/lat box of the largest forecast footprint: every cell that any sampled forecast gives at least a 10% chance of burning
+ * within its horizon (plus anything already burned). The map frames this box when the fire is opened.
+ */
+async function forecastFootprint(manifest) {
+  const index = await getJson(`cache/${manifest.scenario_id}/main/index.json`)
+  // the widest footprint can come from an earlier forecast (its +6 h reach), so sample cycles across the replay
+  const live = [...index.cycles].filter((c) => c.knowledge_sim_ms >= manifest.t_ignition_sim_ms).sort((a, b) => a.knowledge_sim_ms - b.knowledge_sim_ms)
+  const last = [...new Set([...Array(8).keys()].map((i) => live[Math.round((i * (live.length - 1)) / 7)]).concat(live.slice(-1)))].filter(Boolean)
+  const { nx, ny } = manifest.grid
+  const n = nx * ny
+  const { cellLonLat } = gridGeo(manifest)
+  let box = null
+  for (const c of last) {
+    const bundle = await getJson(c.bundle)
+    const rel = bundle.cycle?.assets?.arrival_q
+    if (!rel) continue
+    const buf = new Uint8Array(await (await fetch(assetUrl(base(), rel))).arrayBuffer())
+    if (buf.length !== 5 * n) continue
+    for (let i = 0; i < n; i++) {
+      if (buf[i] === 255) continue // q10 never arrives within the horizon
+      const lo = cellLonLat[i * 2]
+      const la = cellLonLat[i * 2 + 1]
+      box = box ? [Math.min(box[0], lo), Math.min(box[1], la), Math.max(box[2], lo), Math.max(box[3], la)] : [lo, la, lo, la]
+    }
+  }
+  if (!box) return null
+  const pad = manifest.grid.cell_m / 111000 // include the outer half cell
+  return [box[0] - pad, box[1] - pad, box[2] + pad, box[3] + pad]
 }
 
 // previous forecasts' q50 contours, fetched on demand for the "compare" overlay
@@ -90,6 +122,7 @@ export function createGlobeView(snap, extras) {
   return {
     manifest: m,
     zones: { features: snap.zones },
+    footprint: extras?.footprint ?? null,
     assets: extras?.assets ?? null,
     areaX: extras?.areaX ?? null,
     timeline: extras?.timeline ?? [],

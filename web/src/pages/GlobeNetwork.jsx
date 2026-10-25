@@ -13,6 +13,13 @@ const D2R = Math.PI / 180
 const fmtHM = (ms) => new Date(ms).toLocaleTimeString('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', minute: '2-digit' })
 const LABEL_FONT = "Michroma, 'Eurostile', 'Orbitron', sans-serif"
 const FORECAST_COLORS = [[255, 233, 120], [255, 196, 62], [255, 150, 38], [243, 98, 32], [225, 52, 42]]
+// Events that always carry a big, clickable label on the globe, however far out you are. Eaton is the one to open.
+const FEATURED = [
+  { re: /eaton/i, label: 'EATON FIRE · LOS ANGELES', sub: 'Click to open the replay', color: [255, 150, 40], phase: 0 },
+  { re: /dikeledi/i, label: 'CYCLONE DIKELEDI', sub: 'Tropical cyclone · click for details', color: [120, 200, 255], phase: 0.25 },
+  { re: /whakaari/i, label: 'WHAKAARI VOLCANO', sub: 'Volcano · click for details', color: [255, 110, 90], phase: 0.5 },
+  { re: /a23b/i, label: 'ICEBERG A23B', sub: 'Sea ice · click for details', color: [170, 225, 255], phase: 0.75 },
+]
 const FORECAST_LABELS = ['≥10%', '≥30%', '≥50%', '≥70%', '≥90%']
 const STATUS_COLOR = { order: [255, 90, 60], warning: [255, 176, 58], watch: [232, 211, 106], clear: [90, 140, 210] }
 const fmtPT = (ms) => `${new Date(ms).toLocaleString('en-US', { timeZone: 'America/Los_Angeles', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} PT`
@@ -281,7 +288,6 @@ export default function GlobeNetwork() {
   const [pick, setPick] = useState(null)
   const selRef = useRef(false)
   const fitRef = useRef(null)
-  const spinRef = useRef(null)
   const [hover, setHover] = useState(null)
   const scnId = new URLSearchParams(window.location.search).get('scn') || import.meta.env.VITE_SCENARIO_ID || 'fixture'
   // Abby's validated data layer: local replay clock, forecast cycles, observations, zones
@@ -367,7 +373,10 @@ export default function GlobeNetwork() {
       })
 
     // view state
-    const view = { lon: -98, lat: 28, zoom: 1, drag: null, spin: 0.064, target: null, cxo: 0, lastMove: 0, vel: 0 }
+    const view = { lon: -98, lat: 28, zoom: 1, drag: null, spin: 0.064, target: null, cxo: 0, lastMove: 0, vel: 0, auto: false, lastInteract: 0 }
+    let hoverBeacon = null
+    let beaconHits = [] // screen rects of the always-visible event labels, rebuilt every frame
+    const beaconAt = (x, y) => beaconHits.find((b) => x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1)?.ev ?? null
     let W = 0
     let H = 0
     let dpr = 1
@@ -517,6 +526,16 @@ export default function GlobeNetwork() {
       const t = ms / 1000
       // safety net: a non-finite view value would blank the whole map, so fall back to the default view
       if (!Number.isFinite(view.zoom + view.lon + view.lat + view.cxo)) Object.assign(view, { zoom: 1, lon: -98, lat: 28, cxo: 0, target: null })
+      // zoomed all the way out nobody is looking at anything: start turning once the pointer, wheel and flights have been quiet
+      const farOut = view.zoom < 1.6
+      if (farOut && !view.drag && !view.target && view.spin === 0 && ms - view.lastInteract > 1500) {
+        view.spin = 0.064
+        view.auto = true
+      }
+      if (!farOut && view.auto) {
+        view.spin = 0
+        view.auto = false
+      }
       if (view.target) {
         const tg = view.target
         const dl = ((tg.lon - view.lon + 540) % 360) - 180
@@ -1274,6 +1293,72 @@ export default function GlobeNetwork() {
         const y = local ? tmp[1] - sampleAt(lo, la) * lift : tmp[1]
         return [tmp[0], y, a * front]
       }
+      // featured events: pulsing ring, leader line and a large clickable label that never fades with zoom
+      beaconHits = []
+      for (const ev of events) {
+        const fe = FEATURED.find((f) => f.re.test(ev.title))
+        if (!fe) continue
+        P(ev.v[0], ev.v[1], ev.v[2], tmp)
+        if (tmp[2] < -0.02) continue // far side of the globe
+        const fade = smooth(-0.02, 0.2, tmp[2])
+        const px = tmp[0]
+        const py = tmp[1]
+        const compact = zoom > 250 // up close the label shrinks and lifts clear of the fire data
+        const hot = hoverBeacon === ev
+        const pulse = (t * 0.8 + fe.phase) % 1
+        ctx.lineWidth = 1.5
+        ctx.strokeStyle = rgba(fe.color, 0.8 * (1 - pulse) * fade)
+        ctx.beginPath()
+        ctx.arc(px, py, 7 + pulse * (compact ? 16 : 26), 0, 7)
+        ctx.stroke()
+        ctx.strokeStyle = rgba(fe.color, 0.95 * fade)
+        ctx.beginPath()
+        ctx.arc(px, py, 7, 0, 7)
+        ctx.stroke()
+        const f1 = `${compact ? 9 : 11}px ${LABEL_FONT}`
+        const f2 = `${compact ? 7.5 : 8.5}px ${LABEL_FONT}`
+        ctx.letterSpacing = '1.5px'
+        ctx.font = f1
+        const w1 = ctx.measureText(fe.label).width
+        ctx.letterSpacing = '0.5px'
+        ctx.font = f2
+        const w2 = ctx.measureText(`▸ ${fe.sub}`).width
+        const bw = Math.max(w1, w2) + 30
+        const bh = compact ? 34 : 44
+        const bx = Math.max(8, Math.min(W - view.cxo * 2 - bw - 8, px - bw / 2))
+        const by = Math.max(60, Math.min(H - bh - 8, py - (compact ? 40 : 62) - bh))
+        const cxl = Math.max(bx + 12, Math.min(bx + bw - 12, px))
+        ctx.strokeStyle = rgba(fe.color, 0.7 * fade)
+        ctx.lineWidth = 1
+        ctx.beginPath()
+        ctx.moveTo(px, py - 7)
+        ctx.lineTo(cxl, by + bh)
+        ctx.stroke()
+        ctx.save()
+        ctx.shadowColor = rgba(fe.color, 0.7 * fade)
+        ctx.shadowBlur = hot ? 26 : 14
+        ctx.fillStyle = `rgba(5,11,26,${(hot ? 0.96 : 0.88) * fade})`
+        ctx.beginPath()
+        ctx.roundRect(bx, by, bw, bh, 8)
+        ctx.fill()
+        ctx.restore()
+        ctx.lineWidth = hot ? 2.2 : 1.5
+        ctx.strokeStyle = rgba(fe.color, (hot ? 1 : 0.9) * fade)
+        ctx.beginPath()
+        ctx.roundRect(bx, by, bw, bh, 8)
+        ctx.stroke()
+        ctx.textBaseline = 'middle'
+        ctx.letterSpacing = '1.5px'
+        ctx.font = f1
+        ctx.fillStyle = `rgba(235,244,255,${fade})`
+        ctx.fillText(fe.label, bx + 15, by + bh * 0.36)
+        ctx.letterSpacing = '0.5px'
+        ctx.font = f2
+        ctx.fillStyle = rgba(fe.color, fade)
+        ctx.fillText(`▸ ${fe.sub}`, bx + 15, by + bh * 0.72)
+        placed.push([bx - 4, by - 4, bx + bw + 4, by + bh + 4], [px - 22, py - 22, px + 22, py + 22])
+        beaconHits.push({ ev, x0: bx, y0: by, x1: bx + bw, y1: by + bh }, { ev, x0: px - 16, y0: py - 16, x1: px + 16, y1: py + 16 })
+      }
       ctx.letterSpacing = '0px'
       for (const L of labelQ) {
         ctx.letterSpacing = L.spacing ?? '1px'
@@ -1344,12 +1429,13 @@ export default function GlobeNetwork() {
             best = ev
           }
         }
+        hoverBeacon = beaconAt(mouse.x, mouse.y)
+        cv.style.cursor = best || hoverBeacon ? 'pointer' : ''
         if (best !== hoverEv) {
           hoverEv = best
-          cv.style.cursor = best ? 'pointer' : ''
           setHover(best ? { title: best.title, x: mouse.x, y: mouse.y } : null)
         }
-      }
+      } else if (!mouse.in) hoverBeacon = null
 
       // US-customary scale bar (true at the screen centre)
       const mpp = 6371008 / R
@@ -1386,14 +1472,15 @@ export default function GlobeNetwork() {
       let zoom = 700
       let lon = ev.lon
       let lat = ev.lat
-      const bb = scnRef.current?.manifest.aoi_bbox
+      // frame the largest forecast footprint (the widest, lowest-probability class at the last forecast), so it fills the window
+      const bb = scnRef.current?.footprint ?? scnRef.current?.manifest.aoi_bbox
       if (bb && /eaton/i.test(ev.title)) {
         const [x0, y0, x1, y1] = bb
         lon = (x0 + x1) / 2
         lat = (y0 + y1) / 2
         const dx = (x1 - x0) * 111320 * Math.cos(lat * D2R)
         const dy = (y1 - y0) * 110574
-        const mpp = Math.max(dx / ((W - 340) * 0.8), dy / (H * 0.7))
+        const mpp = Math.max(dx / ((W - 340) * 0.9), dy / (H * 0.78))
         zoom = Math.max(20, Math.min(40000, 6371008 / mpp / (0.34 * Math.min(W, H))))
       }
       view.target = { lon, lat, zoom }
@@ -1402,11 +1489,6 @@ export default function GlobeNetwork() {
     flyRef.current = (lon, lat, zoom) => {
       view.spin = 0
       view.target = { lon, lat, zoom }
-    }
-
-    spinRef.current = (dir) => {
-      view.target = null
-      view.spin = dir * 0.064
     }
 
     const focus = new URLSearchParams(window.location.search).get('focus')?.toLowerCase()
@@ -1419,6 +1501,8 @@ export default function GlobeNetwork() {
     // interaction
     const onDown = (e) => {
       view.spin = 0
+      view.auto = false
+      view.lastInteract = performance.now()
       view.target = null
       view.vel = 0
       view.drag = { x: e.clientX, y: e.clientY, lon: view.lon, lat: view.lat, moved: false }
@@ -1462,20 +1546,23 @@ export default function GlobeNetwork() {
     const onUp = (e) => {
       const d = view.drag
       view.drag = null
+      view.lastInteract = performance.now()
       if (d?.moved && performance.now() - view.lastMove < 120 && Math.abs(view.vel) > 0.05) view.spin = Math.sign(view.vel) * 0.064
       if (d && !d.moved) {
         const rect = cv.getBoundingClientRect()
         const mx = e.clientX - rect.left
         const my = e.clientY - rect.top
-        let best = null
+        let best = beaconAt(mx, my) // the big featured labels win over tiny dots
         let bd = 14
-        for (const ev of events) {
-          P(ev.v[0], ev.v[1], ev.v[2], tmp)
-          if (tmp[2] < 0) continue
-          const dist = Math.hypot(tmp[0] - mx, tmp[1] - my)
-          if (dist < bd) {
-            bd = dist
-            best = ev
+        if (!best) {
+          for (const ev of events) {
+            P(ev.v[0], ev.v[1], ev.v[2], tmp)
+            if (tmp[2] < 0) continue
+            const dist = Math.hypot(tmp[0] - mx, tmp[1] - my)
+            if (dist < bd) {
+              bd = dist
+              best = ev
+            }
           }
         }
         const sc = scnRef.current
@@ -1501,6 +1588,7 @@ export default function GlobeNetwork() {
     // zoom about the cursor: keep the point under the pointer fixed on screen
     const onWheel = (e) => {
       e.preventDefault()
+      view.lastInteract = performance.now()
       view.target = null
       const rect = cv.getBoundingClientRect()
       const sx = e.clientX - rect.left
@@ -1580,11 +1668,6 @@ export default function GlobeNetwork() {
         <span className="gn__title">EMBERLINE</span>
         {error ? <span role="status">Event feed unavailable. Map remains available.</span> : null}
       </header>
-      <div className="gn__spin">
-        <button onClick={() => spinRef.current?.(-1)} aria-label="Spin counterclockwise" title="Spin counterclockwise">↺</button>
-        <button onClick={() => spinRef.current?.(0)} aria-label="Stop spin" title="Stop">❚❚</button>
-        <button onClick={() => spinRef.current?.(1)} aria-label="Spin clockwise" title="Spin clockwise">↻</button>
-      </div>
       <div className="gn__credit">Roads, places, water: US Census TIGERweb · USGS · Terrain: AWS Terrain Tiles · Events: NASA EONET</div>
       {snap.status === 'error' ? <div className="gn__err">{/doctype|Unexpected token/i.test(snap.error ?? '') ? `No forecast files for scenario "${scnId}" yet: the engine has not written cache/${scnId}/main/ (index.json is missing).` : `Scenario data problem: ${snap.error}`}</div> : null}
       {hover && !pick ? <div className="gn__tip" style={{ left: hover.x + 14, top: hover.y + 14 }}>{hover.title}</div> : null}
