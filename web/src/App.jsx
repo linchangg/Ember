@@ -7,6 +7,7 @@ import Compare from './pages/Compare'
 import PatternCesium from './pages/PatternCesium'
 import PatternMapLibreThree from './pages/PatternMapLibreThree'
 import PatternHybrid from './pages/PatternHybrid'
+import GlobeNetwork from './pages/GlobeNetwork'
 import './App.css'
 
 function Dashboard() {
@@ -46,11 +47,13 @@ function Dashboard() {
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Dashboard />} />
+      <Route path="/" element={<GlobeNetwork />} />
+      <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/compare" element={<Compare />} />
       <Route path="/compare/cesium" element={<PatternCesium />} />
       <Route path="/compare/maplibre-three" element={<PatternMapLibreThree />} />
       <Route path="/compare/hybrid" element={<PatternHybrid />} />
+      <Route path="/compare/network" element={<Navigate to="/" replace />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

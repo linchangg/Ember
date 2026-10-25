@@ -19,6 +19,12 @@ const PATTERNS = [
     title: 'Hybrid handoff',
     body: 'MapLibre world overview with real topo → zoom in or enter the incident to hand off into the existing Sierra Vista 3D command scene.',
   },
+  {
+    to: '/compare/network',
+    pattern: 'Experiment',
+    title: 'Global hazard network',
+    body: 'Dark globe with softly pulsing country borders. Pulsing points are live open events from NASA EONET (wildfires, storms, volcanoes).',
+  },
 ]
 
 export default function Compare() {
