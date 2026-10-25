@@ -328,6 +328,12 @@ export class SpacetimeSource implements DataSource {
           viewTime: s.view,
         },
         branches: s.branches,
+        evacOverrides: Object.fromEntries(
+          (this.rows.zone ?? []).map((z) => [
+            String(z.zone_id),
+            Number(z.evac_min),
+          ])
+        ),
         cycles: s.cycles,
         cycle: s.cycle,
         bundle: s.bundle,

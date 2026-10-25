@@ -4,6 +4,9 @@ on:
     paths: ['web/**', 'engine/emberline/runtime/**', 'engine/emberline/sync/**', 'tools/*dashboard_hub*', '.github/workflows/dashboard-hub.yml']
   pull_request:
     paths: ['web/**', 'engine/emberline/runtime/**', 'engine/emberline/sync/**', 'tools/*dashboard_hub*', '.github/workflows/dashboard-hub.yml']
+concurrency:
+  group: phase-e-live-hub-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:

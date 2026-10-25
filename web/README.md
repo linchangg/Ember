@@ -51,3 +51,5 @@ to the replay clock with lead zero. Fit forecast frames the published vectors.
 Vite environment variables are selected at startup/build time; restart after changing
 them. No environment variables retains the existing mock. Unsupported explicit modes
 show a configuration error. See [Phase C evidence and remaining visual checks](../docs/DASHBOARD_PHASE_C.md).
+
+Phase E explicit hub mode, runtime publication rules and local published-hub acceptance: [DASHBOARD_PHASE_E.md](../docs/DASHBOARD_PHASE_E.md). File mode remains available.

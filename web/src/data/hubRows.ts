@@ -6,6 +6,8 @@ import { validateBundle } from './validation.ts'
 export type Row = Record<string, unknown>
 export type HubRows = Record<string, Row[]>
 export const HUB_TABLES = [
+  'scenario',
+  'zone',
   'clock',
   'branch',
   'cycle',
@@ -99,6 +101,16 @@ export function selectHub(
     limits.has(String(r.branch_id)) &&
     (r[time] === null || Number(r[time]) <= limits.get(String(r.branch_id))!)
   const heads = rows.cycleHead ?? []
+  for (const head of heads)
+    if (
+      !(rows.cycle ?? []).some(
+        (c) =>
+          c.cycle_id === head.cycle_id &&
+          c.knowledge_sim_ms === head.knowledge_sim_ms &&
+          c.branch_id === head.branch_id
+      )
+    )
+      throw new Error('Committed head references a missing cycle')
   const cycles = (rows.cycle ?? []).filter(
     (r) =>
       visible(r, 'knowledge_sim_ms') &&
@@ -108,7 +120,12 @@ export function selectHub(
           Number(h.knowledge_sim_ms) >= Number(r.knowledge_sim_ms)
       )
   ) as unknown as Cycle[]
-  cycles.sort((a, b) => a.knowledge_sim_ms - b.knowledge_sim_ms)
+  cycles.sort(
+    (a, b) =>
+      a.knowledge_sim_ms - b.knowledge_sim_ms ||
+      [...limits.keys()].indexOf(b.branch_id) -
+        [...limits.keys()].indexOf(a.branch_id)
+  )
   const cycle = cycles.at(-1) ?? null
   // Validate each branch separately: frozen bundles cannot contain rows from another branch.
   const combined: CycleBundle[] = []
@@ -160,7 +177,10 @@ export function selectHub(
       sensors: (rows.sensor ?? []).filter(
         (r) => r.last_data_sim_ms === null || Number(r.last_data_sim_ms) <= at
       ),
-      people: [],
+      people:
+        branch === clock.active_branch_id && view >= now
+          ? (rows.person ?? [])
+          : [],
       reports: eligible('report', 'observed_sim_ms').filter((r) =>
         ['accepted', 'rejected'].includes(String(r.status))
       ),
@@ -217,7 +237,7 @@ export function selectHub(
     alerts: all('alerts'),
     briefings: all('briefings'),
     sensors: combined[0]?.sensors ?? [],
-    people: [],
+    people: all('people'),
     reports: all('reports'),
     metrics: all('metrics'),
     events: all('events'),

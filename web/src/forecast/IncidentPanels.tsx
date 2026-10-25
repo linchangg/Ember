@@ -227,7 +227,7 @@ export default function IncidentPanels({
         <label>
           Decline reason{' '}
           <input
-            aria-label="Local decline reason"
+            aria-label={shared ? 'Hub decline reason' : 'Local decline reason'}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             maxLength={300}

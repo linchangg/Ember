@@ -27,7 +27,7 @@ export function createConfiguredSource(
   }
   if (env.VITE_DATA_SOURCE !== 'file')
     throw new Error(
-      'Phase B supports file mode only; hub/mock adapters must be selected explicitly later'
+      'Select file mode or stdb mode explicitly; mock is a separate route'
     )
   if (!env.VITE_ASSET_BASE || !env.VITE_SCENARIO_ID)
     throw new Error('File mode needs VITE_ASSET_BASE and VITE_SCENARIO_ID')

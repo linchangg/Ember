@@ -104,6 +104,13 @@ test('committed heads, causal evidence and exact issue validation gate snapshots
   assert.equal(past.bundle.alerts.length, 0)
 })
 test('wrong model metadata fails closed before asset staging', () => {
+  const broken = rows()
+  broken.cycleHead[0].cycle_id = 'missing'
+  assert.throws(
+    () => selectHub(broken, manifest, base, 0, null),
+    /missing cycle/
+  )
+
   const r = rows()
   r.cycle = [{ ...b.cycle, data_through_sim_ms: at + 1 }]
   assert.throws(() => selectHub(r, manifest, base, 0, null), /metadata/)
