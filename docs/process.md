@@ -42,3 +42,5 @@ Format: `Sat 13:05 · Cody · C0 contracts + fixture merged (PR #3) · Cursor ag
 - Sun Oct 25 · Abby · E3 smoke synthetic-matched-smoke-v1 checked the four-mode runner at 2 members, seed 11, issues 20/25/30; pipeline verification passed in 0.689 s and the frozen 32-member candidate was not run; not forecast-skill evidence · Cursor
 
 - Sun Oct 25 · Abby · E4 restores one checkpoint for the control, the no-report twin, and the treatment; the legacy 300 m report gate stays labeled as a different experiment; 9 control tests passed, including a 2-member seed-11 parity check; the seeds 7/8/9 matrix was not run and movement is not a success criterion · Cursor
+
+- Sun Oct 25 · Abby · E6 packages the 16-member 36-cycle synthetic demo as a cached replay; the copied package matched 220 checksums and the forecast decoder; a fresh-object restart matched on this machine; CI for 92872c0 succeeded on Ubuntu and macOS; the 32-member run, seeds 7/8/9 matrix, and historical validation stay unrun; not forecast skill · Cursor
