@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
 const credentials = JSON.parse(
-  await readFile(process.env.EMBERLINE_HUB_CREDENTIALS!, 'utf8')
+  await readFile(process.env.EMBER_HUB_CREDENTIALS!, 'utf8')
 )
 test('two browser clients share a committed forecast and approval; reload preserves operator state', async ({
   page,

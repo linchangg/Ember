@@ -3,8 +3,8 @@ import io
 import json
 import numpy as np
 import pytest
-from emberline.hazard.model import RustHazardModel
-from emberline.hazard.bridge import BackendOptions
+from ember.hazard.model import RustHazardModel
+from ember.hazard.bridge import BackendOptions
 from conftest import observation
 
 
@@ -174,7 +174,7 @@ def test_checkpoint_corruption_and_version_changes_rejected(setup_model):
 
 def test_hot_evidence_updates_posterior_toward_supported_members(setup_model):
     from pyproj import Transformer
-    from emberline.contracts import PointRadius
+    from ember.contracts import PointRadius
 
     model = setup_model[-1](n_members=16, horizon_min=120, reseed_frac=0)
     model.step(60, [])
@@ -196,7 +196,7 @@ def test_hot_evidence_updates_posterior_toward_supported_members(setup_model):
 
 
 def test_persistent_goes_requires_previous_strong_detection(setup_model):
-    from emberline.contracts import Footprint
+    from ember.contracts import Footprint
 
     model = setup_model[-1](reseed_frac=0)
     point = observation(model, east_cells=12, trust=1).geometry
@@ -250,7 +250,7 @@ def test_worker_counts_produce_identical_adapter_outputs(setup_model):
 
 
 def test_native_checksum_failure_does_not_commit_state(setup_model, monkeypatch):
-    from emberline.hazard import bridge
+    from ember.hazard import bridge
 
     model = setup_model[-1]()
     monkeypatch.setattr(bridge, "sha256_file", lambda path: "invalid-checksum")
@@ -260,7 +260,7 @@ def test_native_checksum_failure_does_not_commit_state(setup_model, monkeypatch)
 
 
 def test_wrong_native_protocol_is_rejected_before_init(setup_model, monkeypatch):
-    from emberline.hazard import bridge
+    from ember.hazard import bridge
     import subprocess
 
     monkeypatch.setattr(
@@ -277,7 +277,7 @@ def test_wrong_native_protocol_is_rejected_before_init(setup_model, monkeypatch)
 def test_partial_tempering_resamples_instead_of_stalling_at_ess_floor(
     setup_model, monkeypatch
 ):
-    from emberline.hazard.likelihoods import GroundReportLikelihood
+    from ember.hazard.likelihoods import GroundReportLikelihood
 
     model = setup_model[-1](reseed_frac=0)
     monkeypatch.setattr(

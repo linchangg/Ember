@@ -5,7 +5,7 @@ Every component codes against this file. To change anything after M0:
 2. Bump `SCHEMA_VERSION`.
 3. Update both the Python and the TypeScript types in the same commit.
 
-- **Python is the source of truth:** `engine/emberline/contracts.py` (Pydantic v2).
+- **Python is the source of truth:** `engine/ember/contracts.py` (Pydantic v2).
 - **TypeScript:** `web/src/contracts.ts`. Write it by hand from §3.3 at M0.
 - **Hub tables:** `04_hub.md` §2. Reducer signatures there are canonical; §5 here is only an index.
 
@@ -94,7 +94,7 @@ config_hash: null                  # written by scripts/freeze.py; shown in UI
 
 ## 3. Core types
 
-### 3.1 Python (`engine/emberline/contracts.py`)
+### 3.1 Python (`engine/ember/contracts.py`)
 
 ```python
 from typing import Literal, Annotated
@@ -464,7 +464,7 @@ Every `*_url` value is ASSET_BASE-relative, e.g. `static/eaton/zones.geojson`.
   - `reset_scenario`, `approve_alert`, `decline_alert`, `set_evac_min`, `drop_sensor`
 - **Public reducers** (phones): `join_as_person`, `set_person_status`.
 
-## 6. Physics boundary: HazardModel (`engine/emberline/hazard/api.py`)
+## 6. Physics boundary: HazardModel (`engine/ember/hazard/api.py`)
 
 Physics returns arrays. The engine owns files, contours, risk and publication.
 
@@ -591,19 +591,19 @@ Legendary-Fire-Project/           # repo root
   AGENTS.md  README.md  SPEC.md  spec/  research/  docs/{process,build_process}.md  .env.example  .gitignore  .gitattributes  .cursor/rules/
   design/command-dashboard-mockup/ # Linda's design reference (look)
   config/alert_rules.yaml
-  engine/                          # Python 3.12, uv; package "emberline"
+  engine/                          # Python 3.12, uv; package "ember"
     pyproject.toml
-    emberline/contracts.py
-    emberline/hazard/              # Abby
-    emberline/data/                # Cody (Abby runs statics.py herself; 01 §6)
-    emberline/runtime/             # Cody
-    emberline/risk/                # Cody: risk.py, alerts.py; Abby: metrics.py (after 18:00)
-    emberline/sync/                # Cody
-    emberline/ai/                  # Cody
-    emberline/notify/              # Cody
-    emberline/api/local.py         # Cody
-    emberline/scripts/             # make_fixture.py, export_schema.py, precompute.py, freeze.py, check_goes.py
-    emberline/run.py
+    ember/contracts.py
+    ember/hazard/              # Abby
+    ember/data/                # Cody (Abby runs statics.py herself; 01 §6)
+    ember/runtime/             # Cody
+    ember/risk/                # Cody: risk.py, alerts.py; Abby: metrics.py (after 18:00)
+    ember/sync/                # Cody
+    ember/ai/                  # Cody
+    ember/notify/              # Cody
+    ember/api/local.py         # Cody
+    ember/scripts/             # make_fixture.py, export_schema.py, precompute.py, freeze.py, check_goes.py
+    ember/run.py
     tests/
   stdb/                            # SpacetimeDB TypeScript module (Cody)
   web/                             # Vite 8 + React 19 (Linda); TypeScript after Cody's conversion (C1)
@@ -614,14 +614,14 @@ Legendary-Fire-Project/           # repo root
   fixtures/{static,cache}/fixture/ # committed analytic fixture (§10)
 ```
 
-Scripts run as `python -m emberline.scripts.<name>`.
+Scripts run as `python -m ember.scripts.<name>`.
 
 `.env.example`. The engine reads `engine/.env`; Vercel uses its env vars.
 
 ```
 SCENARIO_ID=eaton
 STDB_URI=https://maincloud.spacetimedb.com        # http://localhost:3000 offline / for dev
-STDB_DB=emberline
+STDB_DB=ember
 STDB_TOKEN=                                       # engine identity token (04 §3)
 OPERATOR_PIN=                                     # typed once into dashboard and /control
 ASSET_PORT=8787
@@ -633,13 +633,13 @@ CARTESIA_VERSION=                                 # value of the required Cartes
 DUTY_OFFICER_NUMBERS=                             # E.164, comma-separated; local only, never in the hub
 FIRMS_MAP_KEY=
 LANDFIRE_EMAIL=
-EMBERLINE_PROFILE=online                          # online | offline
+EMBER_PROFILE=online                          # online | offline
 # Vercel only: XAI_API_KEY, ANTHROPIC_API_KEY, STDB_URI, STDB_DB, STDB_SERVICE_TOKEN, CARTESIA_WEBHOOK_SECRET, GEMINI_API_KEY (P2)
 ```
 
 ## 10. Fixture (Cody, by M0 = Sat 08:00): analytic, no dependency on physics or the summarizer
 
-`python -m emberline.scripts.make_fixture` writes `fixtures/` using numpy + shapely + Pillow only. Everything is labeled: `scenario_id = "fixture"`, `is_fixture: true`, all `provenance = "simulated"`, zone IDs `FIX-Z1..FIX-Z6`, title "FIXTURE (synthetic)".
+`python -m ember.scripts.make_fixture` writes `fixtures/` using numpy + shapely + Pillow only. Everything is labeled: `scenario_id = "fixture"`, `is_fixture: true`, all `provenance = "simulated"`, zone IDs `FIX-Z1..FIX-Z6`, title "FIXTURE (synthetic)".
 
 | Item | Content |
 |---|---|

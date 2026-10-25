@@ -16,8 +16,8 @@ The Python engine and the Vercel functions coordinate through it as agents. Scie
 ## 1. Spike: G1-b gate (Sat 08:00–09:30, ≤ 90 min)
 
 Pass criteria (all four):
-1. The `stdb/` TypeScript module is published as `emberline` (local, then Maincloud). It has `config`, `clock`, `cycle` and `command`, plus reducers `set_identities`, `clock_play` and `publish_bundle`.
-2. **Python → reducer:** `engine/emberline/sync/stdb_http.py` calls `publish_bundle(bundle_json)` over HTTP with a fixture bundle, using the engine identity's token, and the row appears.
+1. The `stdb/` TypeScript module is published as `ember` (local, then Maincloud). It has `config`, `clock`, `cycle` and `command`, plus reducers `set_identities`, `clock_play` and `publish_bundle`.
+2. **Python → reducer:** `engine/ember/sync/stdb_http.py` calls `publish_bundle(bundle_json)` over HTTP with a fixture bundle, using the engine identity's token, and the row appears.
 3. **Python reads:** the same client runs `SELECT * FROM command WHERE status = 'pending'` over HTTP and parses the result.
 4. **React subscribes:** a bare React page with the generated bindings shows `cycle` rows appearing live. A button calling `clock_play` inserts a `command` that step 3 sees within 1 s.
 
@@ -114,7 +114,7 @@ Pass criteria (all four):
 | `join_as_person(scenario_id, person_id, join_code, label)` | Idempotent per `person_id`. Assign the first `spawn_point` with that `join_code` and `taken_by` null; set `taken_by`. If none is free, reuse the least recently taken. Create the person: `kind = "judge"`, `location_source = "assigned"`, `provenance = "simulated"`, `zone_id` from the spawn point. Insert command `person_joined {person_id}`. |
 | `set_person_status(person_id, status)` | |
 
-## 3. Engine HTTP client (`engine/emberline/sync/stdb_http.py`)
+## 3. Engine HTTP client (`engine/ember/sync/stdb_http.py`)
 
 These endpoints were checked against https://spacetimedb.com/docs/http/database by review A. Re-check them in the spike.
 
@@ -144,7 +144,7 @@ These endpoints were checked against https://spacetimedb.com/docs/http/database 
 - Generate bindings: `spacetime generate --lang typescript --out-dir web/src/module_bindings --module-path stdb`. Re-run after every module change and commit the result.
 - Create the connection once at module scope and wrap the app in the provider (form verified against the package types in research 05):
   ```
-  DbConnection.builder().withUri(VITE_STDB_URI).withDatabaseName('emberline').withToken(saved).onConnect(save)
+  DbConnection.builder().withUri(VITE_STDB_URI).withDatabaseName('ember').withToken(saved).onConnect(save)
   ```
 
 **Row adapter (required).** `adapt<T>(row)` does four things:
@@ -168,9 +168,9 @@ Apply lineage with `inLineage(row, branches, clock)` (`00` §3.3). Expose everyt
 ## 5. Offline
 
 1. `spacetime start` (or Docker).
-2. `spacetime publish emberline --server local`.
+2. `spacetime publish ember --server local`.
 3. Call `set_identities`.
-4. `python -m emberline.run --profile offline`, which calls `load_scenario`.
+4. `python -m ember.run --profile offline`, which calls `load_scenario`.
 
 The web app uses `VITE_STDB_URI=http://localhost:3000`. Rehearse at M5 with Wi-Fi off.
 

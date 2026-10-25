@@ -7,8 +7,8 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from emberline.contracts import ObservationRecord, PointRadius, ScanEvent
-from emberline.runtime.sources import InboxSource, ReplaySource, SyntheticSource, hot_only, sensor_status
+from ember.contracts import ObservationRecord, PointRadius, ScanEvent
+from ember.runtime.sources import InboxSource, ReplaySource, SyntheticSource, hot_only, sensor_status
 
 T0 = 1_736_301_600_000  # 2025-01-08T02:00:00Z
 MIN = 60_000

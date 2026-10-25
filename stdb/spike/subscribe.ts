@@ -9,7 +9,7 @@ const ts = () => new Date().toISOString().slice(11, 23);
 
 const conn = DbConnection.builder()
   .withUri(URI)
-  .withDatabaseName('emberline')
+  .withDatabaseName('ember')
   .onConnect((c, identity) => {
     console.log(`${ts()} connected as ${identity.toHexString().slice(0, 8)}…`);
     c.subscriptionBuilder()

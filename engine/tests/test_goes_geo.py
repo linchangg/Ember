@@ -6,9 +6,9 @@ import numpy as np
 import pytest
 from pyproj import Geod
 
-from emberline.data.goes import correct_pixel, list_fdc, parallax_shift, parse_times, read_crop
+from ember.data.goes import correct_pixel, list_fdc, parallax_shift, parse_times, read_crop
 
-needs_net = pytest.mark.skipif(not os.environ.get("EMBERLINE_NETWORK_TESTS"), reason="network")
+needs_net = pytest.mark.skipif(not os.environ.get("EMBER_NETWORK_TESTS"), reason="network")
 
 KEY = "OR_ABI-L2-FDCC-M6_G18_s20250080200203_e20250080202576_c20250080203162.nc"
 

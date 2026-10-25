@@ -93,8 +93,8 @@ The default tests consume the current canonical fixture. Test the independently
 generated Rust-backed fixture from the repository root:
 
 ```sh
-EMBERLINE_FIXTURE_DIR=/private/tmp/emberline-dashboard-phase-a \
-EMBERLINE_SCENARIO_ID=rust-fixture npm --prefix web test
+EMBER_FIXTURE_DIR=/private/tmp/ember-dashboard-phase-a \
+EMBER_SCENARIO_ID=rust-fixture npm --prefix web test
 ```
 
 With the Phase A host running, verify the real FileSource over HTTP:

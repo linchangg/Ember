@@ -1,4 +1,4 @@
-# 04: Sponsor tools and prize tracks for Emberline
+# 04: Sponsor tools and prize tracks for Ember
 
 Agent 4 of 6. Researched Sat Oct 24, roughly 4:30 to 5:00 AM PT. "(unverified)" marks anything not confirmed from a primary source. Win odds are my judgment.
 
@@ -90,7 +90,7 @@ Agent 4 of 6. Researched Sat Oct 24, roughly 4:30 to 5:00 AM PT. "(unverified)" 
 
 | Job | Provider | Why |
 |---|---|---|
-| **Voice out to officials:** a threshold crossing triggers an outbound call. The agent reads the act-by briefing (passed in as dynamic variables) and answers follow-ups ("When must Zone 4 leave? How confident? Which roads?") through webhook tools against the Emberline query API. "Acknowledged" calls `ack_alert`, which writes to SpacetimeDB, and the dashboard shows "Acknowledged by phone 23:14". | **Cartesia** Managed Agent, with Claude as its LLM if our account lists it | Outbound dialing is built in, so no Twilio. The voice call *is* the alert channel, which passes "core, not decorative". Accessible: any phone, hands-free. The acknowledgement loop shows judges the shared state. |
+| **Voice out to officials:** a threshold crossing triggers an outbound call. The agent reads the act-by briefing (passed in as dynamic variables) and answers follow-ups ("When must Zone 4 leave? How confident? Which roads?") through webhook tools against the Ember query API. "Acknowledged" calls `ack_alert`, which writes to SpacetimeDB, and the dashboard shows "Acknowledged by phone 23:14". | **Cartesia** Managed Agent, with Claude as its LLM if our account lists it | Outbound dialing is built in, so no Twilio. The voice call *is* the alert channel, which passes "core, not decorative". Accessible: any phone, hands-free. The acknowledgement loop shows judges the shared state. |
 | **Voice in from the public:** on the QR phone page, hold to talk. `/v1/stt` transcribes, Claude parses into an Observation (point, radius, trust), and `/v1/tts` reads back "Got it: flames near Lake Ave and Woodbury, 2 min ago. Sending to the forecast." | **Grok Voice API** | Meets SpaceXAI's requirement with a distinct job (a sensor input). Multilingual. Plain REST, about 1.5 h, low risk. |
 | Stretch: a realtime Grok agent that asks clarifying questions and calls `submit_report` | Grok realtime | Better UX. Adds ephemeral tokens and Web Audio PCM handling (about +2 to 3 h; Wi-Fi risk). |
 
@@ -157,7 +157,7 @@ To read as "core", the demo should show two browsers plus the phone in sync, and
   - Output: a normalized dataset with `zone_id`, polygon, `status` (order, warning or none), `updated_at`, `source_url`.
 - **Why it is not bolted on:**
   1. **Zone polygons are the units of our risk layer.** We need them anyway, so the Actor replaces work.
-  2. **Live mode** shows "Emberline: act by 23:40 · Official: no order".
+  2. **Live mode** shows "Ember: act by 23:40 · Official: no order".
   3. **Replay:** official order times give the honest "flagged at X / acted at Y" number. Historical Eaton statuses may need public after-action timelines (unverified).
 - **Not duplicating the Store:** existing Store Actors already cover NIFC and InciWeb incidents. Zones and statuses are the new contribution, which supports Best Actor.
 - Schedule it every 5 to 15 minutes in live mode, with a webhook into the backend.
@@ -170,7 +170,7 @@ To read as "core", the demo should show two browsers plus the phone in sync, and
 | Microsoft Built for the Real World ($3,800 + Surfaces) | **Core target, no tool** | Criteria map onto README and pitch: customer (IC/OES), measurable usefulness (lead time), path to production (replay-as-live, so live mode is the same code), responsible design (human approval, visible weights, LLM never decides, real vs simulated labelled), end to end. Attend the 10 AM workshop. |
 | Cal Hacks Overall / Technically Complex / People-First | Core framing | Planet-First is a weaker fit; enter only if uncapped. |
 | Commit Fellowship | Do it (15 min) | Opt in plus form. |
-| .Tech domain (e.g. emberline.tech) | Do it (20 to 30 min) | Gives a clean QR URL and HTTPS name. Pick .Tech **or** GoDaddy, not both. |
+| .Tech domain (e.g. ember.tech) | Do it (20 to 30 min) | Gives a clean QR URL and HTTPS name. Pick .Tech **or** GoDaddy, not both. |
 | Notability | Conditional | Only if a teammate already writes on an iPad (Abby's Rothermel and filter derivations). |
 | Figma | Conditional | Only if Linda's mockup is in Figma and she really hands it to code (Figma agent or MCP into Cursor). About 1 to 1.5 h for Slides and the stage log. |
 | Mana ($5,000 on Hive) | Check the booth first | Use only if it owns a real job without overlapping Grok Bot (planning). |
@@ -192,7 +192,7 @@ Hours are incremental beyond the base product.
 | Apify + Best Actor | $2,000…$400 + $400 | Meaningful use; Actor built at event | Evacuation-zones Actor | 3 | Excludes Bright Data | medium | **ADD-ON (P1)** |
 | MLH Gemini / Gen AI | swag | Use Gemini | Camera bearing detector | ~0 (camera sensor) | none | medium | **ADD-ON** |
 | MLH Vultr | Tab5 | Build on Vultr | Host | 1 | Excludes DigitalOcean | low | **ADD-ON** |
-| MLH .Tech | mic + domain | Domain | emberline.tech | 0.3 | Excludes GoDaddy | low | **ADD-ON** |
+| MLH .Tech | mic + domain | Domain | ember.tech | 0.3 | Excludes GoDaddy | low | **ADD-ON** |
 | MLH A-Team | keyboard raffle | Cursor + Grok Bot described, opt in | Description text | 0.2 | none | none | **ADD-ON** |
 | Commit | interview | Opt in + form | Form | 0.25 | none | none | **ADD-ON** |
 | Notability / Figma / Mana | $396 / $2k×2 / $5k | Process artifacts | Only if already true | 0 to 1.5 | Mana vs Grok Bot | none | **CONDITIONAL** |
@@ -241,7 +241,7 @@ Hours are incremental beyond the base product.
 - **Anthropic:** community, first-hand problem and the failure-modes section in both the README and the pitch. Attend the 1 PM workshop.
 - **Microsoft:** README sections mirroring the five criteria, with the lead-time number ready.
 - **Apify:** Actor link, git history showing it was built at the event, and the 11 AM workshop for the Best Actor rules.
-- **MLH Gemini / Vultr / .Tech:** claim the codes, deploy on emberline.tech, opt in.
+- **MLH Gemini / Vultr / .Tech:** claim the codes, deploy on ember.tech, opt in.
 - **Commit:** checkbox plus form.
 - **Conditional (Notability, Figma, Mana):** public artifact links. Figma also needs Figma Slides, the stage log and EDU verification.
 

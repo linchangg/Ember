@@ -25,9 +25,9 @@ import {
 import type { Branch } from '../contracts.ts'
 
 const root =
-  process.env.EMBERLINE_FIXTURE_DIR ??
+  process.env.EMBER_FIXTURE_DIR ??
   fileURLToPath(new URL('../../../fixtures/', import.meta.url))
-const scenario = process.env.EMBERLINE_SCENARIO_ID ?? 'fixture'
+const scenario = process.env.EMBER_SCENARIO_ID ?? 'fixture'
 const base = assetRoot('https://fixtures.test/')
 const manifestPath = `static/${scenario}/manifest.json`
 const rawManifest = JSON.parse(

@@ -2,8 +2,8 @@ import json
 
 import numpy as np
 
-from emberline.contracts import ObservationRecord
-from emberline.runtime import cache as c
+from ember.contracts import ObservationRecord
+from ember.runtime import cache as c
 
 ARGS = dict(model_version="m1", config_hash="abc", seed=7, filter_mode="pf")
 FORCING = {"file": "hrrr_2025010802.nc", "sha256": "f" * 64, "init_ms": 1, "selected_fxx": [0.0, 1.0]}

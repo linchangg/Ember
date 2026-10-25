@@ -41,7 +41,7 @@ Eligible weather + observations
 Abby owns engine output/decoder parity; Cody owns runtime, asset hosting and hub
 publication; Linda owns the data-source hooks and rendering integration. Renderers
 must not launch Rust, recompute spread or manufacture risk values. Use the operational
-`engine/emberline/hazard/` factory, not the separate unweighted research CLI adapter.
+`engine/ember/hazard/` factory, not the separate unweighted research CLI adapter.
 
 Read `spec/00_contracts.md` §§3–4, `spec/06_frontend.md` §§2–4, the existing
 `web/src/contracts.ts`, `tools/check_hazard_frontend.mjs`, and
@@ -55,8 +55,8 @@ frontend renderer/route suggestions are not a reason to replace the current UI.
 
    ```sh
    cargo build --manifest-path physics/surface_v1/Cargo.toml -p fire-bridge --release --locked
-   engine/.venv/bin/python -m emberline.hazard.demo --out /tmp/emberline-dashboard-fixture --members 16
-   node tools/check_hazard_frontend.mjs /tmp/emberline-dashboard-fixture
+   engine/.venv/bin/python -m ember.hazard.demo --out /tmp/ember-dashboard-fixture --members 16
+   node tools/check_hazard_frontend.mjs /tmp/ember-dashboard-fixture
    ```
 
 2. Serve that directory as an asset root. It must expose

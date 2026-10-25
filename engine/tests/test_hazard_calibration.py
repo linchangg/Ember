@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 from scipy.special import expit
-from emberline.hazard.calibration import gaussian_footprint, heat_detection_probability
+from ember.hazard.calibration import gaussian_footprint, heat_detection_probability
 
 
 def test_heat_likelihood_distinguishes_unburned_recent_and_old_fire():

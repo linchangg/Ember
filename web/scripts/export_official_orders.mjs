@@ -1,5 +1,5 @@
 // Writes public/data/official_<scenario>.json: the first official evacuation alert (warning or order) per zone,
-// from the engine's truth file. The dashboard compares it with Emberline's own alerts.
+// from the engine's truth file. The dashboard compares it with Ember's own alerts.
 //   node scripts/export_official_orders.mjs [scenario]    (default: eaton)
 import { readFileSync, writeFileSync } from 'node:fs'
 

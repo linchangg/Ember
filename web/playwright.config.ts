@@ -3,7 +3,7 @@ import { readFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 const root =
-  process.env.EMBERLINE_FIXTURE_DIR ??
+  process.env.EMBER_FIXTURE_DIR ??
   fileURLToPath(new URL('../fixtures/', import.meta.url))
 export default defineConfig({
   testDir: './e2e',
@@ -31,7 +31,7 @@ export default defineConfig({
     reuseExistingServer: false,
     env: {
       VITE_DATA_SOURCE: 'file',
-      VITE_SCENARIO_ID: process.env.EMBERLINE_SCENARIO_ID ?? 'fixture',
+      VITE_SCENARIO_ID: process.env.EMBER_SCENARIO_ID ?? 'fixture',
       VITE_ASSET_BASE: 'http://fixtures.test/',
       VITE_BRANCHES_JSON: existsSync(path.join(root, 'branches.json'))
         ? readFileSync(path.join(root, 'branches.json'), 'utf8')

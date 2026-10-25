@@ -13,6 +13,7 @@ const Compare = lazy(() => import('./pages/Compare'))
 const PatternCesium = lazy(() => import('./pages/PatternCesium'))
 const PatternMapLibreThree = lazy(() => import('./pages/PatternMapLibreThree'))
 const PatternHybrid = lazy(() => import('./pages/PatternHybrid'))
+const SlideHowEarly = lazy(() => import('./pages/SlideHowEarly'))
 
 function Dashboard() {
   const [t, setT] = useState(150)
@@ -22,7 +23,7 @@ function Dashboard() {
       <header className="header">
         <div className="header__left">
           <Link to="/" className="header__brand">
-            Emberline
+            Ember
           </Link>
           <span className="header__incident">Sierra Vista Fire</span>
           <span className="header__meta">
@@ -72,6 +73,7 @@ export default function App() {
           element={<PatternMapLibreThree />}
         />
         <Route path="/compare/hybrid" element={<PatternHybrid />} />
+        <Route path="/slides/how-early" element={<SlideHowEarly />} />
         <Route path="/compare/network" element={<Navigate to="/" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

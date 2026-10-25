@@ -1,6 +1,6 @@
-# Emberline: build spec (v1.1)
+# Ember: build spec (v1.1)
 
-**The fire map that updates every time a satellite looks.** Emberline is a Cal Hacks 13.0 project. It replays a real fire night through a live-style system:
+**The fire map that updates every time a satellite looks.** Ember is a Cal Hacks 13.0 project. It replays a real fire night through a live-style system:
 
 1. GOES fire detections arrive every 5 minutes.
 2. A physics ensemble re-fits itself to each one.
@@ -33,7 +33,7 @@ v1.1, Sat Oct 24 2026 ~06:15 PT. It folds in two independent reviews: a feasibil
 
 ## 1. What judges see (3 minutes; full script in `08` §1)
 
-1. **Hook.** "That night a weather satellite imaged Altadena every 5 minutes. Most spread forecasts are run from a fixed start and aren't re-fit to each new look. Emberline re-fits every time the satellite looks."
+1. **Hook.** "That night a weather satellite imaged Altadena every 5 minutes. Most spread forecasts are run from a fixed start and aren't re-fit to each new look. Ember re-fits every time the satellite looks."
 2. **Replay at 240×.**
    - A dark 3D terrain map; GOES-18 "looks" every 5 min.
    - The forecast redraws ahead of the fire; the slider scrubs past ↔ +6 h.

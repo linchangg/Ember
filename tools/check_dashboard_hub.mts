@@ -9,7 +9,7 @@ const hubUri = process.env.STDB_URI ?? 'http://127.0.0.1:3017'
 if (!['127.0.0.1', 'localhost', '[::1]'].includes(new URL(hubUri).hostname))
   throw new Error('Acceptance writes require a disposable local hub')
 const credentials = JSON.parse(
-  await readFile(process.env.EMBERLINE_HUB_CREDENTIALS!, 'utf8')
+  await readFile(process.env.EMBER_HUB_CREDENTIALS!, 'utf8')
 )
 const server = await createServer({
   root: new URL('../web', import.meta.url).pathname,
@@ -22,8 +22,8 @@ const sources = [0, 1].map(
     new SpacetimeSource({
       uri: process.env.STDB_URI ?? 'http://127.0.0.1:3017',
       database: process.env.STDB_DB ?? 'phase-e-demo',
-      scenario: process.env.EMBERLINE_SCENARIO_ID ?? 'rust-fixture',
-      assetBase: process.env.EMBERLINE_ASSET_BASE ?? 'http://127.0.0.1:8794/',
+      scenario: process.env.EMBER_SCENARIO_ID ?? 'rust-fixture',
+      assetBase: process.env.EMBER_ASSET_BASE ?? 'http://127.0.0.1:8794/',
       connect: connectHub,
     })
 )
@@ -71,8 +71,8 @@ try {
   )
   await assert.rejects(sources[1].actions.approve(alert.alert_id))
   const cycle = sources[0].getSnapshot().cycle!.cycle_id
-  if (process.env.EMBERLINE_HUB_RESTART_READY) {
-    await writeFile(process.env.EMBERLINE_HUB_RESTART_READY, 'ready')
+  if (process.env.EMBER_HUB_RESTART_READY) {
+    await writeFile(process.env.EMBER_HUB_RESTART_READY, 'ready')
     await wait(
       () => sources[0].getSnapshot().status === 'error',
       'server stopped'
@@ -91,8 +91,8 @@ try {
   const reconnected = new SpacetimeSource({
     uri: process.env.STDB_URI ?? 'http://127.0.0.1:3017',
     database: process.env.STDB_DB ?? 'phase-e-demo',
-    scenario: process.env.EMBERLINE_SCENARIO_ID ?? 'rust-fixture',
-    assetBase: process.env.EMBERLINE_ASSET_BASE ?? 'http://127.0.0.1:8794/',
+    scenario: process.env.EMBER_SCENARIO_ID ?? 'rust-fixture',
+    assetBase: process.env.EMBER_ASSET_BASE ?? 'http://127.0.0.1:8794/',
     connect: connectHub,
   })
   sources[1] = reconnected
@@ -113,8 +113,8 @@ try {
     assert.equal(ids.filter((id) => id === 'ev_phase_e_idempotence').length, 1)
   }
   let branchReview = false
-  if (process.env.EMBERLINE_FIXTURE_DIR) {
-    const root = process.env.EMBERLINE_FIXTURE_DIR
+  if (process.env.EMBER_FIXTURE_DIR) {
+    const root = process.env.EMBER_FIXTURE_DIR
     const branches = JSON.parse(
       await readFile(join(root, 'branches.json'), 'utf8')
     )
@@ -198,11 +198,11 @@ try {
     duplicate_review_rejected: true,
     reconnect_preserves_approval: true,
     duplicate_events: 0,
-    automatic_server_restart: !!process.env.EMBERLINE_HUB_RESTART_READY,
+    automatic_server_restart: !!process.env.EMBER_HUB_RESTART_READY,
     notification_worker_started: false,
   }
   await writeFile(
-    process.env.EMBERLINE_HUB_EVIDENCE ??
+    process.env.EMBER_HUB_EVIDENCE ??
       join(tmpdir(), 'fire-phase-e-hub-evidence.json'),
     JSON.stringify(result, null, 2) + '\n'
   )

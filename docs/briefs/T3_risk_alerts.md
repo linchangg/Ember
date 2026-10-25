@@ -14,12 +14,12 @@ The publisher (wave-2 T10) calls them every cycle. They are on the M1 critical p
   - §3.1: `LEADS_MIN`, `lead_idx`, `ZoneRisk`, `Alert`, `Person`
   - §3.3: `ZoneFeatureProps`
   - §7: the frozen alert rules YAML
-- **`engine/emberline/scripts/make_fixture.py` lines 179–700.** The fixture already implements this logic for one simple case (equal weights, one zone per alert). **Your output must agree with it on the fixture** (step 6). Read it, match its wording and semantics, but **don't import from it and don't edit it.**
+- **`engine/ember/scripts/make_fixture.py` lines 179–700.** The fixture already implements this logic for one simple case (equal weights, one zone per alert). **Your output must agree with it on the fixture** (step 6). Read it, match its wording and semantics, but **don't import from it and don't edit it.**
 
 ## You own
-- `engine/emberline/risk/__init__.py` (empty, 0 bytes)
-- `engine/emberline/risk/risk.py`
-- `engine/emberline/risk/alerts.py`
+- `engine/ember/risk/__init__.py` (empty, 0 bytes)
+- `engine/ember/risk/risk.py`
+- `engine/ember/risk/alerts.py`
 - `config/alert_rules.yaml`
 - `engine/tests/test_risk.py`, `engine/tests/test_alerts.py`
 
@@ -140,7 +140,7 @@ Don't create `risk/metrics.py`; that's Abby's.
    - **Merge.** 3 zones crossing R1 in one cycle → 1 alert with 3 ranked `zone_ids`. 2 zones → 2 alerts.
    - **Cooldown applies to merged zones.** Next cycle, none of the 3 can re-fire R1.
    - **`act_by_within_min`** with a negative value fires R2.
-   - Template lengths hold for a 6-zone merge. Text starts with `"DEMO REPLAY (Jan 2025)."`; voice starts with `"This is an Emberline demo replay of January 2025."`.
+   - Template lengths hold for a 6-zone merge. Text starts with `"DEMO REPLAY (Jan 2025)."`; voice starts with `"This is an Ember demo replay of January 2025."`.
    - **Fixture cross-check (important).** Load every cycle bundle of `fixtures/cache/fixture/main` in order (via `index.json`).
      - For each cycle, take its committed `zone_risk` rows as `risks`.
      - Run `evaluate(...)` with `hub_alerts` = all alerts produced so far by **your** `evaluate` (apply supersede transitions as you go), and `data_through_ms` = `bundle.cycle.data_through_sim_ms`.

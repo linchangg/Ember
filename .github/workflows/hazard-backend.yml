@@ -29,21 +29,21 @@ jobs:
         run: cargo build --manifest-path physics/surface_v1/Cargo.toml -p fire-bridge --release --locked
       - name: Frozen API and all Python tests
         run: |
-          uv run --project engine python -m emberline.hazard.compatibility
+          uv run --project engine python -m ember.hazard.compatibility
           uv run --project engine pytest engine/tests
       - name: Complete synthetic fixture and frontend decoder
         run: |
           node --test tools/check_hazard_frontend.test.mjs
-          uv run --project engine python -m emberline.scripts.make_fixture
-          uv run --project engine python -m emberline.hazard.demo --out "$RUNNER_TEMP/rust-hazard-demo" --members 16 --report-branch
+          uv run --project engine python -m ember.scripts.make_fixture
+          uv run --project engine python -m ember.hazard.demo --out "$RUNNER_TEMP/rust-hazard-demo" --members 16 --report-branch
           node tools/check_hazard_frontend.mjs "$RUNNER_TEMP/rust-hazard-demo"
           npm --prefix web ci --ignore-scripts
-          EMBERLINE_FIXTURE_DIR="$RUNNER_TEMP/rust-hazard-demo" EMBERLINE_SCENARIO_ID=rust-fixture npm --prefix web test
+          EMBER_FIXTURE_DIR="$RUNNER_TEMP/rust-hazard-demo" EMBER_SCENARIO_ID=rust-fixture npm --prefix web test
           if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
             npm --prefix web exec -- playwright install --with-deps chromium
-            EMBERLINE_FIXTURE_DIR="$RUNNER_TEMP/rust-hazard-demo" EMBERLINE_SCENARIO_ID=rust-fixture npm --prefix web run test:browser
+            EMBER_FIXTURE_DIR="$RUNNER_TEMP/rust-hazard-demo" EMBER_SCENARIO_ID=rust-fixture npm --prefix web run test:browser
           fi
-          uv run --project engine python -m emberline.hazard.fixture_server --root "$RUNNER_TEMP/rust-hazard-demo" --port 8790 > "$RUNNER_TEMP/fixture-host.log" 2>&1 &
+          uv run --project engine python -m ember.hazard.fixture_server --root "$RUNNER_TEMP/rust-hazard-demo" --port 8790 > "$RUNNER_TEMP/fixture-host.log" 2>&1 &
           FIXTURE_HOST_PID=$!
           trap 'kill "$FIXTURE_HOST_PID" 2>/dev/null || true' EXIT
           node tools/check_dashboard_source.mts http://127.0.0.1:8790/ rust-fixture

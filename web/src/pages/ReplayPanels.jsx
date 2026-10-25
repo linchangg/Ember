@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { BRANCHES, branchLabel, leadRows, useReplayJson } from './replayData.js'
+import { BRANCHES, useReplayJson } from './replayData.js'
 import './ReplayPanels.css'
 
-// Replay-only panels: which precomputed run is shown, the duty-officer call placed on approval,
-// and how early Emberline's alerts came compared with the official orders. Everything shown is read from engine files.
+// Replay-only panels: which precomputed run is shown and the duty-officer call placed on approval.
+// Everything shown is read from engine files. (The "How early" comparison now lives on its own slide: SlideHowEarly.jsx.)
 
 const fmtHM = (ms) => new Date(ms).toLocaleTimeString('en-US', { timeZone: 'America/Los_Angeles', hour: 'numeric', minute: '2-digit' })
 const fmtPT = (ms) => `${new Date(ms).toLocaleString('en-US', { timeZone: 'America/Los_Angeles', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })} PT`
@@ -71,7 +71,7 @@ function CallCard({ call, onClose }) {
           l.speaker === 'tool' ? (
             <div key={i} className="rp-line tool">→ {l.text}</div>
           ) : (
-            <div key={i} className={`rp-line ${l.speaker === 'Emberline' ? 'us' : 'them'}`}><b>{l.speaker}</b>{l.text}</div>
+            <div key={i} className={`rp-line ${l.speaker === 'Ember' ? 'us' : 'them'}`}><b>{l.speaker}</b>{l.text}</div>
           )
         )}
         {!done ? <div className="rp-line wait">{shown ? '…' : 'ringing…'}</div> : null}
@@ -81,98 +81,6 @@ function CallCard({ call, onClose }) {
           <b>Briefing sent: {b.headline}</b>
           {b.bullets?.length ? <ul>{b.bullets.map((x, i) => <li key={i}>{x}</li>)}</ul> : <p>{b.text}</p>}
         </div>
-      ) : null}
-    </div>
-  )
-}
-
-const leadText = (r) =>
-  r.lead == null ? (r.ours == null ? 'no alert' : '—') : r.lead > 0 ? `${r.lead} min earlier` : r.lead < 0 ? `${-r.lead} min later` : 'same minute'
-const HONEST = 'satellites-only' // the headline run: satellites only, no responder reports
-
-/** "How early": Emberline's order recommendations vs the official orders, strongest true results first, full record one click away. */
-export function LeadTimesTab({ lead, zones }) {
-  const [all, setAll] = useState(false)
-  const [run, setRun] = useState(HONEST)
-  const names = new Map(zones.map((f) => [f.properties.zone_id, f.properties.name]))
-  const best = lead.branches?.[HONEST] ? leadRows(lead, HONEST, names).filter((r) => r.kind === 'order' && r.lead > 0) : []
-  const blind = lead.branches?.openloop?.west_altadena_0325_summary?.order
-  const aar = lead.sources?.aar
-  const where = aar?.used?.match(/Appendix \d+(?: Figure \d+)?/)?.[0]
-  const rows = leadRows(lead, run, names)
-  const groups = [
-    ['Emberline earlier', rows.filter((r) => r.lead > 0)],
-    ['Same minute', rows.filter((r) => r.lead === 0)],
-    ['Emberline later', rows.filter((r) => r.lead < 0)],
-    ['No Emberline alert', rows.filter((r) => r.lead == null)],
-  ].filter(([, g]) => g.length)
-  const extra = (lead.branches?.[run]?.alerted_without_official ?? []).map((id) => names.get(id) ?? id)
-  const through = lead.branches?.[run]?.cache_through_sim_ms
-  return (
-    <div className="rp-lead">
-      {best.length ? (
-        <>
-          <div className="rp-lead-hero">
-            <b>{best.length} zone{best.length === 1 ? '' : 's'}</b>
-            <span>where Emberline recommended an evacuation order before the official order, using satellite data only (no field reports).</span>
-          </div>
-          <table className="rp-table">
-            <thead><tr><th>Zone</th><th>Official</th><th>Emberline</th><th /></tr></thead>
-            <tbody>
-              {best.map((r) => (
-                <tr key={r.id}>
-                  <td>{r.name}</td>
-                  <td>{fmtHM(r.official)}</td>
-                  <td className="ours">{fmtHM(r.ours)}</td>
-                  <td className="gain">+{r.lead} min</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </>
-      ) : <p className="gn__empty">No zone where the satellites-only run recommended an order before the official order.</p>}
-      {blind ? (
-        <p className="rp-contrast">
-          {blind.n_no_alert === blind.n_zones
-            ? `With no live satellite data, the same model recommended no order for any of the ${blind.n_zones} west-Altadena zones ordered at 3:25 AM.`
-            : `With no live satellite data, the same model recommended orders for only ${blind.n_zones - blind.n_no_alert} of the ${blind.n_zones} west-Altadena zones ordered at 3:25 AM.`}
-        </p>
-      ) : null}
-      <button className="gn__more" onClick={() => setAll((v) => !v)}>{all ? 'Hide' : 'Show'} all zones, including later and missed</button>
-      {all ? (
-        <div className="rp-all">
-          <div className="rp-runs">
-            {BRANCHES.filter((b) => lead.branches?.[b.id]).map((b) => (
-              <button key={b.id} className={run === b.id ? 'on' : ''} onClick={() => setRun(b.id)}>{branchLabel(b.id)}</button>
-            ))}
-          </div>
-          <p className="rp-small">Official order where one was issued, otherwise the official warning (marked W). Compared through {through ? fmtPT(through) : 'the end of the replay'}.</p>
-          {groups.map(([title, g]) => (
-            <div key={title}>
-              <div className="rp-group">{title} ({g.length})</div>
-              <table className="rp-table">
-                <tbody>
-                  {g.map((r) => (
-                    <tr key={r.id}>
-                      <td>{r.name}{r.kind === 'warn' ? <i className="rp-w">W</i> : null}</td>
-                      <td>{fmtHM(r.official)}</td>
-                      <td className="ours">{r.ours != null ? fmtHM(r.ours) : '—'}</td>
-                      <td className={r.lead > 0 ? 'gain' : r.lead < 0 ? 'loss' : ''}>{leadText(r)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ))}
-          {extra.length ? <p className="rp-small">Emberline also alerted {extra.join(', ')}, which had no official warning or order.</p> : null}
-          {lead.definition ? <p className="rp-small">{lead.definition}</p> : null}
-        </div>
-      ) : null}
-      {aar ? (
-        <p className="rp-src">
-          Official times: <a href={aar.url} target="_blank" rel="noreferrer">{aar.title}</a>{where ? `, ${where}` : ''}.
-          {lead.sources?.citygate ? ' Corroborated by the Citygate investigation report.' : ''} Times compare alerts only, not outcomes.
-        </p>
       ) : null}
     </div>
   )

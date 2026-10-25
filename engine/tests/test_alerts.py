@@ -3,8 +3,8 @@
 import json
 from pathlib import Path
 
-from emberline.contracts import Alert, CycleBundle, ZoneRisk, lead_idx
-from emberline.risk.alerts import evaluate, load_rules, p_words, template
+from ember.contracts import Alert, CycleBundle, ZoneRisk, lead_idx
+from ember.risk.alerts import evaluate, load_rules, p_words, template
 
 REPO = Path(__file__).resolve().parents[2]
 MAIN = REPO / "fixtures" / "cache" / "fixture" / "main"
@@ -117,7 +117,7 @@ def test_template_six_zone_merge_fits():
     crit = {ids[0]: ["nursing home"], ids[1]: ["school", "nursing home"]}
     text, voice = template("order_recommended", zones, names, crit, 0.7, 1, K0 + 30 * MIN, K0, K0 - 5 * MIN)
     assert "demo" not in text.lower()
-    assert voice.startswith("This is Emberline.")
+    assert voice.startswith("This is Ember.")
     assert len(text) <= 300 and len(voice.split()) <= 110
     assert "EVACUATION ORDER recommended" in text and "(P 70%)" in text
     assert ", nursing home, school." in text and "including a nursing home and a school" in voice

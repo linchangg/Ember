@@ -62,12 +62,12 @@ npm --prefix web ci --ignore-scripts
 npm --prefix web run typecheck
 npm --prefix web run lint -- --deny-warnings
 npm --prefix web test
-EMBERLINE_FIXTURE_DIR=/private/tmp/emberline-dashboard-phase-a \
-  EMBERLINE_SCENARIO_ID=rust-fixture npm --prefix web test
+EMBER_FIXTURE_DIR=/private/tmp/ember-dashboard-phase-a \
+  EMBER_SCENARIO_ID=rust-fixture npm --prefix web test
 VITE_DATA_SOURCE=file VITE_SCENARIO_ID=rust-fixture \
   VITE_ASSET_BASE=http://127.0.0.1:8791/ npm --prefix web run build
 node tools/check_dashboard_source.mts http://127.0.0.1:8791/ rust-fixture
-node tools/check_hazard_frontend.mjs /private/tmp/emberline-dashboard-phase-a
+node tools/check_hazard_frontend.mjs /private/tmp/ember-dashboard-phase-a
 ```
 
 Local evidence (2026-10-24): strict typecheck and warning-free lint passed; **34/34
@@ -89,7 +89,7 @@ Regenerate the independent golden artifact only deliberately:
 
 ```sh
 engine/.venv/bin/python tools/make_georeference_reference.py \
-  --manifest /private/tmp/emberline-dashboard-phase-a/static/rust-fixture/manifest.json \
+  --manifest /private/tmp/ember-dashboard-phase-a/static/rust-fixture/manifest.json \
   --out web/src/forecast/georeference.reference.json
 ```
 

@@ -9,7 +9,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 import yaml
-from emberline.contracts import CycleBundle, SCHEMA_VERSION
+from ember.contracts import CycleBundle, SCHEMA_VERSION
 
 
 def local_asset(root: Path, reference: str) -> Path:

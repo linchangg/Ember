@@ -2,8 +2,8 @@ import json
 
 import pytest
 
-from emberline.data import grid
-from emberline.data.config import load_scenario, scenario_dir, utc_ms
+from ember.data import grid
+from ember.data.config import load_scenario, scenario_dir, utc_ms
 
 G = load_scenario("eaton")["grid"]
 

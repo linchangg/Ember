@@ -1,6 +1,6 @@
 # Engine Build Plan
 
-> **Repository status:** This is a proposed Rust research-engine build plan. The current Emberline demo remains governed by [`SPEC.md`](SPEC.md), [`spec/00_contracts.md`](spec/00_contracts.md), and [`spec/02_physics.md`](spec/02_physics.md), which specify Python/Numba MTT and different time, grid, RNG, and output contracts. This proposal does not replace those decisions or change the shared contracts. Adopting it requires a separate team decision and integration design.
+> **Repository status:** This is a proposed Rust research-engine build plan. The current Ember demo remains governed by [`SPEC.md`](SPEC.md), [`spec/00_contracts.md`](spec/00_contracts.md), and [`spec/02_physics.md`](spec/02_physics.md), which specify Python/Numba MTT and different time, grid, RNG, and output contracts. This proposal does not replace those decisions or change the shared contracts. Adopting it requires a separate team decision and integration design.
 
 Version 3 • October 24, 2026 • Scope: physics engine and its integration contracts.
 

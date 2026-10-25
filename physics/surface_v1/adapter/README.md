@@ -1,6 +1,6 @@
 # surface_v1 research adapter
 
-This directory is a research compatibility layer between documented Emberline array conventions and the existing `fire-cli` executable. It does not select a production backend, replace the planned Python MTT model, or implement `HazardModel`.
+This directory is a research compatibility layer between documented Ember array conventions and the existing `fire-cli` executable. It does not select a production backend, replace the planned Python MTT model, or implement `HazardModel`.
 
 Read [ADAPTER_SPEC.md](../docs/ADAPTER_SPEC.md) before using the converters. Unresolved decisions in that file are intentional. The utilities refuse those mappings instead of picking a silent default.
 

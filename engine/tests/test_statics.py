@@ -6,16 +6,16 @@ import numpy as np
 import pytest
 import rasterio
 
-from emberline.data import grid, statics
-from emberline.data.config import load_scenario
-from emberline.hazard import api
-from emberline.hazard.geometry import GeometryCache, centers
-from emberline.hazard.validation import validate_landscape
+from ember.data import grid, statics
+from ember.data.config import load_scenario
+from ember.hazard import api
+from ember.hazard.geometry import GeometryCache, centers
+from ember.hazard.validation import validate_landscape
 
 SCN = "eaton"
 SDIR = statics.static_dir(SCN)
 BUILT = all((SDIR / f"{n}.tif").exists() for n in (*statics.FLOAT_STATICS, "fbfm40"))
-needs_statics = pytest.mark.skipif(not BUILT, reason="run python -m emberline.data.statics --scenario eaton")
+needs_statics = pytest.mark.skipif(not BUILT, reason="run python -m ember.data.statics --scenario eaton")
 
 
 def small_grid(n: int = 21) -> api.Grid:
@@ -76,8 +76,8 @@ def test_fuel_codes_are_supported_and_prefire():  # 01 §12 #3
 @needs_statics
 def test_load_landscape_passes_abbys_validation():
     land = statics.load_landscape(SCN)
-    from emberline.runtime import model_host
-    from emberline.runtime.loop import load_scenario_dir
+    from ember.runtime import model_host
+    from ember.runtime.loop import load_scenario_dir
 
     ctx = load_scenario_dir(statics.scenario_dir(SCN))
     assert land.grid == model_host.model_grid(ctx)

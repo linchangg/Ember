@@ -7,9 +7,9 @@ import re
 import httpx
 import pytest
 
-from emberline.ai.briefing import fixture_bundle
-from emberline.notify import cartesia
-from emberline.risk import alerts
+from ember.ai.briefing import fixture_bundle
+from ember.notify import cartesia
+from ember.risk import alerts
 
 TO = "+15555550100"
 ENV = {
@@ -161,7 +161,7 @@ def test_mask() -> None:
 def test_cli_dry_run_masks_number(monkeypatch, capsys) -> None:
     for k in ENV:
         monkeypatch.delenv(k, raising=False)
-    monkeypatch.setattr("emberline.ai.briefing.load_env", lambda *a: None)  # keep engine/.env out of the test
+    monkeypatch.setattr("ember.ai.briefing.load_env", lambda *a: None)  # keep engine/.env out of the test
     monkeypatch.setattr("sys.argv", ["cartesia", "--dry-run", "--fixture-alert", "20", "--to", TO])
     cartesia.main()
     out = capsys.readouterr().out

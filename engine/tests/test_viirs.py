@@ -3,14 +3,14 @@
 import pandas as pd
 import pytest
 
-from emberline.data import viirs
-from emberline.data.config import load_scenario, scenario_dir
-from emberline.data.grid import bbox_lonlat
-from emberline.runtime.sources import ReplaySource
+from ember.data import viirs
+from ember.data.config import load_scenario, scenario_dir
+from ember.data.grid import bbox_lonlat
+from ember.runtime.sources import ReplaySource
 
 SCN = scenario_dir("eaton")
 pytestmark = pytest.mark.skipif(not (SCN / "obs" / "viirs.parquet").exists(),
-                                reason="run python -m emberline.data.viirs")
+                                reason="run python -m ember.data.viirs")
 
 
 @pytest.fixture(scope="module")

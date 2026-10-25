@@ -1,4 +1,4 @@
-# Emberline demo fire: final recommendation (Sat Oct 24 2026, evening)
+# Ember demo fire: final recommendation (Sat Oct 24 2026, evening)
 
 ## 1. Verdict
 
@@ -57,7 +57,7 @@ All times are PST, Jan 7–8 2025. LOCAL means our own analysis of public files,
 | 02:11 | First GOES-18 hit in area X (west of Lake foothills), 2-of-3 persistence | Real (LOCAL) | `check_goes_report.html` |
 | 02:18 | Radio: fire north of Farnsworth Park moving west. **Second documented report.** | Real, injected | AAR synopsis https://file.lacounty.gov/SDSInter/lac/1192777_AAR_EatonFireSynopsisofFindingsandTimeline.pdf |
 | **02:59** | **Second sensor sharpens the picture.** S-NPP VIIRS file available (observed 01:25) with 2 px right at Lake Ave (-118.1317, 34.192–34.196), which the ~2–3 km GOES pixels cannot resolve | Real (LOCAL) | NOAA `noaa-nesdis-snpp-pds` |
-| T_call | **Emberline warn/order and Cartesia call to the duty officer for west-Altadena zones** | Simulated: **not measured yet** | — |
+| T_call | **Ember warn/order and Cartesia call to the duty officer for west-Altadena zones** | Simulated: **not measured yet** | — |
 | 03:25 | Real orders for 13 west-of-Lake zones. Same minute, the NOAA-21 file with 10 px west of Lake becomes available | Real | AAR App.10; Citygate Finding #20 |
 | ~05:13 | FireGuard puts the front ~1 block west of Lake | Real | Citygate |
 | ~05:15–05:43 | Calaveras zone order (AAR App.10 is ambiguous; media say 05:42) | Real | AAR; https://www.yahoo.com/news/17-deaths-eaton-fire-were-024433120.html |
@@ -103,7 +103,7 @@ Total is about 10–15 people-hours across three people, with compute running in
 - **Spotting versus our model.** Spread west of Lake was ember-driven: "ember cast ... caused spot fires west of Lake Avenue after midnight" (AAR). The open-loop run will under-forecast there. Only assimilation (GOES/VIIRS "unexplained detection" and report injection) can recover it.
   - Never claim we caught the spot fires (23:49, 00:55).
   - Present the 02:11 GOES and 02:59 VIIRS signals as "satellite heat west of Lake", not "front crossed Lake". Citygate places the front 2 blocks east of Lake at 03:53.
-- **The lead-time claim.** The 02:11 GOES signal trails the 23:49 and 02:18 responder reports, so compare only against the 03:25 electronic orders. Allowed wording: "Emberline's alert fired at T; the documented order for zone Z was at 03:25 (AAR App.10)". Not allowed: "would have saved lives" or any other outcome claim.
+- **The lead-time claim.** The 02:11 GOES signal trails the 23:49 and 02:18 responder reports, so compare only against the 03:25 electronic orders. Allowed wording: "Ember's alert fired at T; the documented order for zone Z was at 03:25 (AAR App.10)". Not allowed: "would have saved lives" or any other outcome claim.
 - **VIIRS latency.** Under honest file-created times, the lead from S-NPP is 26 min and the 10-pixel NOAA-21 pass gives none. Show the URT run only as a labelled assumption, or not at all.
 - **Two discrepancies in the inputs.**
   - The NOAA-21 09:00Z pass was reported as "1 px at -118.1316" in one check and "none, persistent-anomaly only" in another. Re-check before naming it on screen.

@@ -11,7 +11,7 @@ const STATUS_LABEL = { order: 'Order', warning: 'Warning', watch: 'Watch', clear
 const TREND = { up: '↑ rising', flat: '→ steady', down: '↓ falling' }
 const LEVEL_LABEL = { advisory: 'Advisory', warning: 'Warning', order_recommended: 'Order recommended' }
 
-/** Emberline's alert against the county's first official alert for the same zone. */
+/** Ember's alert against the county's first official alert for the same zone. */
 function LeadBadge({ info }) {
   if (!info) return null
   const ahead = info.lead_min > 0

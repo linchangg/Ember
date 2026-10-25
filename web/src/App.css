@@ -729,3 +729,7 @@ a:hover {
 .gn__barlbl { position: absolute; top: -17px; transform: translateX(-50%); font: 700 8.5px Michroma, sans-serif; color: #8ff0b0; white-space: nowrap; pointer-events: none; }
 .gn__zonelbl { position: absolute; right: 0; top: 24px; font: 8px Michroma, sans-serif; color: #8fb0e0; pointer-events: none; }
 .gn__tourstop { z-index: 7; position: absolute; left: 190px; top: 14px; padding: 5px 12px; background: #1a0f12cc; color: #ffb3a8; border: 1px solid #e5483c88; border-radius: 14px; font: 9px Michroma, sans-serif; cursor: pointer; }
+
+/* new-alert count: a small circle on the corner of the Alerts tab */
+.gn__tabs button { position: relative; }
+.gn__count { position: absolute; top: -7px; right: -5px; min-width: 17px; height: 17px; padding: 0 4px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border-radius: 9px; background: #ff5a3c; color: #fff; font: 700 9px Michroma, sans-serif; font-style: normal; box-shadow: 0 0 10px #ff5a3c88; }

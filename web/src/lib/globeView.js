@@ -60,9 +60,9 @@ export async function loadExtras(manifest) {
 }
 
 /**
- * Emberline's alerts against the county's, zone by zone. Like with like: where both Emberline and the county issued an order,
+ * Ember's alerts against the county's, zone by zone. Like with like: where both Ember and the county issued an order,
  * the lead is first order against first order; otherwise first warning-or-order against first warning-or-order.
- * lead_min > 0 means Emberline came first. Only alerts the replay has reached so far are counted, and Emberline times
+ * lead_min > 0 means Ember came first. Only alerts the replay has reached so far are counted, and Ember times
  * are the 5-minute cycle that proposed the alert.
  */
 export function compareWithOfficial(alerts, official) {
@@ -165,7 +165,7 @@ export function createGlobeView(snap, extras) {
     zones: { features: snap.zones },
     footprint: extras?.footprint ?? null,
     official: extras?.official ?? null,
-    /** per zone: Emberline's alert vs the county's, for alerts the replay has reached */
+    /** per zone: Ember's alert vs the county's, for alerts the replay has reached */
     vsOfficial: compareWithOfficial(snap.alerts, extras?.official),
     assets: extras?.assets ?? null,
     areaX: extras?.areaX ?? null,

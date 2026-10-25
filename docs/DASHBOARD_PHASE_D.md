@@ -77,7 +77,7 @@ From repository root, Python 3.12 and the locked environment:
 ```sh
 uv sync --project engine --locked
 cargo build --manifest-path physics/surface_v1/Cargo.toml -p fire-bridge --release --locked
-uv run --project engine python -m emberline.hazard.demo \
+uv run --project engine python -m ember.hazard.demo \
   --out /private/tmp/fire-phase-d-fixture --members 16 --report-branch
 ```
 
@@ -99,7 +99,7 @@ next-step parity. These are synthetic integration checks, not historical validat
 ## Run and check
 
 ```sh
-uv run --project engine python -m emberline.hazard.fixture_server \
+uv run --project engine python -m ember.hazard.fixture_server \
   --root /private/tmp/fire-phase-d-fixture --port 8794 \
   --allow-origin http://127.0.0.1:5178
 ```
@@ -124,8 +124,8 @@ npm --prefix web ci --ignore-scripts
 npm --prefix web run typecheck
 npm --prefix web run lint -- --deny-warnings
 npm --prefix web test
-EMBERLINE_FIXTURE_DIR=/private/tmp/fire-phase-d-fixture \
-EMBERLINE_SCENARIO_ID=rust-fixture npm --prefix web test
+EMBER_FIXTURE_DIR=/private/tmp/fire-phase-d-fixture \
+EMBER_SCENARIO_ID=rust-fixture npm --prefix web test
 npm --prefix web run build
 node tools/check_hazard_frontend.mjs /private/tmp/fire-phase-d-fixture
 node tools/check_dashboard_panels.mts http://127.0.0.1:8794/ rust-fixture
@@ -142,8 +142,8 @@ approval/no POSTs, page errors and screenshots. To run in a normal development/C
 ```sh
 cd web
 npm exec -- playwright install --with-deps chromium
-EMBERLINE_FIXTURE_DIR=/private/tmp/fire-phase-d-fixture \
-EMBERLINE_SCENARIO_ID=rust-fixture npm run test:browser
+EMBER_FIXTURE_DIR=/private/tmp/fire-phase-d-fixture \
+EMBER_SCENARIO_ID=rust-fixture npm run test:browser
 ```
 
 The runner launches a dedicated Vite on 5189; it does not reuse an unrelated preview.

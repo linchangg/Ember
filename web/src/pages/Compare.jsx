@@ -32,7 +32,7 @@ export default function Compare() {
     <div className="compare">
       <header className="compare__header">
         <Link to="/" className="compare__brand">
-          Emberline
+          Ember
         </Link>
         <h1>Globe pattern bake-off</h1>
         <p>

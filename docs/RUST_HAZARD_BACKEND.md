@@ -32,14 +32,14 @@ python3.12 -m pip install uv==0.13.5
 rustup toolchain install 1.99.1 --profile minimal --component rustfmt --component clippy
 uv sync --project engine --locked
 cargo build --manifest-path physics/surface_v1/Cargo.toml -p fire-bridge --release --locked
-uv run --project engine python -m emberline.hazard.compatibility
+uv run --project engine python -m ember.hazard.compatibility
 uv run --project engine pytest engine/tests -q
 cargo test --manifest-path physics/surface_v1/Cargo.toml --workspace --locked
 cargo test --manifest-path physics/surface_v1/Cargo.toml --workspace --release --locked
 cargo clippy --manifest-path physics/surface_v1/Cargo.toml --workspace --all-targets --locked -- -D warnings
 ```
 
-No model method builds Rust or downloads anything. Set `EMBERLINE_RUST_BRIDGE` to an
+No model method builds Rust or downloads anything. Set `EMBER_RUST_BRIDGE` to an
 absolute executable path to override the default nested release build. `BackendOptions`
 controls process timeout, worker count and the native memory budget; these are deployment
 limits, not new fields in the frozen `ModelConfig` contract. The source checkout is
@@ -49,9 +49,9 @@ Python wheel without the Rust workspace is not a supported deployment artifact y
 ## Python entry point and exact boundary
 
 ```python
-from emberline.hazard.api import ModelConfig
-from emberline.hazard.factory import create_hazard_model
-from emberline.hazard.bridge import BackendOptions
+from ember.hazard.api import ModelConfig
+from ember.hazard.factory import create_hazard_model
+from ember.hazard.bridge import BackendOptions
 
 model = create_hazard_model(options=BackendOptions(workers=2, timeout_s=120))
 cfg = ModelConfig(n_members=16, spotting=False, filter="pf")
@@ -215,19 +215,19 @@ quantile, time or binary-layout changes require matched tests and an explicit mi
 ## Complete offline fixture and inspection
 
 ```sh
-uv run --project engine python -m emberline.scripts.make_fixture
-uv run --project engine python -m emberline.hazard.demo --out /tmp/emberline-rust-demo --members 16
-node tools/check_hazard_frontend.mjs /tmp/emberline-rust-demo
+uv run --project engine python -m ember.scripts.make_fixture
+uv run --project engine python -m ember.hazard.demo --out /tmp/ember-rust-demo --members 16
+node tools/check_hazard_frontend.mjs /tmp/ember-rust-demo
 node --test tools/check_hazard_frontend.test.mjs
-python3 -m http.server 8787 --bind 127.0.0.1 --directory /tmp/emberline-rust-demo
+python3 -m http.server 8787 --bind 127.0.0.1 --directory /tmp/ember-rust-demo
 ```
 
 Open `http://127.0.0.1:8787/demo.html`. In another terminal:
 
 ```sh
 node tools/check_hazard_frontend.mjs http://127.0.0.1:8787/
-uv run --project engine python -m emberline.hazard.evaluate_assimilation --out /tmp/assimilation.json --members 32
-uv run --project engine python -m emberline.hazard.benchmark --out /tmp/latency.json
+uv run --project engine python -m ember.hazard.evaluate_assimilation --out /tmp/assimilation.json --members 32
+uv run --project engine python -m ember.hazard.benchmark --out /tmp/latency.json
 ```
 
 Choose fresh output paths; the tools refuse accidental overwrites. The viewer is a

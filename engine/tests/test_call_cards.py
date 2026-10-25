@@ -3,10 +3,10 @@
 import json
 import re
 
-from emberline.ai.briefing import fixture_bundle
-from emberline.contracts import Briefing
-from emberline.notify import cartesia
-from emberline.scripts import call_cards
+from ember.ai.briefing import fixture_bundle
+from ember.contracts import Briefing
+from ember.notify import cartesia
+from ember.scripts import call_cards
 
 ENV = {"CARTESIA_API_KEY": "sk_car_SECRET", "CARTESIA_AGENT_ID": "agent_SECRET",
        "CARTESIA_FROM_NUMBER_ID": "pn_SECRET", "CARTESIA_VERSION": "2026-08-14",

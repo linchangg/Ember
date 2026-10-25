@@ -15,10 +15,10 @@ Written Sat Oct 24 2026, evening, after wave 1 landed on `main` (`8cea5fc`). One
 4. **Commands:**
    - Run from `engine/` with `PYTHONUTF8=1`.
    - Run **only your own test files**: `uv run --no-sync pytest -q tests/test_<yours>.py`. The orchestrator runs the full suite; concurrent full runs race on the fixture files.
-5. **Network.** Network tests are skipped unless `EMBERLINE_NETWORK_TESTS` is set. Real data downloads go under `data/scenarios/eaton/raw/`, which is git-ignored.
+5. **Network.** Network tests are skipped unless `EMBER_NETWORK_TESTS` is set. Real data downloads go under `data/scenarios/eaton/raw/`, which is git-ignored.
 6. **Hub.**
    - The local hub (`spacetime start`, :3000) is shared. Don't republish the `stdb/` module.
-   - Hub tests use your own `scenario_id`, never `fixture`, and are skipped unless `EMBERLINE_HUB_TESTS=1`.
+   - Hub tests use your own `scenario_id`, never `fixture`, and are skipped unless `EMBER_HUB_TESTS=1`.
 7. **Honesty.**
    - Never fabricate data, coordinates, dates or citations.
    - Anything hand-picked or approximate is labelled as such in the data (`approximate: true`, `"note"`) and in your report.
@@ -26,7 +26,7 @@ Written Sat Oct 24 2026, evening, after wave 1 landed on `main` (`8cea5fc`). One
 8. **Secrets.**
    - Read them only from env or `engine/.env`.
    - Never print a key, token, PIN or phone number; mask all but the last 4 characters.
-9. **Style.** Python 3.12, typed, small functions; Pydantic contract types from `emberline.contracts`. Match `engine/emberline/scripts/make_fixture.py` and the wave-1 modules.
+9. **Style.** Python 3.12, typed, small functions; Pydantic contract types from `ember.contracts`. Match `engine/ember/scripts/make_fixture.py` and the wave-1 modules.
 10. **Final reply:**
     - the 5-line summary from `AGENTS.md`;
     - files created or changed;
@@ -36,7 +36,7 @@ Written Sat Oct 24 2026, evening, after wave 1 landed on `main` (`8cea5fc`). One
 
 ## 1. Interface contracts between wave-2 tasks (binding; don't change them)
 
-### 1.1 Cartesia call: T11 implements, T10 calls (`engine/emberline/notify/cartesia.py`)
+### 1.1 Cartesia call: T11 implements, T10 calls (`engine/ember/notify/cartesia.py`)
 ```python
 @dataclass
 class CallResult:
@@ -52,7 +52,7 @@ async def place_call(alert: Alert, to_number: str, *, dry_run: bool = False,
                      client: httpx.AsyncClient | None = None) -> CallResult   # never raises
 ```
 
-### 1.2 Local API: T12 implements, T10's `run.py` mounts it (`engine/emberline/api/local.py`)
+### 1.2 Local API: T12 implements, T10's `run.py` mounts it (`engine/ember/api/local.py`)
 ```python
 @dataclass
 class LocalState:
@@ -66,13 +66,13 @@ def create_app(state: LocalState, hub: "StdbHttp | None") -> fastapi.FastAPI
 ```
 
 ### 1.3 Hazard stand-in (T10, tests only)
-`engine/emberline/hazard/` doesn't exist, because Abby's A0 hasn't landed. **Nobody creates it.**
-- T10's engine code imports `from emberline.hazard.api import ...` lazily, inside functions or under `TYPE_CHECKING`, so the package still imports without it.
-- T10's tests put a stand-in into `sys.modules["emberline.hazard"]` and `sys.modules["emberline.hazard.api"]`, but only if the real import fails. The stand-in lives in `engine/tests/hazard_standin.py` and holds the `spec/00` §6 dataclasses verbatim plus a `FakeHazardModel`.
+`engine/ember/hazard/` doesn't exist, because Abby's A0 hasn't landed. **Nobody creates it.**
+- T10's engine code imports `from ember.hazard.api import ...` lazily, inside functions or under `TYPE_CHECKING`, so the package still imports without it.
+- T10's tests put a stand-in into `sys.modules["ember.hazard"]` and `sys.modules["ember.hazard.api"]`, but only if the real import fails. The stand-in lives in `engine/tests/hazard_standin.py` and holds the `spec/00` §6 dataclasses verbatim plus a `FakeHazardModel`.
 - When A0 lands, the real module wins automatically.
 
 ### 1.4 Replay inputs: T8 writes them, T7's `ReplaySource` reads them
-Column names and paths are **exactly** the docstring at the top of `engine/emberline/runtime/sources.py`. Don't edit `sources.py`.
+Column names and paths are **exactly** the docstring at the top of `engine/ember/runtime/sources.py`. Don't edit `sources.py`.
 
 ### 1.5 Event IDs
 Engine-made activity events use `ev_{cycle_id}_{i}`. `cycle_id` already carries the branch, so branch events never collide with main's. Pre-ignition bundles use `ev_{bundle_id}_{i}`.
@@ -81,7 +81,7 @@ Engine-made activity events use `ev_{cycle_id}_{i}`. `cycle_id` already carries 
 
 ### F0: fix the fixture's R2 boundary bug (runs first, alone)
 - **Owns:**
-  - `engine/emberline/scripts/make_fixture.py`
+  - `engine/ember/scripts/make_fixture.py`
   - `fixtures/**` (regenerated)
   - `engine/tests/test_fixture.py`
   - the fixture cross-check in `engine/tests/test_alerts.py`
@@ -96,7 +96,7 @@ Engine-made activity events use `ev_{cycle_id}_{i}`. `cycle_id` already carries 
   1. Make `rule_holds` (and everything that decides fixture alerts) use the **same integer-ms act-by** as `zone_risk_row`.
   2. After bisection, move each zone a safe margin off the boundary (e.g. tens of metres inward) so float noise can't flip a cycle.
   3. Keep `00` §10's pins: **FIX-Z2 crosses R1 at cycle 20 and FIX-Z3 crosses R2 at cycle 30.**
-  4. Regenerate the fixture with `uv run --no-sync python -m emberline.scripts.make_fixture`.
+  4. Regenerate the fixture with `uv run --no-sync python -m ember.scripts.make_fixture`.
   5. The fixture must stay deterministic (run it twice and diff) and under 10 MB.
 - **Then:**
   - Simplify the `test_alerts.py` cross-check to `ours == committed`, with the exact list updated to whatever the fixed fixture produces.
@@ -106,25 +106,25 @@ Engine-made activity events use `ev_{cycle_id}_{i}`. `cycle_id` already carries 
   ```bash
   uv run --no-sync pytest -q tests/test_fixture.py tests/test_alerts.py tests/test_risk.py tests/test_briefing.py tests/test_validate.py
   ```
-  Then also run `EMBERLINE_HUB_TESTS=1 uv run --no-sync pytest -q tests/test_hub.py` (the local hub is running). Report the fixed fixture's full alert list.
+  Then also run `EMBER_HUB_TESTS=1 uv run --no-sync pytest -q tests/test_hub.py` (the local hub is running). Report the fixed fixture's full alert list.
 
 ### T4L: live Claude via OpenRouter, plus de-duplicate `p_words`
 - **Owns:**
-  - `engine/emberline/ai/**`
+  - `engine/ember/ai/**`
   - `engine/tests/test_briefing.py`, `engine/tests/test_validate.py`
   - `.env.example`: add variable **names** only, never values.
 - **Context.**
-  - `engine/.env` holds `OPENROUTER_API_KEY`, `ANTHROPIC_BASE_URL=https://openrouter.ai/api` and `EMBERLINE_BRIEFING_MODEL=anthropic/claude-sonnet-5.5`.
+  - `engine/.env` holds `OPENROUTER_API_KEY`, `ANTHROPIC_BASE_URL=https://openrouter.ai/api` and `EMBER_BRIEFING_MODEL=anthropic/claude-sonnet-5.5`.
   - Verified by the orchestrator: the Anthropic Python SDK with `base_url=ANTHROPIC_BASE_URL` and `auth_token=<OpenRouter key>` accepts the exact briefing request shape. That's `output_config.format` json_schema plus `thinking={"type":"between_tools"}`; the response is one `text` block of JSON.
   - The key has **$5** of credit.
 - **Do:**
   1. **Config.** Make the client and model configurable, in this order:
-     - `EMBERLINE_BRIEFING_MODEL`, defaulting to `claude-sonnet-5-5`.
+     - `EMBER_BRIEFING_MODEL`, defaulting to `claude-sonnet-5-5`.
      - The client: `anthropic.AsyncAnthropic(base_url=os.environ.get("ANTHROPIC_BASE_URL"), auth_token=OPENROUTER_API_KEY if set, else api_key=ANTHROPIC_API_KEY)`.
      - `Briefing.model` records the model actually used.
      - Keep the `.env` loader non-overriding.
-  2. **De-duplicate.** `ai/validate.py` imports `P_WORDS`/`p_words` from `emberline.risk.alerts` instead of keeping its own copy. Don't edit `risk/alerts.py`.
-  3. **Live runs.** Run the live smoke test (`EMBERLINE_LIVE_TESTS=1`, 3 inputs) and the CLI (`python -m emberline.ai.briefing --fixture-cycle 20`).
+  2. **De-duplicate.** `ai/validate.py` imports `P_WORDS`/`p_words` from `ember.risk.alerts` instead of keeping its own copy. Don't edit `risk/alerts.py`.
+  3. **Live runs.** Run the live smoke test (`EMBER_LIVE_TESTS=1`, 3 inputs) and the CLI (`python -m ember.ai.briefing --fixture-cycle 20`).
      - **Make no more than 8 live calls in total.** Print `usage` tokens for each.
      - Report grounded/fallback per input and the validator failures verbatim.
      - If fewer than 2 of 3 validate, tighten `prompts/briefing_v1.md` (bump `PROMPT_VERSION` to `briefing_v2` if the prompt changes) and re-run, within the 8-call cap.
@@ -136,8 +136,8 @@ Engine-made activity events use `ev_{cycle_id}_{i}`. `cycle_id` already carries 
 
 ### T8: GOES-18 pixel table, scan events, replay manifest
 - **Owns:**
-  - `engine/emberline/data/goes.py`: append only; don't change the T1 functions' behaviour.
-  - `engine/emberline/data/manifest.py`
+  - `engine/ember/data/goes.py`: append only; don't change the T1 functions' behaviour.
+  - `engine/ember/data/manifest.py`
   - `engine/tests/test_goes_table.py`, `engine/tests/test_manifest.py`
 - **Outputs:**
   - `data/scenarios/eaton/obs/goes18_fdcc.parquet`
@@ -161,7 +161,7 @@ Engine-made activity events use `ev_{cycle_id}_{i}`. `cycle_id` already carries 
 
 ### T9a: zones, exposure, assets, egress, tiers, zone raster, spawn points
 - **Owns:**
-  - `engine/emberline/data/vectors.py`, `engine/emberline/data/exposure.py`
+  - `engine/ember/data/vectors.py`, `engine/ember/data/exposure.py`
   - `engine/tests/test_zones.py`
 - **Outputs:**
   - `data/scenarios/eaton/vectors/{zones,assets}.geojson`
@@ -179,7 +179,7 @@ Engine-made activity events use `ev_{cycle_id}_{i}`. `cycle_id` already carries 
 - **Assets.** Use OSM through `osmnx` with the §6 tags. `n_critical` = hospitals + nursing/assisted living + schools. Join `zone_id` by point-in-polygon.
 - **Egress.** `egress_roads` per §6 (drivable roads crossing the zone boundary).
 - **Tiers.** Apply the §6/`00` §7 tier rules and `evac_min_default`, and **print the tier histogram**.
-- **Zone raster.** `zone_index.tif` is int16 (−1 = none), on the model grid, built with `emberline.data.grid.template`.
+- **Zone raster.** `zone_index.tif` is int16 (−1 = none), on the model grid, built with `ember.data.grid.template`.
 - **Spawn points.** Write 6 `demo` points `{spawn_id, lon, lat, zone_id, street}`:
   - on real OSM residential street segments;
   - inside west-Altadena at-risk zones, not in canyons;
@@ -194,7 +194,7 @@ Engine-made activity events use `ev_{cycle_id}_{i}`. `cycle_id` already carries 
 
 ### T9b: story geometry, terrain, web manifest, sensors, satellites, timeline
 - **Owns:**
-  - `engine/emberline/data/story.py`, `engine/emberline/data/terrain.py`, `engine/emberline/data/webpack.py`, `engine/emberline/data/truth.py`
+  - `engine/ember/data/story.py`, `engine/ember/data/terrain.py`, `engine/ember/data/webpack.py`, `engine/ember/data/truth.py`
   - `engine/tests/test_webpack.py`
 - **Outputs:**
   - `data/scenarios/eaton/vectors/{lake_ave,area_x}.geojson`
@@ -206,7 +206,7 @@ Engine-made activity events use `ev_{cycle_id}_{i}`. `cycle_id` already carries 
   - `spec/00` §4.1 (the `ScenarioManifest`; **every field**) and §4.3
   - `research/06` §2
 - **Lake Ave.** The OSM `North Lake Avenue` centreline, clipped to the AOI. Assert that it sits near lon −118.1316.
-- **Area X.** `area_x.geojson` from `scenario.yaml`, plus `area_x_index.tif` (int8) on the template grid. Reuse `emberline.data.area_x.area_x_polygon`.
+- **Area X.** `area_x.geojson` from `scenario.yaml`, plus `area_x_index.tif` (int8) on the template grid. Reuse `ember.data.area_x.area_x_polygon`.
 - **Terrain.**
   - 10 m DEM via `py3dep`, reprojected to EPSG:4326 over `aoi_bbox` at about 2048².
   - Encode it as Terrarium PNG exactly per §7.
@@ -228,9 +228,9 @@ Engine-made activity events use `ev_{cycle_id}_{i}`. `cycle_id` already carries 
 
 ### T10: engine M1, fake physics to cache, publisher and hub
 - **Owns:**
-  - `engine/emberline/runtime/{model_host,loop,publisher}.py`
-  - `engine/emberline/sync/{sink,stdb_sink,cache_sink,poller}.py`
-  - `engine/emberline/scripts/precompute.py`, `engine/emberline/run.py`
+  - `engine/ember/runtime/{model_host,loop,publisher}.py`
+  - `engine/ember/sync/{sink,stdb_sink,cache_sink,poller}.py`
+  - `engine/ember/scripts/precompute.py`, `engine/ember/run.py`
   - `engine/tests/hazard_standin.py`, `engine/tests/test_engine.py`
 - **Read:**
   - `spec/03` §1–8, §10 table, §12–14
@@ -262,7 +262,7 @@ Engine-made activity events use `ev_{cycle_id}_{i}`. `cycle_id` already carries 
     - `--scenario --profile online|offline [--fixtures]`.
     - Loads `engine/.env` and builds the `load_scenario` payload from static files (same shape as `tests/test_hub.py`'s `load_payload`).
     - Runs the poller, loop and publisher, plus the T12 app through uvicorn on :8787 (§1.2).
-- **Real Eaton physics** waits on A0. `run.py` and `precompute.py` must fail with a clear message if `emberline.hazard.api` is missing outside tests.
+- **Real Eaton physics** waits on A0. `run.py` and `precompute.py` must fail with a clear message if `ember.hazard.api` is missing outside tests.
 - **Tests:**
   - **`hazard_standin.py`.** The `00` §6 dataclasses verbatim, plus `FakeHazardModel`: 16 members, analytic ellipse, uniform weights, `filter_mode` `"none"`, bit-exact `save_state`/`load_state`, and `region_arrivals`.
   - **`test_engine.py`.** `03` §14 tests 1–5, using `SyntheticSource`, the stand-in, an in-memory fake sink and a flat synthetic scenario in `tmp_path`:
@@ -274,14 +274,14 @@ Engine-made activity events use `ev_{cycle_id}_{i}`. `cycle_id` already carries 
 
 ### T11: Cartesia outbound call, with dry run
 - **Owns:**
-  - `engine/emberline/notify/__init__.py` (empty), `engine/emberline/notify/cartesia.py`
+  - `engine/ember/notify/__init__.py` (empty), `engine/ember/notify/cartesia.py`
   - `engine/tests/test_cartesia.py`
 - **Read:** `spec/05` §4 (all of it) and §7, and §1.1 above.
 - **Verify the request shape** against `docs.cartesia.ai` (outbound calls: endpoint, body, the `Cartesia-Version` header, per-call errors in a 200 response). Quote the doc URL in a code comment. If the docs differ from `05` §4, follow the docs and report the difference.
 - **No real calls.** There are no Cartesia keys on this machine.
 - **CLI:**
   ```bash
-  python -m emberline.notify.cartesia --dry-run --fixture-alert 20 --to +15555550100
+  python -m ember.notify.cartesia --dry-run --fixture-alert 20 --to +15555550100
   ```
   It prints the exact body, with the number masked in the printout only.
 - **Tests:**
@@ -295,7 +295,7 @@ Engine-made activity events use `ev_{cycle_id}_{i}`. `cycle_id` already carries 
 
 ### T12: local API on :8787
 - **Owns:**
-  - `engine/emberline/api/__init__.py` (empty), `engine/emberline/api/local.py`
+  - `engine/ember/api/__init__.py` (empty), `engine/ember/api/local.py`
   - `engine/tests/test_local_api.py`
 - **Read:** `spec/03` §11, `spec/00` §4 (ASSET_BASE layout) and §1.2 above.
 - **Endpoints:**
@@ -319,7 +319,7 @@ The workflow ran 34 agents: 8 builders, 16 reviewers, 8 fixers, 1 integrator and
 
 **Tests:**
 - full suite: **188 passed, 18 skipped**;
-- hub plus engine suites: **26 of 26** (`EMBERLINE_HUB_TESTS=1`), stable across repeated runs.
+- hub plus engine suites: **26 of 26** (`EMBER_HUB_TESTS=1`), stable across repeated runs.
 
 **OpenRouter spend:** **$0.05** of $5.
 

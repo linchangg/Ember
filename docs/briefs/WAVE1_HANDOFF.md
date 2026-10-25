@@ -28,14 +28,14 @@ Full engine suite: `cd engine && PYTHONUTF8=1 uv run pytest -q` → **106 passed
 | Brief | Paths |
 |---|---|
 | deps | `engine/pyproject.toml`, `engine/uv.lock`, `.gitignore` |
-| T0 | `engine/emberline/data/{__init__,config,grid}.py`, `data/scenarios/eaton/{scenario.yaml,grid.json}`, `engine/tests/test_grid.py` |
-| T1 | `engine/emberline/data/{area_x,goes}.py`, `engine/emberline/scripts/check_goes.py`, `engine/tests/test_{area_x,goes_geo}.py` |
-| T2 | `stdb/{package.json,package-lock.json,tsconfig.json,.gitignore,src/,spike/}`, `engine/emberline/sync/`, `engine/emberline/scripts/hub_spike.py` |
-| T3 | `config/alert_rules.yaml`, `engine/emberline/risk/`, `engine/tests/test_{risk,alerts}.py` |
-| T4 | `engine/emberline/ai/`, `engine/tests/test_{validate,briefing}.py`, `engine/tests/data/briefing_inputs/` |
-| T5 | `engine/emberline/runtime/{__init__,clock,cache,summarize}.py`, `engine/tests/test_{clock,cache,summarize}.py` |
-| T6 | `engine/emberline/data/hrrr.py`, `engine/tests/test_hrrr.py` |
-| T7 | `engine/emberline/runtime/sources.py`, `engine/tests/test_sources.py` |
+| T0 | `engine/ember/data/{__init__,config,grid}.py`, `data/scenarios/eaton/{scenario.yaml,grid.json}`, `engine/tests/test_grid.py` |
+| T1 | `engine/ember/data/{area_x,goes}.py`, `engine/ember/scripts/check_goes.py`, `engine/tests/test_{area_x,goes_geo}.py` |
+| T2 | `stdb/{package.json,package-lock.json,tsconfig.json,.gitignore,src/,spike/}`, `engine/ember/sync/`, `engine/ember/scripts/hub_spike.py` |
+| T3 | `config/alert_rules.yaml`, `engine/ember/risk/`, `engine/tests/test_{risk,alerts}.py` |
+| T4 | `engine/ember/ai/`, `engine/tests/test_{validate,briefing}.py`, `engine/tests/data/briefing_inputs/` |
+| T5 | `engine/ember/runtime/{__init__,clock,cache,summarize}.py`, `engine/tests/test_{clock,cache,summarize}.py` |
+| T6 | `engine/ember/data/hrrr.py`, `engine/tests/test_hrrr.py` |
+| T7 | `engine/ember/runtime/sources.py`, `engine/tests/test_sources.py` |
 
 **Don't commit any of these:**
 - `engine/.env`: holds the STDB tokens and the PIN; it's git-ignored.
@@ -72,7 +72,7 @@ Still open:
 
 ## T2 phase 2 (uncommitted; reviewed and revised)
 
-**Hub tests:** `EMBERLINE_HUB_TESTS=1 uv run pytest -q tests/test_hub.py` → **14 passed**:
+**Hub tests:** `EMBER_HUB_TESTS=1 uv run pytest -q tests/test_hub.py` → **14 passed**:
 - the 9 tests from `04` §6;
 - a smoke test of every remaining reducer;
 - 4 tests for the review fixes below.
@@ -81,7 +81,7 @@ Still open:
 
 **Files:**
 - `stdb/src/index.ts`: 20 tables, every `04` §2 reducer.
-- `engine/emberline/sync/stdb_http.py`: `poll()`, typed wrappers.
+- `engine/ember/sync/stdb_http.py`: `poll()`, typed wrappers.
 - `engine/tests/test_hub.py`
 - `web/src/module_bindings/**`: generated; re-checked as current after the fixes.
 - `stdb/spike/bindings/**`: regenerated.
@@ -91,9 +91,9 @@ Suggested commit: `Add the full SpacetimeDB hub module, client, and bindings.`
 
 **Run:**
 ```bash
-cd stdb && spacetime publish emberline --server local --yes      # add --delete-data=always only after a schema change
-cd engine && PYTHONUTF8=1 uv run python -m emberline.scripts.hub_spike    # bootstraps identities on a fresh DB
-PYTHONUTF8=1 EMBERLINE_HUB_TESTS=1 uv run pytest -q tests/test_hub.py
+cd stdb && spacetime publish ember --server local --yes      # add --delete-data=always only after a schema change
+cd engine && PYTHONUTF8=1 uv run python -m ember.scripts.hub_spike    # bootstraps identities on a fresh DB
+PYTHONUTF8=1 EMBER_HUB_TESTS=1 uv run pytest -q tests/test_hub.py
 ```
 
 ### Review: what was kept and what was changed

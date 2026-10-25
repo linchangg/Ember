@@ -666,7 +666,7 @@
       "act_by_sim_ms": 1736312850350,
       "state": "proposed",
       "text": "WARNING recommended \u2014 FIX-Z2: fire possible within 2 h (P 30%). Act by 21:07 PST. ~420 residents. Forecast 19:55, satellite data through 19:55.",
-      "voice_script": "This is Emberline. Briefing for the duty officer. Recommend a warning for Fixture Z2. Fire is possible to reach the zone within 2 hours. Act by 9:07 PM. About 420 residents. This is decision support; you make the call. Say 'acknowledged' to confirm.",
+      "voice_script": "This is Ember. Briefing for the duty officer. Recommend a warning for Fixture Z2. Fire is possible to reach the zone within 2 hours. Act by 9:07 PM. About 420 residents. This is decision support; you make the call. Say 'acknowledged' to confirm.",
       "draft_source": "template",
       "briefing_id": null,
       "decided_by": null,

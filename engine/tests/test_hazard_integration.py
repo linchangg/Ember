@@ -1,11 +1,11 @@
 from dataclasses import replace
 import numpy as np
 import pytest
-from emberline.hazard.integration import weather_from_hrrr
+from ember.hazard.integration import weather_from_hrrr
 
 
 def test_hrrr_adapter_uses_real_current_writer_and_blocks_unreleased_bands(setup_model):
-    from emberline.data.hrrr import forcing_dataset
+    from ember.data.hrrr import forcing_dataset
 
     land, _, _, _, _ = setup_model
     g = land.grid
@@ -42,16 +42,16 @@ def test_hrrr_adapter_uses_real_current_writer_and_blocks_unreleased_bands(setup
 
 
 def test_rust_forecast_passes_cody_assets_risk_alerts_and_cache(setup_model, tmp_path):
-    from emberline.runtime.summarize import write_assets, encode_arrival
-    from emberline.runtime.cache import (
+    from ember.runtime.summarize import write_assets, encode_arrival
+    from ember.runtime.cache import (
         PhysicsOutput,
         save_cycle,
         load_cycle,
         save_checkpoint,
         latest_checkpoint,
     )
-    from emberline.risk.risk import zone_risks
-    from emberline.risk.alerts import evaluate, load_rules
+    from ember.risk.risk import zone_risks
+    from ember.risk.alerts import evaluate, load_rules
 
     model = setup_model[-1]()
     forecast = model.step(5, [])

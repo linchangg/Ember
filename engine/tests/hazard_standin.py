@@ -1,4 +1,4 @@
-"""Tests-only HazardModel double: FakeHazardModel (spec/02 §1) on the REAL `emberline.hazard.api` dataclasses.
+"""Tests-only HazardModel double: FakeHazardModel (spec/02 §1) on the REAL `ember.hazard.api` dataclasses.
 
 The no-native stand-in for Abby's RustHazardModel (CI builds fire-bridge, laptops may not; the
 native path is tests/test_engine_native.py). It keeps the Rust model's call rules, so orchestration
@@ -18,7 +18,7 @@ import time
 
 import numpy as np
 
-from emberline.hazard.api import ForecastArrays, Landscape, ModelConfig, Weather
+from ember.hazard.api import ForecastArrays, Landscape, ModelConfig, Weather
 
 MODEL_VERSION = "fake-standin-1"
 WEATHER = ("t_min", "u10", "v10", "temp_c", "rh")
@@ -27,7 +27,7 @@ STATIC = ("dist", "bearing", "base", "offset")  # init-derived arrays, saved so 
 
 def flat_landscape(ctx) -> Landscape:
     """Flat all-GR2 landscape on a synthetic test scenario's grid. Tests only: Eaton never gets one."""
-    from emberline.runtime.model_host import model_grid
+    from ember.runtime.model_host import model_grid
 
     g = ctx.grid
     shape = (int(g["ny"]), int(g["nx"]))

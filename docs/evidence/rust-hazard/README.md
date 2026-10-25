@@ -41,7 +41,7 @@ variation. The grid definition and stored grid file were not changed.
 ## Synthetic skill gates: 128 members
 
 See `assimilation-128.json` and the reproducible evaluator in
-`engine/emberline/hazard/evaluate_assimilation.py`. Hidden truth: ROS multiplier 1.6,
+`engine/ember/hazard/evaluate_assimilation.py`. Hidden truth: ROS multiplier 1.6,
 wind bias +20°, urban head rate 2 m/min. Observations have GOES-like 2.3×2.8km
 footprints at five-minute cadence and two idealized VIIRS positive-detection passes.
 This is not an independent historical-data evaluation.

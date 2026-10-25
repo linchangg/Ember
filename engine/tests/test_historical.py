@@ -3,7 +3,7 @@
 import json
 import numpy as np
 import pytest
-from emberline.hazard.historical import evaluate, make_example, score, digest
+from ember.hazard.historical import evaluate, make_example, score, digest
 
 
 def edit_manifest(path, change):
@@ -203,7 +203,7 @@ def test_no_empty_truth_coverage():
 
 
 def test_cli_refuses_overwriting_any_frozen_input(tmp_path, monkeypatch):
-    from emberline.hazard.historical import main
+    from ember.hazard.historical import main
 
     manifest = make_example(tmp_path)
     config = tmp_path / "config.json"

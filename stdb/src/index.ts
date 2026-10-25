@@ -1,4 +1,4 @@
-// Emberline hub module. spec/04_hub.md §2; types in spec/00_contracts.md §3.
+// Ember hub module. spec/04_hub.md §2; types in spec/00_contracts.md §3.
 // Conventions: times are f64 epoch ms, counts u32/i32, nested data as *_json strings,
 // nullables as t.option. Identities are stored as hex strings (04 §2.2 fallback).
 import { schema, table, t, SenderError, type InferSchema, type ReducerCtx } from 'spacetimedb/server';
