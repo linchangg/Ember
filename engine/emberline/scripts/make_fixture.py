@@ -188,18 +188,26 @@ def p_by_lead(etas: np.ndarray, k_min: float) -> np.ndarray:
     return count / N_MEMBERS
 
 
-def rule_holds(etas: np.ndarray, k_min: float, rule: str) -> bool:
-    p = p_by_lead(etas, k_min)
+def act_by_ms(etas: np.ndarray, k_ms: int) -> int | None:
+    """q30 arrival − evac in whole epoch ms, exactly as zone_risk rows store it (None past the horizon)."""
+    q30 = quantile_eta(etas, 0.3)
+    if q30 > (k_ms - IGN_MS) / 60_000 + HORIZON_MIN:
+        return None
+    return IGN_MS + int(round(q30 * 60_000)) - int(EVAC_MIN * 60_000)
+
+
+def rule_holds(etas: np.ndarray, k_ms: int, rule: str) -> bool:
+    """spec/00 §7 on the same integer-ms act-by that risk/alerts.py reads from the bundle."""
+    p = p_by_lead(etas, (k_ms - IGN_MS) / 60_000)
     if rule == "R1":
         return bool(p[lead_idx(120)] >= 0.30)
-    q30 = quantile_eta(etas, 0.3)
-    act_by = q30 <= k_min + HORIZON_MIN and (q30 - EVAC_MIN) - k_min <= 15
-    return bool(p[lead_idx(60)] >= 0.50 or act_by)
+    act = act_by_ms(etas, k_ms)
+    return bool(p[lead_idx(60)] >= 0.50 or (act is not None and act - k_ms <= 15 * 60_000))
 
 
 def first_firing_cycle(etas: np.ndarray, rule: str) -> int:
     for n in range(1, 80):
-        if rule_holds(etas, CYCLE_MIN * n, rule):
+        if rule_holds(etas, IGN_MS + n * CYCLE_MIN * 60_000, rule):
             return n
     return 99
 
@@ -385,7 +393,8 @@ class Zone:
     etas: np.ndarray
 
 
-def solve_along(cross: float, rule: str, goal: int) -> float:
+def first_along_reaching(cross: float, rule: str, goal: int) -> float:
+    """Smallest along distance (to bisection precision) where the rule first fires at cycle >= goal."""
     lo, hi = 300.0, 20_000.0
     for _ in range(50):
         mid = (lo + hi) / 2
@@ -393,11 +402,20 @@ def solve_along(cross: float, rule: str, goal: int) -> float:
             lo = mid
         else:
             hi = mid
-    cycle = first_firing_cycle(member_etas(hi, cross), rule)
-    if cycle != goal:
-        probe = [(d, first_firing_cycle(member_etas(d, cross), rule)) for d in range(1000, 16000, 500)]
-        raise RuntimeError(f"{rule} did not land on cycle {goal} at cross {cross}: got {cycle}, probe {probe}")
     return hi
+
+
+def solve_along(cross: float, rule: str, goal: int) -> float:
+    """Middle of the band of along distances that fire first at `goal`, so no rule sits on a cycle boundary."""
+    near = first_along_reaching(cross, rule, goal)
+    far = first_along_reaching(cross, rule, goal + 1)
+    along = (near + far) / 2
+    cycle = first_firing_cycle(member_etas(along, cross), rule)
+    if cycle != goal or far - near < 20:
+        probe = [(d, first_firing_cycle(member_etas(d, cross), rule)) for d in range(1000, 16000, 500)]
+        raise RuntimeError(f"{rule} did not land on cycle {goal} at cross {cross}: got {cycle}, band "
+                           f"{near:.1f}-{far:.1f} m, probe {probe}")
+    return along
 
 
 def place_zones() -> list[Zone]:
@@ -524,9 +542,7 @@ def alert_copy(zone: Zone, rule: str, k_ms: int, cycle_id: str, p120: float, p60
             p60,
         )
         rule_text = R2_TEXT
-    q30 = quantile_eta(zone.etas, 0.3)
-    k_min = (k_ms - IGN_MS) / 60_000
-    act_ms = None if q30 > k_min + HORIZON_MIN else IGN_MS + int(round(q30 * 60_000)) - int(EVAC_MIN * 60_000)
+    act_ms = act_by_ms(zone.etas, k_ms)
     act_hm = hm(act_ms) if act_ms is not None else "unknown"
     act_spoken = spoken(act_ms) if act_ms is not None else "an unknown time"
     critical = ", school" if zone.n_critical else ""
@@ -603,8 +619,7 @@ def zone_risk_row(zone: Zone, cycle_id: str, k_ms: int, prev_p120: dict[str, flo
             return None
         return IGN_MS + int(round(t * 60_000))
 
-    eta30 = eta_field(0.3)
-    act = None if eta30 is None else eta30 - int(EVAC_MIN * 60_000)
+    act = act_by_ms(zone.etas, k_ms)
     return {
         "cycle_id": cycle_id,
         "scenario_id": "fixture",
@@ -669,9 +684,9 @@ def propose(zones: list[Zone], k_ms: int, cycle_id: str, history: list[dict]) ->
         p = p_by_lead(zone.etas, k_min)
         p120, p60 = float(p[lead_idx(120)]), float(p[lead_idx(60)])
         fired = []
-        if rule_holds(zone.etas, k_min, "R1"):
+        if rule_holds(zone.etas, k_ms, "R1"):
             fired.append("R1")
-        if rule_holds(zone.etas, k_min, "R2"):
+        if rule_holds(zone.etas, k_ms, "R2"):
             fired.append("R2")
         for rule in fired:
             level = "warning" if rule == "R1" else "order_recommended"
