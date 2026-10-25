@@ -66,3 +66,7 @@ python3 -m http.server 8787 --bind 127.0.0.1 --directory /tmp/emberline-rust-dem
 Open `http://127.0.0.1:8787/demo.html` for the complete offline Rust fixture. This
 verification viewer is separate from the existing dashboard design. Choose a new
 output directory on subsequent runs.
+
+## Deep learning research framework
+
+See [Deep Learning Framework](DEEP_LEARNING_FRAMEWORK.md) for candidate tradeoffs, the selected compact physics-assisted U-Net, Python training and Rust inference, and the gated implementation backlog. This is a research plan; no learned model is active and no forecast-skill or latency improvement has been demonstrated.
