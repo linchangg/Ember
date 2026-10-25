@@ -36,7 +36,7 @@ from emberline.risk import risk
 from emberline.runtime import cache, publisher, summarize
 from emberline.runtime.model_host import ModelHost, burnable
 from emberline.runtime.publisher import CycleInputs, build_bundle
-from emberline.sync.sink import HubSnapshot, apply_alerts
+from emberline.sync.sink import HubSnapshot, PublicationUnavailable, apply_alerts
 
 log = logging.getLogger(__name__)
 REPO = Path(__file__).resolve().parents[3]
@@ -269,6 +269,7 @@ class Loop:
         self._last: CycleInputs | None = None
         self._target: int | None = None
         self._republish = False
+        self._pending_publication: tuple[list[int], list[CycleBundle]] | None = None
         self.catching = False
         self.tasks: set[asyncio.Task] = set()
         self.status: dict[str, Any] = {"last_cycle_sim_ms": None, "physics_ms": None,
@@ -312,7 +313,8 @@ class Loop:
                         target, self._target = self._target, None
                         # A seek back mid catch-up that lands at or past what was published is a no-op:
                         # the cycles up to the target are still due and get published by catch-up.
-                        if self.next_k is None or self.next_k > target:
+                        if self._pending_publication is not None or self.next_k is None or self.next_k > target:
+                            self._pending_publication = None
                             self._cancel_briefings(target)
                             await self._replay_silently(target)
                     if self._republish:
@@ -352,22 +354,35 @@ class Loop:
         if not self.catching and (len(batch) > 1 or (nxt is not None and nxt <= self.clock.sim_now())):
             self.catching = True
             await self.sink.set_clock_status(self.ctx.scenario_id, "catching_up")
-        snap, mirror = await self._snapshot()
-        bundles = []
-        for k in batch:
-            b = await self._build(k, snap, mirror)
-            if b is None:
-                continue
-            if self.briefings == "await":
-                b = await self._with_awaited_briefing(b)
-            apply_alerts(mirror, b.alerts)
-            bundles.append(b)
-        if len(bundles) == 1:
-            await self.sink.publish(bundles[0])
-        elif bundles:
-            await self.sink.publish_many(bundles)
+        self.status["backlog_cycles"] = sum(k <= self.clock.sim_now() for k in self.ks[self.i:])
+        if self._pending_publication is None:
+            snap, mirror = await self._snapshot()
+            bundles = []
+            for k in batch:
+                b = await self._build(k, snap, mirror)
+                if b is None:
+                    continue
+                if self.briefings == "await":
+                    b = await self._with_awaited_briefing(b)
+                apply_alerts(mirror, b.alerts)
+                bundles.append(b)
+            self._pending_publication = (batch, bundles)
+        batch, bundles = self._pending_publication
+        try:
+            if len(bundles) == 1:
+                await self.sink.publish(bundles[0])
+            elif bundles:
+                await self.sink.publish_many(bundles)
+        except PublicationUnavailable:
+            self.status["publication_pending"] = len(bundles)
+            # Bounded backpressure: retain exactly this batch; do not recompute, skip or advance.
+            await asyncio.sleep(1)
+            return
+        self._pending_publication = None
+        self.status["publication_pending"] = 0
         self.i += len(batch)
         self.status["last_cycle_sim_ms"] = batch[-1]
+        self.status["backlog_cycles"] = sum(k <= self.clock.sim_now() for k in self.ks[self.i:])
         if self.briefings == "background":
             for b in bundles:
                 self._spawn_briefing(b)
@@ -376,7 +391,11 @@ class Loop:
         snap, mirror = await self._snapshot()
         b = await self._rebuild_last(snap, mirror)
         if b is not None:
-            await self.sink.publish(b)
+            try:
+                await self.sink.publish(b)
+            except PublicationUnavailable:
+                self._republish = True
+                await asyncio.sleep(1)
 
     # ------------------------------------------------------------ one cycle
 
@@ -436,9 +455,9 @@ class Loop:
         t0 = time.perf_counter()
         host.ensure_state(self.branch, k - ctx.cycle_ms, self._obs_for, st.keys.get)
         arrays = host.step(self.branch, k, obs, key)
-        rel = f"cache/{ctx.scenario_id}/{self.branch}/{k}"
-        out_dir = cache.cycle_dir(self.root, ctx.scenario_id, self.branch, k)
-        is_new = not (out_dir / "physics.json").exists()  # a stale key is already counted in coverage
+        rel = f"cache/{ctx.scenario_id}/{self.branch}/{k}/assets/{key}"
+        out_dir = cache.cycle_dir(self.root, ctx.scenario_id, self.branch, k) / "assets" / key
+        is_new = not (cache.cycle_dir(self.root, ctx.scenario_id, self.branch, k) / "physics.json").exists()  # a stale key is already counted in coverage
         since_min = (k - st.prev_burned_k) // 60_000 if st.prev_burned_k is not None else ctx.cycle_ms // 60_000
         assets, danger, stats = summarize.write_assets(arrays, out_dir, rel, ctx.grid, burnable(host.land),
                                                        st.prev_burned_ha, since_min)

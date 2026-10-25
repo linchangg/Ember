@@ -24,3 +24,7 @@ data/scenarios/*/check_goes_report.html
 engine/cache/
 stdb/dist/
 .claude/worktrees/
+
+# Browser acceptance artifacts
+web/test-results/
+web/playwright-report/

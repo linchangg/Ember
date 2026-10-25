@@ -144,11 +144,18 @@ def write_index(root: Path, scn: str, branch: str) -> Path:
     index = {
         "scenario_id": scn,
         "branch_id": branch,
-        "cycles": [{"knowledge_sim_ms": k, "bundle": f"cache/{scn}/{branch}/{k}/bundle.json"} for k in ks],
+        "cycles": [{"knowledge_sim_ms": k, "bundle": _bundle_reference(d, scn, branch, k)} for k in ks],
     }
     path = d / "index.json"
     _write_json(path, index)
     return path
+
+
+def _bundle_reference(directory: Path, scn: str, branch: str, k: int) -> str:
+    digest = hashlib.sha256((directory / str(k) / "bundle.json").read_bytes()).hexdigest()
+    version = directory / str(k) / "bundles" / (digest + ".json")
+    return (f"cache/{scn}/{branch}/{k}/bundles/{digest}.json" if version.exists()
+            else f"cache/{scn}/{branch}/{k}/bundle.json")
 
 
 def briefing_path(root: Path, scn: str, input_hash: str) -> Path:

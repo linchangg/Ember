@@ -511,7 +511,8 @@ def assert_once(published: list[str], want: list[str]) -> bool:
 
 
 def _arrival(root: Path, k: int) -> bytes:
-    return (cache.cycle_dir(root, SCN, "main", k) / "arrival_q.bin").read_bytes()
+    cycle = json.loads((cache.cycle_dir(root, SCN, "main", k) / "physics.json").read_text())["cycle"]
+    return (root / Path(cycle["assets"]["arrival_q"]).relative_to("cache")).read_bytes()
 
 
 def _key(root: Path, k: int) -> str:
@@ -929,3 +930,53 @@ def test_scan_events_carry_sensor_status(ctx, tmp_path):
     assert all(o.status == "assimilated" and o.cycle_id == b.cycle.cycle_id for o in b.observations)
     assert [e.event_id for e in b.events] == [f"ev_{b.cycle.cycle_id}_{i}" for i in range(len(b.events))]
     assert isinstance(b.scan_events[0], ScanEvent) and loop.status["cache_coverage"] == 1.0
+
+
+def test_publication_failure_retries_exact_batch_without_advancing_or_rebuilding(ctx, tmp_path, monkeypatch):
+    from emberline.sync.sink import PublicationUnavailable
+    sink = FakeHub(ctx)
+    eng = Engine(ctx, sink, tmp_path / "cache")
+    calls, built = [], []
+    original_build = eng.loop._build
+    original_publish = sink.publish_many
+    async def build(k, snap, mirror):
+        built.append(k)
+        return await original_build(k, snap, mirror)
+    async def publish(bs):
+        calls.append([b.model_dump_json() for b in bs])
+        if len(calls) == 1:
+            raise PublicationUnavailable("simulated disconnected hub")
+        await original_publish(bs)
+    async def no_delay(_seconds):
+        pass
+    monkeypatch.setattr(eng.loop, "_build", build)
+    monkeypatch.setattr(sink, "publish_many", publish)
+    monkeypatch.setattr(loop_mod.asyncio, "sleep", no_delay)
+    async def run():
+        batch = eng.loop.ks[:2]
+        await eng.loop._publish_batch(batch)
+        assert eng.loop.i == 0 and eng.loop.status["publication_pending"] == 2
+        await eng.loop._publish_batch(batch)
+        assert eng.loop.i == 2 and eng.loop.status["publication_pending"] == 0
+        assert built == batch
+        assert calls[0] == calls[1]
+    asyncio.run(run())
+
+
+def test_file_index_keeps_previous_bundle_bytes_immutable(tmp_path):
+    import json
+    path = Path(__file__).resolve().parents[2] / "fixtures/cache/fixture/main/index.json"
+    entry = json.loads(path.read_text())["cycles"][0]
+    old = CycleBundle.model_validate_json((Path(__file__).resolve().parents[2] / "fixtures" / entry["bundle"]).read_text())
+    root = tmp_path / "cache"
+    sink = CacheSink(root)
+    async def run():
+        await sink.publish(old)
+        index = root / "fixture/main/index.json"
+        before = json.loads(index.read_text())["cycles"][0]["bundle"]
+        original = (root.parent / before).read_bytes()
+        await sink.publish(old.model_copy(update={"bundle_id": old.bundle_id + "_revision"}))
+        after = json.loads(index.read_text())["cycles"][0]["bundle"]
+        assert before != after
+        assert (root.parent / before).read_bytes() == original
+    asyncio.run(run())

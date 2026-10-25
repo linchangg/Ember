@@ -8,8 +8,15 @@
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "skipLibCheck": true,
-    "types": ["react"]
+    "types": ["react", "vite/client"],
+    "jsx": "react-jsx"
   },
-  "include": ["src/data/**/*.ts", "src/contracts.ts"],
-  "exclude": ["src/data/**/*.test.ts"]
+  "include": [
+    "src/data/**/*.ts",
+    "src/contracts.ts",
+    "src/forecast/**/*.ts",
+    "src/forecast/**/*.tsx",
+    "src/lib/maplibre.d.ts"
+  ],
+  "exclude": ["src/**/*.test.ts"]
 }

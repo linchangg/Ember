@@ -3,6 +3,7 @@
 from __future__ import annotations
 from pathlib import Path
 import json
+import re
 import numpy as np
 from pyproj import Transformer
 from shapely.geometry import box, MultiPolygon, mapping, MultiLineString
@@ -71,15 +72,19 @@ def publish(
     previous,
     alert_history,
     previous_ha,
+    *,
+    branch="main",
 ):
     """Use Cody's current risk, alert and summarizer implementations, unchanged."""
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", branch):
+        raise ValueError("Invalid publication branch ID")
     from emberline.runtime.summarize import write_assets
     from emberline.risk.risk import zone_risks, apply_open_orders
     from emberline.risk.alerts import evaluate, load_rules, ACTIVE
 
     grid = model.land.grid
-    cycle_id = f"cyc_{scenario}_main_{issue_ms}"
-    relative = f"cache/{scenario}/main/{issue_ms}"
+    cycle_id = f"cyc_{scenario}_{branch}_{issue_ms}"
+    relative = f"cache/{scenario}/{branch}/{issue_ms}"
     directory = Path(root) / relative
     if directory.exists():
         raise FileExistsError(directory)
@@ -121,7 +126,7 @@ def publish(
         open_orders,
         cycle_id,
         scenario,
-        "main",
+        branch,
         horizon_min=model.cfg.horizon_min,
     )
     latest = max(
@@ -134,7 +139,7 @@ def publish(
         issue_ms,
         cycle_id,
         scenario,
-        "main",
+        branch,
         load_rules(),
         {z["zone_id"]: z.get("name", z["zone_id"]) for z in zones},
         critical_types,
@@ -165,13 +170,14 @@ def publish(
                         "status": "assimilated" if entry["used"] else "rejected",
                         "influence": entry["ll_spread"],
                         "cycle_id": cycle_id,
+                        "branch_id": branch,
                     }
                 )
             )
     cycle = dict(
         cycle_id=cycle_id,
         scenario_id=scenario,
-        branch_id="main",
+        branch_id=branch,
         knowledge_sim_ms=issue_ms,
         data_through_sim_ms=latest,
         created_wall_ms=1792868400000,
@@ -195,14 +201,14 @@ def publish(
     bundle = CycleBundle.model_validate(
         dict(
             schema_version=SCHEMA_VERSION,
-            bundle_id=f"bnd_{scenario}_main_{issue_ms}",
+            bundle_id=f"bnd_{scenario}_{branch}_{issue_ms}",
             scenario_id=scenario,
-            branch_id="main",
+            branch_id=branch,
             knowledge_sim_ms=issue_ms,
             cycle=cycle,
             zone_risk=rows,
             observations=published,
-            scan_events=scans,
+            scan_events=[dict(s, branch_id=branch) for s in scans],
             sensors=sensors,
             alerts=result.all,
             briefings=[],

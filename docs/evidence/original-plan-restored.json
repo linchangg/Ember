@@ -1,0 +1,48 @@
+{
+  "restored_from": "70e255d",
+  "reverted_commit": "044db5b",
+  "revert_commit": "4670fdc",
+  "code_and_original_plan_exact_match": true,
+  "canonical_web_tests": {
+    "pass": 34,
+    "fail": 0
+  },
+  "rust_fixture_web_tests": {
+    "pass": 34,
+    "fail": 0
+  },
+  "rust_fixture": "Preserved N=16 synthetic artifact; copied to local temporary storage; no native regeneration",
+  "typecheck": "passed",
+  "lint": "passed",
+  "production_build": "passed with existing large-chunk warnings",
+  "http": {
+    "phase": "B",
+    "source": "FileSource",
+    "transport": "HTTP",
+    "scenario": "rust-fixture",
+    "forecast_cycles": 36,
+    "preignition_cycles": 3,
+    "observations": 111,
+    "alerts": 5,
+    "atomic_cycles": true,
+    "backward_seek": true,
+    "renderer_connected": false
+  },
+  "manual_chrome_checks": [
+    "pre-ignition has no forecast",
+    "latest forecast and fit",
+    "q10/q30/q50/q70/q90 selection",
+    "30/120/360 minute lead labels",
+    "backward replay clears forecast",
+    "missing binary shows 404 and clears layers",
+    "restoring binary and retry recovers"
+  ],
+  "remaining": [
+    "browser CI",
+    "full console/lifecycle and route-exit acceptance",
+    "target-size render performance"
+  ],
+  "phase_d": "awaits direct confirmation",
+  "phase_e": "awaits later direct confirmation",
+  "main_changed": false
+}

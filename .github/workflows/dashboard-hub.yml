@@ -1,0 +1,78 @@
+name: Phase E live hub acceptance
+on:
+  push:
+    paths: ['web/**', 'engine/emberline/runtime/**', 'engine/emberline/sync/**', 'tools/*dashboard_hub*', '.github/workflows/dashboard-hub.yml']
+  pull_request:
+    paths: ['web/**', 'engine/emberline/runtime/**', 'engine/emberline/sync/**', 'tools/*dashboard_hub*', '.github/workflows/dashboard-hub.yml']
+concurrency:
+  group: phase-e-live-hub-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  live-hub:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Locked dependencies and native Rust fixture
+        run: |
+          python -m pip install uv==0.13.5
+          uv sync --project engine --locked
+          rustup toolchain install 1.99.1 --profile minimal
+          cargo build --manifest-path physics/surface_v1/Cargo.toml -p fire-bridge --release --locked
+          uv run --project engine python -m emberline.hazard.demo --out "$RUNNER_TEMP/hub-fixture" --members 16 --report-branch
+          npm --prefix web ci --ignore-scripts
+          npm --prefix stdb ci --ignore-scripts
+          npm --prefix web exec -- playwright install --with-deps chromium
+      - name: Published hub, restart, two clients and two browsers
+        env:
+          STDB_URI: http://127.0.0.1:3017
+          STDB_DB: phase-e-demo
+          EMBERLINE_SCENARIO_ID: rust-fixture
+          EMBERLINE_ASSET_BASE: http://127.0.0.1:8796/
+        run: |
+          mkdir "$RUNNER_TEMP/hub-tools"
+          curl -fL --retry 2 https://github.com/clockworklabs/SpacetimeDB/releases/download/v2.13.0/spacetime-x86_64-unknown-linux-gnu.tar.gz -o "$RUNNER_TEMP/hub-tools/tools.tar.gz"
+          tar -xzf "$RUNNER_TEMP/hub-tools/tools.tar.gz" -C "$RUNNER_TEMP/hub-tools"
+          openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:prime256v1 -out "$RUNNER_TEMP/hub-tools/private.pem"
+          openssl pkey -in "$RUNNER_TEMP/hub-tools/private.pem" -pubout -out "$RUNNER_TEMP/hub-tools/public.pem"
+          start_hub() {
+            "$RUNNER_TEMP/hub-tools/spacetimedb-standalone" start --listen-addr 127.0.0.1:3017 --data-dir "$RUNNER_TEMP/hub-data" --jwt-pub-key-path "$RUNNER_TEMP/hub-tools/public.pem" --jwt-priv-key-path "$RUNNER_TEMP/hub-tools/private.pem" --non-interactive > "$RUNNER_TEMP/hub-server.log" 2>&1 &
+            HUB_PID=$!
+          }
+          start_hub
+          trap 'kill "$HUB_PID" "${ASSET_PID:-}" "${CLIENT_PID:-}" 2>/dev/null || true' EXIT
+          for i in $(seq 1 100); do curl -sf http://127.0.0.1:3017/v1/ping && break || sleep .1; done
+          "$RUNNER_TEMP/hub-tools/spacetimedb-cli" --config-path "$RUNNER_TEMP/hub-tools/cli.toml" publish phase-e-demo --server http://127.0.0.1:3017 --module-path stdb --yes --anonymous
+          export EMBERLINE_FIXTURE_DIR="$RUNNER_TEMP/hub-fixture"
+          export EMBERLINE_HUB_CREDENTIALS="$RUNNER_TEMP/hub-credentials.json"
+          export EMBERLINE_HUB_EVIDENCE="$RUNNER_TEMP/hub-evidence.json"
+          export EMBERLINE_HUB_RESTART_READY="$RUNNER_TEMP/restart-ready"
+          PYTHONPATH=engine uv run --project engine python tools/seed_dashboard_hub.py "$RUNNER_TEMP/hub-fixture" rust-fixture "$EMBERLINE_HUB_CREDENTIALS"
+          uv run --project engine python -m emberline.hazard.fixture_server --root "$RUNNER_TEMP/hub-fixture" --port 8796 --allow-origin http://127.0.0.1:5190 > "$RUNNER_TEMP/hub-assets.log" 2>&1 &
+          ASSET_PID=$!
+          node tools/check_dashboard_hub.mts > "$RUNNER_TEMP/hub-clients.log" 2>&1 &
+          CLIENT_PID=$!
+          for i in $(seq 1 200); do test -f "$EMBERLINE_HUB_RESTART_READY" && break || sleep .1; done
+          test -f "$EMBERLINE_HUB_RESTART_READY"
+          kill "$HUB_PID"
+          wait "$HUB_PID" || true
+          start_hub
+          wait "$CLIENT_PID" || { cat "$RUNNER_TEMP/hub-clients.log"; exit 1; }
+          cat "$RUNNER_TEMP/hub-evidence.json"
+          npm --prefix web run test:browser:hub
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: phase-e-live-hub-evidence
+          path: |
+            ${{ runner.temp }}/hub-evidence.json
+            web/playwright-report/
+            web/test-results/
